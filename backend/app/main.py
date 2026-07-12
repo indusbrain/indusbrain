@@ -27,7 +27,7 @@ app.add_middleware(
 
 # Register our Centralized Global Error Interceptor Patterns
 app.add_exception_handler(IndustrialBaseException, industrial_exception_handler)
-app.add_exception_handler(Exception, global_unhandled_exception_handler)
+app.add_exception_handler(500, global_unhandled_exception_handler)
 
 
 @app.get("/")
