@@ -34,7 +34,7 @@ class ComplianceViolationException(IndustrialBaseException):
         super().__init__(message=message, error_code="ERR_COMPLIANCE_BREACH", status_code=403)
 
 
-# Centralized asynchronous payload interceptor handlers
+# Keep ONLY the custom domain handler here
 async def industrial_exception_handler(request: Request, exc: IndustrialBaseException) -> JSONResponse:
     """
     Catches domain exceptions and formats them into standard corporate JSON models.
@@ -47,21 +47,5 @@ async def industrial_exception_handler(request: Request, exc: IndustrialBaseExce
             "error_code": exc.error_code,
             "message": exc.message,
             "system_telemetry": "Active"
-        }
-    )
-
-async def global_unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """
-    The ultimate fallback safety net. Catches unpredictable low-level Python crashes 
-    (e.g., AttributeErrors, division by zero) and screens them from public visibility.
-    """
-    logger.error(f"💥 CRITICAL UNHANDLED SYSTEM CRASH at route {request.url.path}: {str(exc)}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={
-            "success": False,
-            "error_code": "ERR_INTERNAL_SERVER_FATAL",
-            "message": "A critical server error occurred. System engineering teams have been notified.",
-            "system_telemetry": "Degraded"
         }
     )
