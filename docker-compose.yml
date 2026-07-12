@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. POSTGRESQL: Relational Transactional DB
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: industryos_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: industrial_admin
+      POSTGRES_PASSWORD: secret_db_pass_2026
+      POSTGRES_DB: industryos_core
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - industryos_network
+
+  # ==========================================
+  # 2. NEO4J: Knowledge Graph Relational DB
+  # ==========================================
+  neo4j:
+    image: neo4j:5.19-community
+    container_name: industryos_neo4j
+    restart: always
+    environment:
+      NEO4J_AUTH: neo4j/secret_graph_pass_2026
+    ports:
+      - "7474:7474" # HTTP Dashboard port
+      - "7687:7687" # Bolt connection port
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - industryos_network
+
+  # ==========================================
+  # 3. CHROMADB: Vector AI Embeddings Database
+  # ==========================================
+  chromadb:
+    image: chromadb/chroma:0.5.0
+    container_name: industryos_chromadb
+    restart: always
+    ports:
+      - "8001:8000" # Map to host 8001 to prevent conflict with FastAPI default 8000
+    volumes:
+      - chroma_data:/chroma/data
+    networks:
+      - industryos_network
+
+volumes:
+  postgres_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  chroma_data:
+    driver: local
+
+networks:
+  industryos_network:
+    driver: bridge
