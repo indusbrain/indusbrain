@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
+from app.exceptions import (
+    IndustrialBaseException, 
+    AssetNotFoundException,
+    industrial_exception_handler, 
+    global_unhandled_exception_handler
+)
 import socket
 
 # Initialize the core FastAPI engine instance
@@ -11,7 +17,6 @@ app = FastAPI(
 )
 
 # Enforce Cross-Origin Resource Sharing (CORS) security filters
-# This allows our Next.js frontend running on port 3000 to communicate safely with this server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -19,6 +24,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register our Centralized Global Error Interceptor Patterns
+app.add_exception_handler(IndustrialBaseException, industrial_exception_handler)
+app.add_exception_handler(Exception, global_unhandled_exception_handler)
+
 
 @app.get("/")
 async def read_root():
@@ -37,7 +47,6 @@ async def health_check():
     Production-grade System Health & Infrastructure Dependency Telemetry Endpoint.
     """
     db_status = "Online"
-    # Execute a rapid internal socket sanity check to verify database availability
     try:
         with socket.create_connection(("localhost", 5432), timeout=1.0):
             pass
@@ -49,3 +58,22 @@ async def health_check():
         "transactional_database_route": db_status,
         "telemetry_handshake": "Verified"
     }
+
+# ==========================================
+# DIAGNOSTIC MOCK TESTING ROUTES (Temporary)
+# ==========================================
+@app.get("/api/test/domain-error")
+async def trigger_domain_error():
+    """
+    Forces an explicit AssetNotFoundException to verify custom handler mapping layout.
+    """
+    raise AssetNotFoundException("Valve-4B maintenance history log entry index is missing.")
+
+@app.get("/api/test/fatal-error")
+async def trigger_fatal_error():
+    """
+    Forces a raw, unhandled python runtime collision to verify ultimate fallback loop safety.
+    """
+    # Intentional division by zero code error to trigger a fatal system fault
+    broken_calculation = 100 / 0
+    return {"result": broken_calculation}
