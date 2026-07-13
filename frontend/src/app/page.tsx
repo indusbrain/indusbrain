@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiClient } from "@/src/lib/api";
+import { apiClient } from "@/lib/api";
 import { Server, ShieldCheck, Database, RefreshCw, AlertTriangle } from "lucide-react";
 
 // Structural TypeScript interface defining our expected server telemetry envelope
