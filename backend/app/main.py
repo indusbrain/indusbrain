@@ -2,19 +2,29 @@ import os
 import socket
 import logging
 import json
-from fastapi import FastAPI, Request
+import traceback
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine
+from dotenv import load_dotenv
+
+# Ensure all dynamic environment parameters are loaded from local storage disk
+load_dotenv()
+
+# Import our async database engine drivers and core metadata sheets
+from app.database import engine, Base
+
+# Explicitly import models to register tables into the SQLAlchemy metadata scope
+from app.models.document import KnowledgeDocument
+
+# Ingest our newly engineered Phase 5 ingestion endpoint routes
+from app.api.endpoints import ingestion
+
 from app.exceptions import (
     IndustrialBaseException, 
     AssetNotFoundException,
     industrial_exception_handler
 )
-from dotenv import load_dotenv
-
-# Ensure all dynamic environment parameters are loaded from local storage disk
-load_dotenv()
 
 # 🛡️ ENTERPRISE LOGGING HOOK: Bind directly to Uvicorn's active terminal streaming engine
 logger = logging.getLogger("uvicorn.error")
@@ -40,72 +50,76 @@ class ASGIExceptionMiddleware:
             # Pass execution context down to the next internal framework layer
             await self.app(scope, receive, send)
         except Exception as exc:
-            # Trap any unhandled Python crash instantly before it bubbles to Uvicorn
-            logger.error(
-                f"💥 CRITICAL UNHANDLED SYSTEM CRASH at route {scope['path']}: {str(exc)}", 
-                exc_info=True
-            )
+            # Trap any unhandled Python crash instantly
+            error_signature = traceback.format_exc().splitlines()[-1]
             
-            # Formulate our uniform corporate error response string payload
-            response_payload = {
-                "success": False,
-                "error_code": "ERR_INTERNAL_SERVER_FATAL",
-                "message": "A critical server error occurred. System engineering teams have been notified.",
-                "system_telemetry": "Degraded"
+            # Formulate a structured, single-line log payload for Uvicorn streams
+            log_payload = {
+                "event": "CORE_PERIMETER_FAULT",
+                "path": scope.get("path", "UNKNOWN"),
+                "method": scope.get("method", "UNKNOWN"),
+                "exception": type(exc).__name__,
+                "signature": error_signature
             }
-            encoded_body = json.dumps(response_payload).encode("utf-8")
-            
-            # Stream the HTTP status and content-type headers down the ASGI pipe
-            await send({
-                "type": "http.response.start",
-                "status": 500,
-                "headers": [
-                    (b"content-type", b"application/json"),
-                    (b"content-length", str(len(encoded_body)).encode("ascii"))
-                ]
-            })
-            
-            # Stream the finalized payload body data blocks down the ASGI pipe
-            await send({
-                "type": "http.response.body",
-                "body": encoded_body,
-                "more_body": False
-            })
+            logger.error(f"🚨 REASONING CORE FAULT ISOLATED: {json.dumps(log_payload)}")
 
-# Initialize the core FastAPI engine instance
+            # Formulate the sanitized public response object
+            response = JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "error_code": "INTERNAL_SYSTEM_CRASH",
+                    "message": "A secure perimeter fault occurred. Request transaction safely isolated.",
+                    "details": error_signature if os.getenv("APP_ENV") == "development" else "Redacted."
+                }
+            )
+            await response(scope, receive, send)
+
+# ========================================================
+# APPLICATION CORE INITIALIZATION & ROUTING INSTANTIATION
+# ========================================================
 app = FastAPI(
-    title="IndustryOS API Engine",
-    description="The secure architectural back-bone routing framework for Industrial Knowledge Intelligence",
+    title="IndustryOS Engine",
+    description="Enterprise-grade ASGI operating core grid for high-performance industrial assets.",
     version="1.0.0"
 )
 
-# Register our specialized domain error exception mapper
-app.add_exception_handler(IndustrialBaseException, industrial_exception_handler)
-
-# ========================================================
-# 🔐 REGISTRATION SEQUENCE: MIDDLEWARE ASSEMBLY LAYER
-# ========================================================
-# Note: FastAPI applies middlewares in REVERSE order of declaration.
-# We mount our Exception Gate first, and our CORS Gate second.
-# This forces the request path flow to process: Ingest -> CORS -> Exception -> Core.
-# Outgoing responses flow: Exception handles 500 -> CORS appends security keys -> Client Browser.
-
-# 1. Mount the Pure ASGI Exception Perimeter Gate
+# Mount the pure ASGI transport shield before processing any standard routing matrices
 app.add_middleware(ASGIExceptionMiddleware)
 
-# 2. Mount our Sub-phase 4.4 Dynamic CORS Filters Matrix
-allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-origins = [origin.strip() for origin in allowed_origins_raw.split(",")]
+# Bind custom domain exception handlers natively into the FastAPI pipeline context
+app.add_exception_handler(IndustrialBaseException, industrial_exception_handler)
+app.add_exception_handler(AssetNotFoundException, industrial_exception_handler)
+
+# Provision environmental token metrics for CORS validation
+allowed_origins_env = os.getenv(
+    "ALLOWED_ORIGINS", 
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+)
+origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,       # Loaded programmatically from our environment variable array
-    allow_credentials=True,     # Permits secure transmission of identity cookie tokens
-    allow_methods=["*"],         # Allows standard REST actions (GET, POST, PUT, DELETE)
-    allow_headers=["*"],         # Accepts standard header tokens (Authorization, Content-Type)
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],         # Grants access to standard HTTP verbs
+    allow_headers=["*"],         # Accepts standard header tokens
 )
 
+# ---------------------------------------------------------------------
+# SYSTEM ENGINE LIFECYCLE MANAGEMENT HOOKS
+# ---------------------------------------------------------------------
+@app.on_event("startup")
+async def database_table_migration_handshake():
+    """
+    Asynchronous table bootstrapping hook. Verifies physical connection pools 
+    and instantiates database tables using declarative metadata mappings.
+    """
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
+# ---------------------------------------------------------------------
+# OPERATIONAL API ROUTE DISPATCHERS
+# ---------------------------------------------------------------------
 @app.get("/")
 async def read_root():
     """
@@ -124,6 +138,7 @@ async def health_check():
     """
     db_status = "Online"
     try:
+        # Check if the PostgreSQL database port is responsive
         with socket.create_connection(("localhost", 5432), timeout=1.0):
             pass
     except Exception:
@@ -135,9 +150,9 @@ async def health_check():
         "telemetry_handshake": "Verified"
     }
 
-# ==========================================
-# DIAGNOSTIC MOCK TESTING ROUTES (Temporary)
-# ==========================================
+# ==========================================================
+# DIAGNOSTIC MOCK TESTING ROUTES (Temporary Verification Hub)
+# ==========================================================
 @app.get("/api/test/domain-error")
 async def trigger_domain_error():
     """
@@ -146,9 +161,12 @@ async def trigger_domain_error():
     raise AssetNotFoundException("Valve-4B maintenance history log entry index is missing.")
 
 @app.get("/api/test/fatal-error")
-async def trigger_fatal_error():
+async def trigger_mock_fatal_exception():
     """
-    Forces a raw, unhandled python runtime collision to verify ultimate fallback loop safety.
+    Diagnostic fault-injection route designed specifically to audit 
+    the logging format and performance of the pure ASGI exception gate.
     """
-    broken_calculation = 100 / 0
-    return {"result": broken_calculation}
+    raise ValueError("CRITICAL SIMULATED HARDWARE FAULT: Core temperature sensor channel 4 dropped offline.")
+
+# Mount the newly engineered ingestion pipeline router straight into the system engine grid
+app.include_router(ingestion.router, prefix="/api/v1")
