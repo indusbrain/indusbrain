@@ -7,6 +7,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from app.models.document import KnowledgeDocument
+from app.models.chunk import KnowledgeChunk
 
 # Ensure all dynamic environment parameters are loaded from local storage disk
 load_dotenv()

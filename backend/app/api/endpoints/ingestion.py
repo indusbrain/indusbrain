@@ -8,6 +8,9 @@ from app.models.document import KnowledgeDocument, DocumentStatus
 from app.schemas.document import DocumentResponse
 from app.services.storage import storage_service
 from app.services.parser import pdf_parser_service
+from app.models.chunk import KnowledgeChunk
+from app.services.chunker import cognitive_chunker
+from app.services.vector_store import vector_store_engine
 
 router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
 
@@ -140,4 +143,148 @@ async def process_document_structure(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Parsing orchestration collapsed: {str(exc)}"
+        )
+    
+@router.post("/chunk/{document_id}", status_code=status.HTTP_201_CREATED)
+async def segment_document_payload(
+    document_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Asynchronous semantic chunker gate. Extracts text blocks from target documents,
+    generates overlapping fragments, and inserts chunk payloads into the relational ledger.
+    """
+    # 1. Validate target document context parameters
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    query_execution = await db.execute(query)
+    target_document = query_execution.scalars().first()
+
+    if not target_document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Knowledge document contextual reference '{document_id}' not found."
+        )
+
+    # 2. Enforce structural pipeline sequence integrity rules
+    if target_document.status == DocumentStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Asset must pass layout text parsing extraction before running chunking matrices."
+        )
+
+    # 3. Handle idempotency to clear old chunks if the parser is re-run
+    delete_stale_chunks_query = select(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id)
+    stale_execution = await db.execute(delete_stale_chunks_query)
+    stale_chunks = stale_execution.scalars().all()
+    for stale_item in stale_chunks:
+        await db.delete(stale_item)
+
+    try:
+        # 4. Read the full text payload directly by executing our existing parsing service logic locally
+        # anyio handles the background disk/mock S3 fetch cleanly
+        extracted_full_text = await anyio.to_thread.run_sync(
+            pdf_parser_service.extract_structured_pdf_text,
+            target_document.s3_key
+        )
+
+        # 5. Execute cognitive sliding-window chunk array splitting operations
+        calculated_chunks = cognitive_chunker.split_document_text(extracted_full_text)
+
+        # 6. Commit chunk data rows asynchronously to our relational database using a unified context batch
+        for record_item in calculated_chunks:
+            db_chunk = KnowledgeChunk(
+                document_id=target_document.id,
+                chunk_index=record_item.get("chunk_index", 0),
+                page_number=record_item["page_number"],
+                content=record_item["content"]
+            )
+            db.add(db_chunk)
+
+        # Save the new relational records to disk
+        await db.commit()
+
+        return {
+            "message": "Cognitive chunk segmentation mapping finalized successfully.",
+            "document_id": target_document.id,
+            "total_semantic_chunks_generated": len(calculated_chunks)
+        }
+
+    except Exception as exc:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Chunking segmentation coordinator routine collapsed: {str(exc)}"
+        )
+    
+@router.post("/embed/{document_id}", status_code=status.HTTP_200_OK)
+async def vectorize_document_payload(
+    document_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Asynchronous Vector Extraction Gate. Retrieves relational chunks from disk, 
+    generates high-dimensional vector embeddings, indexes them into ChromaDB, 
+    and transitions the ledger status to 'EMBEDDED'.
+    """
+    # 1. Verify existence parameters within our metadata ledger
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    query_execution = await db.execute(query)
+    target_document = query_execution.scalars().first()
+
+    if not target_document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Target knowledge document validation context '{document_id}' is missing."
+        )
+
+    # 2. Enforce strict sequential tracking loop rules
+    if target_document.status == DocumentStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Asset text must pass parsing extraction and segmentation before vector indexing can fire."
+        )
+
+    # 3. Fetch all context segments currently allocated to this file reference
+    chunks_query = select(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id).order_by(KnowledgeChunk.chunk_index)
+    chunks_execution = await db.execute(chunks_query)
+    allocated_chunks = chunks_execution.scalars().all()
+
+    if not allocated_chunks:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No text fragments found for this asset. Please re-run the chunking segmentation phase."
+        )
+
+    try:
+        # 4. Formulate standard payload dictionary mappings for our vector engine inputs
+        chunks_payload_buffer = [{
+            "chunk_index": c.chunk_index,
+            "page_number": c.page_number,
+            "content": c.content
+        } for c in allocated_chunks]
+
+        # 5. Offload vectorization and network data transfers to our background worker pools
+        await anyio.to_thread.run_sync(
+            vector_store_engine.upsert_document_chunks,
+            target_document.id,
+            chunks_payload_buffer
+        )
+
+        # 6. Lock in our absolute successful pipeline transition state inside PostgreSQL
+        target_document.status = DocumentStatus.EMBEDDED
+        await db.commit()
+        await db.refresh(target_document)
+
+        return {
+            "message": "Asset successfully mapped into high-dimensional vector space perimeters.",
+            "document_id": target_document.id,
+            "status": target_document.status,
+            "total_vectors_indexed": len(chunks_payload_buffer)
+        }
+
+    except Exception as exc:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Vector store indexing coordination collapsed: {str(exc)}"
         )

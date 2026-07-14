@@ -3,16 +3,16 @@ import boto3
 import pdfplumber
 from io import BytesIO
 from fastapi import HTTPException, status
+from PIL import Image
+import pytesseract
 
 class PDFParsingEngine:
     """
-    High-fidelity structural document parser. Extracts text blocks 
-    and handles layout coordinates without scrambling multi-column or tabular metrics.
+    High-fidelity structural document parser with automated 
+    non-blocking OCR image-to-text fallback perimeters.
     """
     def __init__(self):
         self.bucket_name = os.getenv("AWS_S3_BUCKET", "industryos-knowledge-vault")
-        
-        # Determine if we have a local container fallback url
         self.endpoint_url = os.getenv("AWS_ENDPOINT_URL", None)
 
         client_kwargs = {
@@ -26,42 +26,83 @@ class PDFParsingEngine:
 
         self.s3_client = boto3.client(**client_kwargs)
 
+        # 🪐 AUTOMATED PATH ALIGNMENT FOR WINDOWS SYSTEM DEVELOPERS
+        # Binds the internal system execution path straight to our tesseract binary vault
+        default_windows_tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        if os.path.exists(default_windows_tesseract_path):
+            pytesseract.pytesseract.tesseract_cmd = default_windows_tesseract_path
+            self.ocr_available = True
+            print("🧠 OCR MODULE INITIALIZATION: Local Tesseract binary linked successfully.")
+        else:
+            self.ocr_available = False
+            print("⚠️ OCR MODULE WARN: Tesseract binary missing on host. Scanned PDF assets will bypass OCR loops.")
+
     def extract_structured_pdf_text(self, s3_key: str) -> str:
         """
-        Downloads target asset file binary data from storage vault 
-        and extracts layout-isolated string contents cleanly.
+        Processes document assets. If native programmatic vector text extraction 
+        returns zero data footprints, automatically triggers the OCR engine fallback loop.
         """
         try:
-            # Check if operating in local file fallback mode
+            # Load asset from local fallback folder or cloud stream channel
             mock_path = os.path.join(os.getcwd(), "mock_s3_vault", s3_key)
-            
             if os.path.exists(mock_path):
-                print(f"💾 PARSER CORE: Loading asset via local fallback repository vault: {mock_path}")
                 with open(mock_path, "rb") as local_file:
                     raw_pdf_bytes = local_file.read()
             else:
-                # Standard Cloud Stream Retrieval Route
                 s3_object = self.s3_client.get_object(Bucket=self.bucket_name, Key=s3_key)
                 raw_pdf_bytes = s3_object["Body"].read()
             
             extracted_content_accumulator = []
+            is_scanned_document = False
 
-            # Open binary envelope inside our spatial canvas analyzer engine
+            # 1. Tier 1 Pass: Programmatic Vector Layout Extraction Loop
             with pdfplumber.open(BytesIO(raw_pdf_bytes)) as pdf_canvas:
                 for page_index, page_frame in enumerate(pdf_canvas.pages):
-                    # Extract text using structural layout preservation directives
                     page_text = page_frame.extract_text(layout=True)
                     
-                    if page_text:
+                    if page_text and page_text.strip():
                         extracted_content_accumulator.append(
                             f"--- [STRUCTURED ASSET PAGE BOUNDARY: INDEX {page_index + 1}] ---\n"
                             f"{page_text}\n"
                         )
-            
+                    else:
+                        # An empty page text block confirms a flattened page layout image
+                        is_scanned_document = True
+                        break
+
+            # 2. Tier 2 Pass: Reactive Local Image OCR Fallback Engine Loop
+            if is_scanned_document or len(extracted_content_accumulator) == 0:
+                print("🚨 PARSER ENGINE: Zero character glyph data found. Activating OCR Fallback Canvas Loop...")
+                
+                if not self.ocr_available:
+                    raise ValueError(
+                        "Document file contains zero extractable text attributes, and local OCR framework "
+                        "is offline. Please verify that Tesseract is installed at C:\\Program Files\\Tesseract-OCR."
+                    )
+                
+                extracted_content_accumulator = [] # Reset buffer fresh
+                
+                with pdfplumber.open(BytesIO(raw_pdf_bytes)) as pdf_canvas:
+                    for page_index, page_frame in enumerate(pdf_canvas.pages):
+                        print(f"📸 OCR ENGINE: Rasterizing graphic page coordinates layout index {page_index + 1}...")
+                        
+                        # Render page vectors to high-definition PIL Image object context structures
+                        # 150 DPI is the sweet spot: perfectly balancing recognition accuracy with high performance speed
+                        page_image_sheet = page_frame.to_image(resolution=150).original
+                        
+                        # Process image bitmap pixels through local Tesseract neural layers
+                        ocr_extracted_text = pytesseract.image_to_string(page_image_sheet)
+                        
+                        if ocr_extracted_text.strip():
+                            extracted_content_accumulator.append(
+                                f"--- [STRUCTURED ASSET PAGE BOUNDARY: INDEX {page_index + 1}] ---\n"
+                                f"{ocr_extracted_text}\n"
+                            )
+
             unified_document_payload = "".join(extracted_content_accumulator)
             
             if not unified_document_payload.strip():
-                raise ValueError("Document file contains zero extractable text attributes or structural characters.")
+                raise ValueError("OCR engine failed to identify any structural characters inside the target document image.")
                 
             return unified_document_payload
 
@@ -71,5 +112,5 @@ class PDFParsingEngine:
                 detail=f"Parser infrastructure failed to extract content assets: {str(e)}"
             )
 
-# Instantiate the singleton service driver instance
+# Instantiate the centralized singleton driver asset instance
 pdf_parser_service = PDFParsingEngine()
