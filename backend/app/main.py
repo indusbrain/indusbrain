@@ -21,6 +21,7 @@ from app.models.document import KnowledgeDocument
 
 # Ingest our newly engineered Phase 5 ingestion endpoint routes
 from app.api.endpoints import ingestion
+from app.api.endpoints import ingestion, query
 
 from app.exceptions import (
     IndustrialBaseException, 
@@ -84,6 +85,9 @@ app = FastAPI(
     description="Enterprise-grade ASGI operating core grid for high-performance industrial assets.",
     version="1.0.0"
 )
+
+app.include_router(ingestion.router, prefix="/api/v1")
+app.include_router(query.router, prefix="/api/v1")
 
 # Mount the pure ASGI transport shield before processing any standard routing matrices
 app.add_middleware(ASGIExceptionMiddleware)
