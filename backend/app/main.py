@@ -3,12 +3,10 @@ import socket
 import logging
 import json
 import traceback
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from app.models.document import KnowledgeDocument
-from app.models.chunk import KnowledgeChunk
 
 # Ensure all dynamic environment parameters are loaded from local storage disk
 load_dotenv()
@@ -18,9 +16,9 @@ from app.database import engine, Base
 
 # Explicitly import models to register tables into the SQLAlchemy metadata scope
 from app.models.document import KnowledgeDocument
+from app.models.chunk import KnowledgeChunk
 
-# Ingest our newly engineered Phase 5 ingestion endpoint routes
-from app.api.endpoints import ingestion
+# Ingest our newly engineered Phase 5 & 6 endpoint routes
 from app.api.endpoints import ingestion, query
 
 from app.exceptions import (
@@ -81,11 +79,34 @@ class ASGIExceptionMiddleware:
 # APPLICATION CORE INITIALIZATION & ROUTING INSTANTIATION
 # ========================================================
 app = FastAPI(
-    title="IndustryOS Engine",
-    description="Enterprise-grade ASGI operating core grid for high-performance industrial assets.",
+    title="Industrial Knowledge Intelligence Platform (IKIP)",
+    description="The Operating System for Industrial Knowledge. Enterprise-grade ASGI operating core grid.",
     version="1.0.0"
 )
 
+# Provision environmental token metrics for CORS validation
+allowed_origins_env = os.getenv(
+    "ALLOWED_ORIGINS", 
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+)
+origins = [
+    "http://localhost:3000", 
+    "http://localhost:3001",   
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Authorize all standard HTTP verbs (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Authorize all custom network headers
+)
+
+# Mount Routers
 app.include_router(ingestion.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
 
@@ -95,21 +116,6 @@ app.add_middleware(ASGIExceptionMiddleware)
 # Bind custom domain exception handlers natively into the FastAPI pipeline context
 app.add_exception_handler(IndustrialBaseException, industrial_exception_handler)
 app.add_exception_handler(AssetNotFoundException, industrial_exception_handler)
-
-# Provision environmental token metrics for CORS validation
-allowed_origins_env = os.getenv(
-    "ALLOWED_ORIGINS", 
-    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
-)
-origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],         # Grants access to standard HTTP verbs
-    allow_headers=["*"],         # Accepts standard header tokens
-)
 
 # ---------------------------------------------------------------------
 # SYSTEM ENGINE LIFECYCLE MANAGEMENT HOOKS
@@ -132,7 +138,7 @@ async def read_root():
     Root Gateway Entry Path.
     """
     return {
-        "platform": "IndustryOS",
+        "platform": "Industrial Knowledge Intelligence Platform (IKIP)",
         "status": "Operational",
         "system_era": "2026"
     }
@@ -173,6 +179,3 @@ async def trigger_mock_fatal_exception():
     the logging format and performance of the pure ASGI exception gate.
     """
     raise ValueError("CRITICAL SIMULATED HARDWARE FAULT: Core temperature sensor channel 4 dropped offline.")
-
-# Mount the newly engineered ingestion pipeline router straight into the system engine grid
-app.include_router(ingestion.router, prefix="/api/v1")

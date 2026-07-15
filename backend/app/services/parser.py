@@ -1,4 +1,33 @@
 import os
+import shutil
+import pytesseract
+
+# 🛡️ PRODUCTION RESILIENCY GATE: Resolve Tesseract command location
+tesseract_bin = shutil.which("tesseract")
+
+if tesseract_bin:
+    # If the system path is working, use it directly
+    pytesseract.pytesseract.tesseract_cmd = tesseract_bin
+    print(f"🟢 OCR ENGINE: Tesseract verified on system PATH: {tesseract_bin}")
+else:
+    # Fallback: Check the standard default installation directories on Windows
+    default_windows_paths = [
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
+    ]
+    
+    patched = False
+    for path in default_windows_paths:
+        if os.path.exists(path):
+            pytesseract.pytesseract.tesseract_cmd = path
+            print(f"🎯 OCR ENGINE: Patched local path fallback to: {path}")
+            patched = True
+            break
+            
+    if not patched:
+        print("⚠️ OCR ENGINE WARNING: Tesseract binary not detected on PATH or default directories. OCR processing will be bypassed.")
+
+import os
 import boto3
 import pdfplumber
 from io import BytesIO
