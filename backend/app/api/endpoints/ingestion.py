@@ -11,6 +11,7 @@ from app.services.parser import pdf_parser_service
 from app.models.chunk import KnowledgeChunk
 from app.services.chunker import cognitive_chunker
 from app.services.vector_store import vector_store_engine
+from app.services.graph_store import graph_store_engine
 
 router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
 
@@ -287,4 +288,63 @@ async def vectorize_document_payload(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Vector store indexing coordination collapsed: {str(exc)}"
+        )
+
+@router.post("/graph/{document_id}", status_code=status.HTTP_200_OK)
+async def map_document_graph_topology(
+    document_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Asynchronous Graph Ingestion Gate. Pulls segmented text components from disk, 
+    maps relational nodes, and loads structural topologies cleanly into Neo4j.
+    """
+    # 1. Verify existence parameters within our metadata ledger
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    query_execution = await db.execute(query)
+    target_document = query_execution.scalars().first()
+
+    if not target_document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Target knowledge document validation context '{document_id}' is missing."
+        )
+
+    # 2. Enforce strict sequential pipeline rules
+    if target_document.status == DocumentStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Asset text must pass parsing and chunking before graph topology mapping can run."
+        )
+
+    # 3. Fetch all context segments allocated to this file reference
+    chunks_query = select(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id).order_by(KnowledgeChunk.chunk_index)
+    chunks_execution = await db.execute(chunks_query)
+    allocated_chunks = chunks_execution.scalars().all()
+
+    try:
+        chunks_payload_buffer = [{
+            "chunk_index": c.chunk_index,
+            "page_number": c.page_number,
+            "content": c.content
+        } for c in allocated_chunks]
+
+        # 4. Offload graph network data transfers to our background worker threads
+        await anyio.to_thread.run_sync(
+            graph_store_engine.sync_document_graph_topology,
+            target_document.id,
+            target_document.filename,
+            chunks_payload_buffer
+        )
+
+        return {
+            "message": "Asset structural relationship nodes committed into Neo4j successfully.",
+            "document_id": target_document.id,
+            "total_nodes_synced": len(chunks_payload_buffer) + 1  # Chunks count + 1 Parent Document Node
+        }
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Graph store mapping coordination collapsed: {str(exc)}"
         )
