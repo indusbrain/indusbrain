@@ -1,318 +1,245 @@
+import os
 import uuid
 import anyio
+import shutil
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
+
 from app.database import get_db
 from app.models.document import KnowledgeDocument, DocumentStatus
-from app.schemas.document import DocumentResponse
+from app.models.chunk import KnowledgeChunk
 from app.services.storage import storage_service
 from app.services.parser import pdf_parser_service
-from app.models.chunk import KnowledgeChunk
 from app.services.chunker import cognitive_chunker
 from app.services.vector_store import vector_store_engine
 from app.services.graph_store import graph_store_engine
-import os
 
 router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
 
-MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # Restrict uploads strictly to 50MB
-ALLOWED_MIME_TYPES = ["application/pdf"]
-
+# =====================================================================
+# 📥 STAGE 1: IDEMPOTENT MULTI-DOCUMENT UPLOAD GATEWAY
+# =====================================================================
 @router.post("/upload")
 async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
     print(f"📥 UPLOAD GATEWAY: Receiving asset byte-stream for: {file.filename}")
     
-    # 1. Establish your targeted storage path parameters
     target_directory = os.path.join("storage", "documents")
     os.makedirs(target_directory, exist_ok=True)
     file_path = os.path.join(target_directory, file.filename)
     
-    # 2. Read incoming binary buffer strings
+    # Read incoming binary stream
     content = await file.read()
     
-    # 3. Force-Flush Protocol to ensure bytes are fully written to hard disk storage
+    # Force-Flush Disk Synced Write Loop to clear Windows file buffers
     with open(file_path, "wb") as f:
         f.write(content)
         f.flush()
-        file_descriptor = f.fileno()
-        os.fsync(file_descriptor)
+        os.fsync(f.fileno())
         
-    print(f"🟢 UPLOAD GATEWAY: Asset securely committed to disk path: {file_path}")
+    print(f"🟢 UPLOAD GATEWAY: Asset safely committed to system drive: {file_path}")
     
-    # =====================================================================
-    # 🛡️ THE IDEMPOTENT GUARD: Prevents UNIQUE constraint violations (gkpj)
-    # =====================================================================
-    # Check if this exact file asset has been registered inside SQLite previously
+    # Idempotency Guard: Check if this file has been uploaded previously
     existing_doc_query = select(KnowledgeDocument).where(KnowledgeDocument.filename == file.filename)
     query_execution = await db.execute(existing_doc_query)
     target_document = query_execution.scalars().first()
     
     if target_document:
-        print(f"🔄 UPLOAD GATEWAY: File match identified. Reusing existing row ID: {target_document.id}")
-        # Reset the status tracking parameters so it can safely pass through the processing loops again
+        print(f"🔄 UPLOAD GATEWAY: Duplicate caught. Reusing existing ledger entity ID: {target_document.id}")
         target_document.status = DocumentStatus.PENDING
         await db.commit()
-        await db.refresh(target_document)
-        
-        return {
-            "id": target_document.id,
-            "filename": target_document.filename,
-            "status": "pending"
-        }
+        return {"id": target_document.id, "filename": target_document.filename, "status": "pending"}
     
-    # =====================================================================
-    # 🪐 DYNAMIC PASS: Execute fresh row insert for brand-new unique assets
-    # =====================================================================
-    print("✨ UPLOAD GATEWAY: Launching new dynamic entity registration pass...")
+    # New File Entry Pass
     try:
         new_document_row = KnowledgeDocument(
             filename=file.filename,
             s3_key=file.filename,
             status=DocumentStatus.PENDING
         )
-        
         db.add(new_document_row)
         await db.commit()
         await db.refresh(new_document_row)
         
-        print(f"🟢 UPLOAD GATEWAY: New row committed successfully. Assigned ID: {new_document_row.id}")
-        
-        return {
-            "id": new_document_row.id,
-            "filename": new_document_row.filename,
-            "status": "pending"
-        }
-        
+        print(f"🟢 UPLOAD GATEWAY: Dynamic entry confirmed inside ledger table. Assigned ID: {new_document_row.id}")
+        return {"id": new_document_row.id, "filename": new_document_row.filename, "status": "pending"}
     except Exception as exc:
         await db.rollback()
-        print(f"❌ DATABASE COMPILATION FAULT: {str(exc)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Structural ledger initialization failure. Please check terminal console trace logs."
-        )
+        raise HTTPException(status_code=500, detail=f"Ledger entry registration failed: {str(exc)}")
 
+# =====================================================================
+# 📄 STAGE 2: LAYOUT PARSING & LOCAL TEXT CACHE PRESERVATION
+# =====================================================================
 @router.post("/parse/{document_id}", status_code=status.HTTP_200_OK)
-async def process_document_structure(
-    document_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Asynchronous document parsing coordinator path. Retrieves historical 
-    metadata rows, maps layout extractors, and transitions ledger states to 'PARSED'.
-    """
-    # 1. Query the tracking registry for the document target matching our ID parameter
+async def process_document_structure(document_id: int, db: AsyncSession = Depends(get_db)):
+    print(f"🚀 PARSER CORE: Executing layout analysis loop for ID: {document_id}")
+    
     query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
     query_execution = await db.execute(query)
     target_document = query_execution.scalars().first()
 
     if not target_document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Knowledge asset identifier context '{document_id}' is missing from the system."
-        )
-
-    # 2. Protect against running the parser twice on an already processed manual
-    if target_document.status == DocumentStatus.PARSED:
-        return {
-            "message": "Asset text data structure already extracted successfully.",
-            "document_id": target_document.id,
-            "status": target_document.status
-        }
+        raise HTTPException(status_code=404, detail="Target document context missing from ledger.")
 
     try:
-        # 3. Offload the heavy blocking S3 stream parsing processing onto a background thread loop
+        # Trigger pdfplumber/Tesseract OCR extraction channel
         extracted_payload_text = await anyio.to_thread.run_sync(
             pdf_parser_service.extract_structured_pdf_text,
             target_document.s3_key
         )
         
-        # 4. Transition our ledger index status safely to PARSED state
+        # 🛡️ FIX A: WRITE EXTRACTED PAYLOAD TEXT DIRECTLY TO SYSTEM DRIVE FILE CACHE
+        cache_dir = os.path.join("storage", "text_cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_path = os.path.join(cache_dir, f"doc_{document_id}.txt")
+        with open(cache_path, "w", encoding="utf-8") as cache_file:
+            cache_file.write(extracted_payload_text)
+            
+        # FIX B: Dynamically map text to any available column attribute on the object model
+        for attr in ["content", "text", "extracted_content", "raw_text"]:
+            if hasattr(target_document, attr):
+                setattr(target_document, attr, extracted_payload_text)
+                break
+                
         target_document.status = DocumentStatus.PARSED
         await db.commit()
-        await db.refresh(target_document)
-
-        return {
-            "message": "Structural document layout extraction completed successfully.",
-            "document_id": target_document.id,
-            "status": target_document.status,
-            "character_count_processed": len(extracted_payload_text)
-        }
+        
+        print(f"🟢 PARSER CORE: Character payload successfully preserved in local cache drive: {cache_path}")
+        return {"message": "Structural text pass completed successfully.", "document_id": document_id}
 
     except Exception as exc:
         target_document.status = DocumentStatus.FAILED
         await db.commit()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Parsing orchestration collapsed: {str(exc)}"
-        )
-    
+        raise HTTPException(status_code=500, detail=f"Parsing pass collapsed: {str(exc)}")
+
+# =====================================================================
+# ✂️ STAGE 3: SELF-HEALING HIERARCHICAL COGNITIVE CHUNKER
+# =====================================================================
 @router.post("/chunk/{document_id}", status_code=status.HTTP_201_CREATED)
 async def chunk_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    print(f"✂️ CHUNKING GATEWAY: Segmenting document context for ID: {document_id}")
+    print(f"✂️ CHUNKING GRID: Processing text segmentation matrices for ID: {document_id}")
     
-    # 1. Fetch document reference from SQLite
-    document_query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
-    document_execution = await db.execute(document_query)
-    target_document = document_execution.scalar_one_or_none()
-    
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    query_execution = await db.execute(query)
+    target_document = query_execution.scalars().first()
+
     if not target_document:
-        raise HTTPException(status_code=404, detail="Target document asset not found.")
-    
-    # 🛡️ LAYER 1: Dynamic Attribute Scan to look for common text column configurations
+        raise HTTPException(status_code=404, detail="Target asset context not found.")
+
+    # Fetch text from the local persistent file cache first
     raw_text = None
-    for attr in ["content", "text", "extracted_content", "text_content", "raw_text"]:
-        if hasattr(target_document, attr) and getattr(target_document, attr):
-            raw_text = getattr(target_document, attr)
-            break
-            
-    # 🛡️ LAYER 2: Hard-Disk Fallback Extraction Pass
+    cache_path = os.path.join("storage", "text_cache", f"doc_{document_id}.txt")
+    if os.path.exists(cache_path):
+        with open(cache_path, "r", encoding="utf-8") as cache_file:
+            raw_text = cache_file.read()
+
+    # Fallback to database reflection or raw file pass if file cache is empty
     if not raw_text:
+        for attr in ["content", "text", "extracted_content", "raw_text"]:
+            if hasattr(target_document, attr) and getattr(target_document, attr):
+                raw_text = getattr(target_document, attr)
+                break
+                
+    if not raw_text:
+        # Final programmatic vector text fallback extraction check
         file_path = os.path.join("storage", "documents", target_document.filename)
         if os.path.exists(file_path):
-            print(f"🔄 PARSER FALLBACK: Re-extracting text layers directly from disk: {file_path}")
             import pdfplumber
-            try:
-                with pdfplumber.open(file_path) as pdf_canvas:
-                    text_layers = [
-                        page.extract_text(layout=True) 
-                        for page in pdf_canvas.pages 
-                        if page.extract_text()
-                    ]
-                    raw_text = "\n".join(text_layers)
-            except Exception as e:
-                print(f"❌ Fallback layout extraction failed: {e}")
+            with pdfplumber.open(file_path) as pdf_canvas:
+                text_layers = [p.extract_text(layout=True) for p in pdf_canvas.pages if p.extract_text()]
+                raw_text = "\n".join(text_layers)
 
     if not raw_text or not raw_text.strip():
-        raise HTTPException(
-            status_code=400, 
-            detail="Document text footprint is empty or unreadable. Run layout parsing first."
-        )
+        raise HTTPException(status_code=400, detail="Document text footprint remains unreadable. Verify Tesseract is running.")
 
-    # 2. Invoke our hierarchical chunker framework
-    from app.services.chunker import cognitive_chunker
+    # Slice text using our Parent-Child Chunking Engine
     hierarchical_manifest = cognitive_chunker.generate_hierarchical_chunks(raw_text)
     
-    # Clean out any old pre-existing chunks to prevent duplicate entries
-    from app.models.chunk import KnowledgeChunk
-    from sqlalchemy import delete
+    # Wipe any old pre-existing items to maintain strict dataset sanity
     await db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id))
     
-    # 3. Flatten the hierarchical manifest into database rows
-    global_child_index = 0
-    for parent_packet in hierarchical_manifest:
-        p_content = parent_packet["parent_content"]
-        
-        for child in parent_packet["children"]:
-            c_content = child["content"]
+    global_child_idx = 0
+    for parent in hierarchical_manifest:
+        p_text = parent["parent_content"]
+        for child in parent["children"]:
+            c_text = child["content"]
             
-            # Combine child and parent blocks using our explicit context separator
-            unified_content_string = f"{c_content} ||| {p_content}"
+            # Anchor text blocks together using our explicit relational layout token separator
+            unified_content_string = f"{c_text} ||| {p_text}"
             
             db_chunk = KnowledgeChunk(
                 document_id=document_id,
-                chunk_index=global_child_index,
+                chunk_index=global_child_idx,
                 page_number=1,
                 content=unified_content_string
             )
             db.add(db_chunk)
-            global_child_index += 1
+            global_child_idx += 1
             
     await db.commit()
-    print(f"🟢 CHUNKING GATEWAY: Successfully persisted {global_child_index} segments in SQLite.")
-    
-    return {
-        "message": "Hierarchical text segmentation complete.",
-        "total_semantic_chunks_generated": global_child_index
-    }
+    print(f"🟢 CHUNKING GRID: Successfully generated and committed {global_child_idx} segments to SQLite.")
+    return {"total_semantic_chunks_generated": global_child_idx}
 
+# =====================================================================
+# 🧠 STAGE 4: ADVANCED VECTOR INDEXING GENERATOR
+# =====================================================================
 @router.post("/embed/{document_id}")
 async def embed_document(document_id: int, db: AsyncSession = Depends(get_db)):
-    print(f"🧠 EMBEDDING GATEWAY: Beginning vector embedding routines for ID: {document_id}")
+    print(f"🧠 EMBEDDING GATEWAY: Vectorizing semantic fields for ID: {document_id}")
     
-    # Fetch active document profile details
-    document_query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
-    document_execution = await db.execute(document_query)
-    target_document = document_execution.scalar_one_or_none()
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    query_execution = await db.execute(query)
+    target_document = query_execution.scalars().first()
     
     if not target_document:
-        raise HTTPException(status_code=404, detail="Target document profile missing.")
+        raise HTTPException(status_code=404, detail="Target document context missing.")
 
-    # Fetch all segmented chunks associated with this document from SQLite
     chunks_query = select(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id)
     chunks_execution = await db.execute(chunks_query)
     allocated_chunks = chunks_execution.scalars().all()
 
     if not allocated_chunks:
-        raise HTTPException(status_code=400, detail="No chunks found. Process chunking step first.")
+        raise HTTPException(status_code=400, detail="No segmented blocks detected. Run chunking step first.")
 
-    # Pass rows to our vector engine to compile and persist the indices
+    # Extract child features and store parents into ChromaDB metadata blocks
     vector_store_engine.index_document_chunks(
         document_id=target_document.id,
         filename=target_document.filename,
         db_chunks=allocated_chunks
     )
 
-    return {
-        "message": "ChromaDB vector embedding persistence routines finished successfully.",
-        "total_vectors_indexed": len(allocated_chunks)
-    }
+    return {"message": "ChromaDB vector embedding persistence loops finished successfully.", "total_vectors_indexed": len(allocated_chunks)}
 
-@router.post("/graph/{document_id}", status_code=status.HTTP_200_OK)
-async def map_document_graph_topology(
-    document_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Asynchronous Graph Ingestion Gate. Pulls segmented text components from disk, 
-    maps relational nodes, and loads structural topologies cleanly into Neo4j.
-    """
-    # 1. Verify existence parameters within our metadata ledger
+# =====================================================================
+# 🖲️ STAGE 5: GRAPH TOPOLOGY SYNC & INTEL EXTRACTOR
+# =====================================================================
+@router.post("/graph/{document_id}")
+async def map_document_graph_topology(document_id: int, db: AsyncSession = Depends(get_db)):
+    print(f"⚡ GRAPH GATEWAY: Mapping structural asset relationships for ID: {document_id}")
+    
     query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
     query_execution = await db.execute(query)
     target_document = query_execution.scalars().first()
 
     if not target_document:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Target knowledge document validation context '{document_id}' is missing."
-        )
+        raise HTTPException(status_code=404, detail="Target document reference missing.")
 
-    # 2. Enforce strict sequential pipeline rules
-    if target_document.status == DocumentStatus.PENDING:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Asset text must pass parsing and chunking before graph topology mapping can run."
-        )
-
-    # 3. Fetch all context segments allocated to this file reference
     chunks_query = select(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id).order_by(KnowledgeChunk.chunk_index)
     chunks_execution = await db.execute(chunks_query)
     allocated_chunks = chunks_execution.scalars().all()
 
-    try:
-        chunks_payload_buffer = [{
-            "chunk_index": c.chunk_index,
-            "page_number": c.page_number,
-            "content": c.content
-        } for c in allocated_chunks]
+    chunks_payload_buffer = [{
+        "chunk_index": c.chunk_index,
+        "page_number": c.page_number,
+        "content": c.content
+    } for c in allocated_chunks]
 
-        # 4. Offload graph network data transfers to our background worker threads
-        await anyio.to_thread.run_sync(
-            graph_store_engine.sync_document_graph_topology,
-            target_document.id,
-            target_document.filename,
-            chunks_payload_buffer
-        )
+    # Map entity relationship networks inside Neo4j container
+    await anyio.to_thread.run_sync(
+        graph_store_engine.sync_document_graph_topology,
+        target_document.id,
+        target_document.filename,
+        chunks_payload_buffer
+    )
 
-        return {
-            "message": "Asset structural relationship nodes committed into Neo4j successfully.",
-            "document_id": target_document.id,
-            "total_nodes_synced": len(chunks_payload_buffer) + 1  # Chunks count + 1 Parent Document Node
-        }
-
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Graph store mapping coordination collapsed: {str(exc)}"
-        )
+    return {"message": "Asset relationship maps committed into Neo4j successfully.", "total_nodes_synced": len(chunks_payload_buffer) + 1}
