@@ -42,20 +42,71 @@ export const IngestionStepper: React.FC = () => {
     setLogs([]);
     setStepStatus('processing');
     
-    let currentFile = file;
-    for (let i = 0; i < steps.length; i++) {
-      setCurrentStep(i);
-      try {
-        setLogs(prev => [...prev, `⚙️ Initiating: ${steps[i].label}...`]);
-        const logMsg = i === 0 ? await steps[i].action(currentFile) : await steps[i].action(null as any);
-        setLogs(prev => [...prev, `🟢 ${logMsg}`]);
-      } catch (err: any) {
-        setStepStatus('error');
-        setLogs(prev => [...prev, `🔴 Failed at [${steps[i].label}]: ${err.message}`]);
-        return;
-      }
+    // 🛡️ LOCAL CONTEXT TRACKER: Bypasses async React state delay
+    let activeId: number | null = null; 
+
+    // Step 1: Upload Asset
+    try {
+      setCurrentStep(0);
+      setLogs(prev => [...prev, `⚙️ Initiating: Upload Asset...`]);
+      const res = await apiService.uploadDocument(file);
+      activeId = res.id; // Capture locally instantly
+      setDocId(res.id);  // Update state for global UI tracking
+      setLogs(prev => [...prev, `🟢 [POST /upload] Success. Registered ID: ${res.id}`]);
+    } catch (err: any) {
+      setStepStatus('error');
+      setLogs(prev => [...prev, `🔴 Failed at [Upload Asset]: ${err.message}`]);
+      return;
     }
-    setStepStatus('success');
+
+    // Step 2: Layout Parsing
+    try {
+      setCurrentStep(1);
+      setLogs(prev => [...prev, `⚙️ Initiating: Layout Parsing (OCR)...`]);
+      const res = await apiService.parseDocument(activeId!); // Uses guaranteed local variable
+      setLogs(prev => [...prev, `🟢 [POST /parse] Completed character extraction pass.`]);
+    } catch (err: any) {
+      setStepStatus('error');
+      setLogs(prev => [...prev, `🔴 Failed at [Layout Parsing]: ${err.message}`]);
+      return;
+    }
+
+    // Step 3: Cognitive Chunking
+    try {
+      setCurrentStep(2);
+      setLogs(prev => [...prev, `⚙️ Initiating: Cognitive Chunking...`]);
+      const res = await apiService.chunkDocument(activeId!);
+      setLogs(prev => [...prev, `🟢 [POST /chunk] Segmented into chunks successfully.`]);
+    } catch (err: any) {
+      setStepStatus('error');
+      setLogs(prev => [...prev, `🔴 Failed at [Cognitive Chunking]: ${err.message}`]);
+      return;
+    }
+
+    // Step 4: Vector Indexing
+    try {
+      setCurrentStep(3);
+      setLogs(prev => [...prev, `⚙️ Initiating: Vector Indexing...`]);
+      const res = await apiService.embedDocument(activeId!);
+      setLogs(prev => [...prev, `🟢 [POST /embed] Populated ChromaDB collections.`]);
+    } catch (err: any) {
+      setStepStatus('error');
+      setLogs(prev => [...prev, `🔴 Failed at [Vector Indexing]: ${err.message}`]);
+      return;
+    }
+
+    // Step 5: Graph Topology Sync
+    try {
+      setCurrentStep(4);
+      setLogs(prev => [...prev, `⚙️ Initiating: Graph Topology Sync...`]);
+      const res = await apiService.graphDocument(activeId!);
+      setLogs(prev => [...prev, `🟢 [POST /graph] Unified relational nodes inside Neo4j.`]);
+      setStepStatus('success');
+    } catch (err: any) {
+      setStepStatus('error');
+      setLogs(prev => [...prev, `🔴 Failed at [Graph Topology Sync]: ${err.message}`]);
+      return;
+    }
   };
 
   return (
