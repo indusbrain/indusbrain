@@ -1,99 +1,89 @@
 import os
-import hashlib
-import numpy as np
-from typing import List, Dict, Any
 import chromadb
-from chromadb.config import Settings
+from typing import List, Dict, Any
+from sentence_transformers import SentenceTransformer
 
-class VectorStoreEngine:
+class HierarchicalVectorStoreEngine:
     """
-    Enterprise-grade Vector Store Controller orchestrating high-performance 
-    semantic index persistence into the ChromaDB container network matrix.
+    Enterprise ChromaDB Connection Manager. Stores high-density child vectors 
+    anchored to complete parent context strings inside the metadata fields.
     """
     def __init__(self):
         self.chroma_host = os.getenv("CHROMA_HOST", "localhost")
-        self.chroma_port = int(os.getenv("CHROMA_PORT", "8001"))
-        self.collection_name = "industryos_knowledge_vault"
+        self.chroma_port = int(os.getenv("CHROMA_PORT", 8001))
         
-        # Instantiate standard HttpClient connection linking directly to our Docker container port
-        try:
-            self.client = chromadb.HttpClient(
-                host=self.chroma_host,
-                port=self.chroma_port,
-                settings=Settings(anonymized_telemetry=False)
+        # Open connection to containerized Chroma cluster
+        self.chroma_client = chromadb.HttpClient(host=self.chroma_host, port=self.chroma_port)
+        self.embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        self.collection = self.chroma_client.get_or_create_collection(
+            name="industrial_knowledge_vault"
+        )
+
+    def index_document_chunks(self, document_id: int, filename: str, db_chunks: List[Any]):
+        """
+        Extracts child and parent metrics from text buffers and indexes them into ChromaDB.
+        """
+        print(f"📡 CHROMA PERSISTENCE: Indexing vector fields for Doc ID: {document_id}")
+        
+        ids = []
+        embeddings = []
+        documents = []
+        metadata_list = []
+        
+        for chunk in db_chunks:
+            raw_content = chunk.content
+            
+            # Separate the child text block from its parent context string
+            if " ||| " in raw_content:
+                child_text, parent_context = raw_content.split(" ||| ", 1)
+            else:
+                child_text = raw_content
+                parent_context = raw_content
+                
+            unique_vector_id = f"doc_{document_id}_chunk_{chunk.chunk_index}"
+            vector_embedding = self.embedding_model.encode(child_text).tolist()
+            
+            ids.append(unique_vector_id)
+            embeddings.append(vector_embedding)
+            documents.append(child_text) # Vectorized search text entry
+            
+            # Map the complete parent context block inside the metadata dictionary structure
+            metadata_list.append({
+                "document_id": document_id,
+                "filename": filename,
+                "chunk_index": chunk.chunk_index,
+                "parent_context": parent_context 
+            })
+
+        if ids:
+            self.collection.add(
+                ids=ids,
+                embeddings=embeddings,
+                documents=documents,
+                metadatas=metadata_list
             )
-            print(f"📡 CHROMA CORE: Established direct socket connection to cluster container at {self.chroma_host}:{self.chroma_port}")
-        except Exception as e:
-            print(f"⚠️ CHROMA WARN: Container cluster offline fallback active. Bootstrapping embedded store: {str(e)}")
-            self.client = chromadb.Client(Settings(anonymized_telemetry=False))
+        print(f"🟢 CHROMA METRICS: Successfully populated {len(ids)} child vectors in vector indices.")
 
-        # 🪐 SELF-HEALING EMBEDDING ENGINE PROVISIONING
-        try:
-            from sentence_transformers import SentenceTransformer
-            # Load a lightweight, high-speed open source text embedding transformer locally
-            print("🧠 VECTOR ENGINE: Initializing local Transformer framework ('all-MiniLM-L6-v2')...")
-            self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-            self.is_offline_fallback = False
-            print("🟢 VECTOR ENGINE: Local Transformer models initialized cleanly.")
-        except Exception as ex:
-            print(f"⚠️ VECTOR ENGINE OFFLINE FALLBACK: Could not pull weights from network registry ({str(ex)}). Activating local deterministic projection framework.")
-            self.embedding_model = None
-            self.is_offline_fallback = True
-
-    def _generate_fallback_vector(self, text: str, dimensions: int = 384) -> List[float]:
-        """
-        High-fidelity mathematical text vectorizer that generates dense, 
-        stable coordinate arrays completely offline without network loops.
-        """
-        state = np.random.RandomState(int(hashlib.md5(text.encode('utf-8')).hexdigest(), 16) % (2**32 - 1))
-        raw_vector = state.randn(dimensions)
-        normalized_vector = raw_vector / np.linalg.norm(raw_vector)
-        return normalized_vector.tolist()
-
-    def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
-        """
-        Converts text payload segments into floating-point numerical vectors.
-        """
-        if not self.is_offline_fallback and self.embedding_model:
-            try:
-                embeddings = self.embedding_model.encode(texts)
-                return embeddings.tolist()
-            except Exception:
-                pass
+    def query_precision_context(self, query_text: str, top_k: int = 3) -> List[Dict[str, Any]]:
+        """Queries child vectors but automatically returns parent context data strings."""
+        query_vector = self.embedding_model.encode(query_text).tolist()
         
-        # Graceful fallback loop execution if offline or network blocks occur
-        return [self._generate_fallback_vector(t) for t in texts]
-
-    def upsert_document_chunks(self, document_id: int, chunks: List[Dict[str, Any]]):
-        """
-        Vectorizes text fragments and stores them inside the ChromaDB collection cluster.
-        """
-        if not chunks:
-            return
-
-        # Fetch or instantiate our dedicated industrial index collection matrix slot
-        collection = self.client.get_or_create_collection(
-            name=self.collection_name,
-            metadata={"hnsw:space": "cosine"} # Direct the store to utilize Cosine Similarity matching angles
+        results = self.collection.query(
+            query_embeddings=[query_vector],
+            n_results=top_k
         )
+        
+        compiled_contexts = []
+        if results and results['metadatas'] and len(results['metadatas'][0]) > 0:
+            for idx, metadata in enumerate(results['metadatas'][0]):
+                parent_text = metadata.get("parent_context", results['documents'][0][idx])
+                
+                compiled_contexts.append({
+                    "content": parent_text, 
+                    "source": metadata.get("filename", "Knowledge Vault"),
+                    "page_number": metadata.get("chunk_index", 0) + 1
+                })
+                
+        return compiled_contexts
 
-        texts_to_embed = [c["content"] for c in chunks]
-        embeddings = self.generate_embeddings(texts_to_embed)
-
-        ids = [f"doc_{document_id}_chunk_{c['chunk_index']}" for c in chunks]
-        metadatas = [{
-            "document_id": document_id,
-            "page_number": c["page_number"],
-            "chunk_index": c["chunk_index"]
-        } for c in chunks]
-
-        # Push the arrays directly across the network interface to ChromaDB
-        collection.upsert(
-            ids=ids,
-            embeddings=embeddings,
-            documents=texts_to_embed,
-            metadatas=metadatas
-        )
-        print(f"⚡ VECTOR STORE PERSISTENCE: Saved {len(chunks)} fragments into ChromaDB collection index successfully.")
-
-vector_store_engine = VectorStoreEngine()
+vector_store_engine = HierarchicalVectorStoreEngine()
