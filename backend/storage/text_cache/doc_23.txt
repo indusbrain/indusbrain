@@ -1,0 +1,720 @@
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+          Sanskruti   Sarees  Data  Dictionary    and  ERD   Note                   
+                                                                                    
+         This document captures the finalized database design for Sanskruti Sarees, including the core
+                                                                                    
+         entity relationships, field meanings, business-rule constraints, and implementation notes
+         needed before backend development begins.[cite:57][cite:61][cite:73]       
+                                                                                    
+         Overview                                                                   
+                                                                                    
+         The schema is designed for a premium saree and chaniya choli e-commerce website with
+         online-only payments, dynamic product filters, weight-based shipping, review eligibility based
+                                                                                    
+         on delivered orders, and device-upload-only media management.[cite:73][cite:79]
+                                                                                    
+         The model uses normalized lookup tables and relationship tables to avoid hardcoding future
+         product attributes into the products table, which keeps the design cleaner and easier to extend
+         over time.[cite:57][cite:61][cite:79]                                      
+                                                                                    
+         ERD Note                                                                   
+                                                                                    
+                                                                                    
+         Core relationships                                                         
+                                                                                    
+            One customer can have many addresses, orders, wishlist items, cart items, cancellation
+            requests, and reviews.                                                  
+                                                                                    
+            One order has many order items.                                         
+                                                                                    
+            One product belongs to one category, and may optionally point to one fabric, one
+            collection, and one color.                                              
+            One product can have many media files and many dynamic filter assignments.
+                                                                                    
+            One filter type has many filter values; one product can have many filter values through
+            product_filter_values.                                                  
+                                                                                    
+            One approved cancellation can create a review block for a customer-product pair,
+            preventing only future review creation.[cite:57][cite:61][cite:73]      
+                                                                                    
+                                                                                    
+         Main relationship map                                                      
+                                                                                    
+           users                                                                    
+            ├── addresses                                                           
+            ├── orders                                                              
+            │  └── order_items                                                      
+            │      ├── reviews                                                      
+            │      └── cancellation_requests                                        
+            ├── wishlists                                                           
+            ├── cart_items                                                          
+            └── review_blocks                                                       
+                                                                                    
+           products                                                                 
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+            ├── product_media                                                       
+            ├── order_items                                                         
+            ├── reviews                                                             
+            ├── review_blocks                                                       
+            └── product_filter_values ── filter_values ── filter_types              
+           categories ── products                                                   
+           fabrics ── products                                                      
+           collections ── products                                                  
+           colors ── products                                                       
+           states ── addresses                                                      
+           shipping_rates ── orders (used by checkout logic)                        
+           site_settings ── global business rules                                   
+           admin_users ── product_media uploads / cancellation resolution           
+                                                                                    
+                                                                                    
+         Data dictionary                                                            
+                                                                                    
+                                                                                    
+         users                                                                      
+                                                                                    
+                          Column              Meaning                               
+                                                                                    
+                       user_id      Unique customer account ID                      
+                                                                                    
+                       email_address Customer email for login and communication     
+                       phone_number Customer phone number                           
+                                                                                    
+                       password_hash Hashed password, never plain text              
+                                                                                    
+                       full_name    Customer full name                              
+                                                                                    
+                       is_verified  Whether account contact verification is completed
+                                                                                    
+                       is_active    Whether account can currently log in and place orders
+                       created_at   Account creation timestamp                      
+                                                                                    
+                       updated_at   Last profile/account update timestamp           
+                                                                                    
+                                                                                    
+         addresses                                                                  
+                                                                                    
+                          Column                  Meaning                           
+                                                                                    
+                   address_id          Unique address row ID                        
+                                                                                    
+                   customer_user_id    Which user owns this address                 
+                   recipient_full_name Delivery recipient name                      
+                                                                                    
+                   recipient_phone_number Delivery recipient phone                  
+                                                                                    
+                   address_line_1      Primary address line                         
+                                                                                    
+                   address_line_2      Optional secondary address line              
+                   city_name           City name                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                          Column                  Meaning                           
+                   state_id            Canonical state reference used for reliable shipping logic
+                                                                                    
+                   postal_code         PIN or ZIP code                              
+                                                                                    
+                   country_code        Country code, such as IN                     
+                                                                                    
+                   is_default_address  Whether this is the customer's default address
+                   created_at          Address creation timestamp                   
+                                                                                    
+                   updated_at          Last address update timestamp                
+                                                                                    
+                                                                                    
+         states                                                                     
+                                                                                    
+                             Column           Meaning                               
+                                                                                    
+                          state_id    Unique state/region ID                        
+                                                                                    
+                          country_code Country the state belongs to                 
+                          state_name  Canonical state name, such as Gujarat         
+                                                                                    
+                          state_code  Short state code, such as GJ                  
+                                                                                    
+                          local_name  Optional local-language state name            
+                                                                                    
+                          is_active   Whether this state can be selected            
+                                                                                    
+                          created_at  Creation timestamp                            
+                          updated_at  Update timestamp                              
+                                                                                    
+                                                                                    
+         categories                                                                 
+                                                                                    
+                          Column              Meaning                               
+                                                                                    
+                       category_id Unique category ID                               
+                                                                                    
+                       category_name Category name, such as Saree or Chaniya Choli  
+                                                                                    
+                       category_slug URL-safe category identifier                   
+                       is_active   Whether category is active                       
+                                                                                    
+                                                                                    
+         fabrics                                                                    
+                                                                                    
+                            Column               Meaning                            
+                                                                                    
+                      fabric_id         Unique fabric ID                            
+                                                                                    
+                      fabric_name       Fabric name                                 
+                                                                                    
+                      fabric_slug       URL-safe fabric identifier                  
+                      cover_media_file_key Storage key for homepage/listing fabric image
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                            Column               Meaning                            
+                      display_order     Sort order for admin and homepage           
+                                                                                    
+                      show_on_homepage  Whether this fabric card appears on homepage
+                                                                                    
+                      is_active         Whether fabric is active                    
+                                                                                    
+                      created_at        Creation timestamp                          
+                      updated_at        Update timestamp                            
+                                                                                    
+                                                                                    
+         collections                                                                
+                                                                                    
+                           Column                Meaning                            
+                                                                                    
+                     collection_id     Unique collection ID                         
+                                                                                    
+                     collection_name   Collection name, such as Wedding or Festive  
+                                                                                    
+                     collection_slug   URL-safe collection identifier               
+                     cover_media_file_key Storage key for collection card image     
+                                                                                    
+                     display_order     Sort order                                   
+                                                                                    
+                     show_on_homepage  Whether this collection card appears on homepage
+                                                                                    
+                     is_active         Whether collection is active                 
+                                                                                    
+                     created_at        Creation timestamp                           
+                     updated_at        Update timestamp                             
+                                                                                    
+                                                                                    
+         colors                                                                     
+                                                                                    
+                               Column          Meaning                              
+                                                                                    
+                           color_id      Unique color ID                            
+                                                                                    
+                           color_name    Color display name                         
+                                                                                    
+                           color_hex_code Hex shade used for swatch display         
+                           display_order Sort order                                 
+                                                                                    
+                           is_active     Whether color is active                    
+                                                                                    
+                           created_at    Creation timestamp                         
+                                                                                    
+                           updated_at    Update timestamp                           
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+         filter_types                                                               
+                                                                                    
+                       Column                     Meaning                           
+                filter_type_id      Unique filter type ID                           
+                                                                                    
+                filter_type_name    Admin/display name, such as Work Type           
+                                                                                    
+                filter_type_slug    URL-safe identifier                             
+                                                                                    
+                filter_input_type   UI control type: dropdown, multi-select, checkbox group
+                applies_to_category_id Optional category restriction; NULL means all supported categories
+                                                                                    
+                show_in_listing_filters Whether this filter appears in frontend listing filter UI
+                                                                                    
+                show_in_product_details Whether selected values appear on product detail page
+                                                                                    
+                display_order       Sort order                                      
+                is_active           Whether filter type is active                   
+                                                                                    
+                created_at          Creation timestamp                              
+                                                                                    
+                updated_at          Update timestamp                                
+                                                                                    
+                                                                                    
+         filter_values                                                              
+                                                                                    
+                              Column            Meaning                             
+                                                                                    
+                          filter_value_id Unique filter value ID                    
+                          filter_type_id Parent filter type                         
+                                                                                    
+                          filter_value_name Option name, such as Zari               
+                                                                                    
+                          filter_value_slug Normalized identifier, such as zari     
+                                                                                    
+                          display_order  Sort order within the filter               
+                                                                                    
+                          is_active      Whether value is active                    
+                          created_at     Creation timestamp                         
+                                                                                    
+                          updated_at     Update timestamp                           
+                                                                                    
+         Constraint:UNIQUE (filter_type_id, filter_value_slug) prevents duplicate options such as
+         two zari values under the same filter type.[cite:57][cite:61]              
+                                                                                    
+                                                                                    
+         products                                                                   
+                                                                                    
+                            Column                 Meaning                          
+                                                                                    
+                     product_id            Unique product ID                        
+                                                                                    
+                     product_category_id   Category reference                       
+                     fabric_id             Primary fabric reference                 
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                            Column                 Meaning                          
+                     collection_id         Primary collection reference             
+                                                                                    
+                     color_id              Primary color reference                  
+                                                                                    
+                     product_name          Product display name                     
+                                                                                    
+                     product_slug          URL-safe product identifier              
+                     product_sku           Internal stock code                      
+                                                                                    
+                     product_description   Product description                      
+                                                                                    
+                     product_care_instructions Care and washing text                
+                                                                                    
+                     selling_price_inr     Current selling price in INR             
+                                                                                    
+                     original_price_inr    Optional original/strikethrough price    
+                     available_stock_quantity Current stock count                   
+                                                                                    
+                     weight_in_grams       Product weight used for shipping calculation
+                                                                                    
+                     is_active             Whether product is published             
+                                                                                    
+                     is_premium_product    Manual premium flag                      
+                     is_saree_normal       Saree tag: Normal                        
+                                                                                    
+                     has_ready_blouse      Saree tag: With Ready Blouse             
+                                                                                    
+                     is_bridal_chaniya_choli CC tag: Bridal                         
+                                                                                    
+                     is_sider_chaniya_choli CC tag: Sider                           
+                     seo_meta_title        SEO title                                
+                                                                                    
+                     seo_meta_description  SEO description                          
+                                                                                    
+                     created_at            Creation timestamp                       
+                                                                                    
+                     updated_at            Update timestamp                         
+                                                                                    
+                                                                                    
+         product_filter_values                                                      
+                                                                                    
+                              Column           Meaning                              
+                          product_id    Product receiving the filter assignment     
+                                                                                    
+                          filter_value_id Filter value assigned to that product     
+                                                                                    
+                          created_at    Assignment timestamp                        
+                                                                                    
+         This table is the only place where dynamic filter selections are stored for products, so no new
+         filter columns ever need to be added to products.[cite:73][cite:79]        
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+         product_media                                                              
+                                                                                    
+                            Column                  Meaning                         
+                    product_media_id       Unique media row ID                      
+                                                                                    
+                    product_id             Product this media belongs to            
+                                                                                    
+                    storage_provider_name  Storage backend name                     
+                                                                                    
+                    storage_file_key       File path/object key in storage          
+                    uploaded_file_name     Original file name from admin device     
+                                                                                    
+                    uploaded_file_mime_type MIME type of uploaded file              
+                                                                                    
+                    uploaded_file_size_in_bytes File size                           
+                                                                                    
+                    media_type             image, video, or gif                     
+                    media_width_px         Width in pixels when available           
+                                                                                    
+                    media_height_px        Height in pixels when available          
+                                                                                    
+                    video_duration_in_seconds Video duration when applicable        
+                                                                                    
+                    display_order          Ordering in gallery                      
+                                                                                    
+                    is_cover_media         Whether this media is the main product cover
+                    uploaded_by_admin_user_id Admin who uploaded the file           
+                                                                                    
+                    created_at             Upload timestamp                         
+                                                                                    
+         Application rules: maximum 9 images per product, maximum 3 videos/GIFs per product, and
+         exactly one cover media per product enforced in the service layer before insert/update.[cite:41]
+                                                                                    
+         [cite:47][cite:73]                                                         
+                                                                                    
+         cart_items                                                                 
+                                                                                    
+                         Column                 Meaning                             
+                                                                                    
+                     cart_item_id   Unique cart row ID                              
+                                                                                    
+                     customer_user_id Logged-in user owning the cart row, nullable for guest flow
+                                                                                    
+                     guest_session_id Guest session identifier when user is not logged in
+                     product_id     Product added to cart                           
+                                                                                    
+                     quantity       Quantity in cart                                
+                                                                                    
+                     created_at     Added timestamp                                 
+                                                                                    
+                     updated_at     Last cart update timestamp                      
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+         wishlists                                                                  
+                                                                                    
+                                Column          Meaning                             
+                            wishlist_item_id Unique wishlist row ID                 
+                                                                                    
+                            customer_user_id User who saved the product             
+                                                                                    
+                            product_id     Wishlisted product                       
+                                                                                    
+                            created_at     Added timestamp                          
+                                                                                    
+         Constraint:UNIQUE (customer_user_id, product_id) prevents duplicate wishlist entries.
+                                                                                    
+         orders                                                                     
+                                                                                    
+                                                                                    
+                        Column                       Meaning                        
+               order_id                  Unique order ID                            
+                                                                                    
+               order_number              Human-friendly order number                
+                                                                                    
+               customer_user_id          Customer who placed the order              
+                                                                                    
+               shipping_address_id       Selected address reference                 
+               shipping_address_snapshot_json Immutable copy of address at order time
+                                                                                    
+               order_status              Order state: placed, processing, shipped, delivered, cancelled
+                                                                                    
+               payment_status            Payment state: pending, paid, failed, refunded
+                                                                                    
+               order_subtotal_inr        Sum of item totals before shipping         
+               shipping_zone             gujarat, india, or international           
+                                                                                    
+               shipping_charge_inr       Final computed shipping amount             
+                                                                                    
+               order_grand_total_inr     Final payable amount                       
+                                                                                    
+               razorpay_order_id         Razorpay order reference                   
+               razorpay_payment_id       Razorpay payment reference                 
+                                                                                    
+               internal_admin_notes      Admin-only notes                           
+                                                                                    
+               delivered_at              Delivery timestamp used for cancellation window logic
+                                                                                    
+               created_at                Order creation timestamp                   
+               updated_at                Last order update timestamp                
+                                                                                    
+                                                                                    
+         Shipping logic uses normalized address data: Gujarat orders get zero shipping, while India and
+         international orders use active weight-based rates with minimum charges.[cite:43][cite:46]
+         [cite:49]                                                                  
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+         order_items                                                                
+                                                                                    
+                            Column                 Meaning                          
+                     order_item_id        Unique order line ID                      
+                                                                                    
+                     order_id             Parent order                              
+                                                                                    
+                     product_id           Purchased product                         
+                                                                                    
+                     product_snapshot_json Immutable product snapshot at purchase time
+                     ordered_quantity     Quantity purchased                        
+                                                                                    
+                     unit_selling_price_inr Price per unit at purchase time         
+                                                                                    
+                     line_total_price_inr Quantity multiplied by unit price         
+                                                                                    
+                     chaniya_choli_waist_size Customer-entered waist size for CC orders only
+                     chaniya_choli_length Customer-entered length for CC orders only
+                                                                                    
+                     created_at           Creation timestamp                        
+                                                                                    
+         Only these two Chaniya Choli measurement fields exist, and they live at order-item level
+                                                                                    
+         because they can vary per order.[cite:73][cite:79]                         
+                                                                                    
+         shipping_rates                                                             
+                                                                                    
+                           Column                   Meaning                         
+                                                                                    
+                   shipping_rate_id       Unique shipping rate row ID               
+                                                                                    
+                   shipping_zone          Supported zone: india or international    
+                                                                                    
+                   rate_per_gram_inr      Weight-based shipping amount per gram     
+                   minimum_shipping_charge_inr Minimum shipping charge for the zone 
+                                                                                    
+                   is_active              Whether this rate row is currently active 
+                                                                                    
+                   created_at             Creation timestamp                        
+                                                                                    
+                   updated_at             Update timestamp                          
+                                                                                    
+                                                                                    
+         cancellation_requests                                                      
+                                                                                    
+                            Column                 Meaning                          
+                    cancellation_request_id Unique cancellation request ID          
+                                                                                    
+                    order_id              Related order                             
+                                                                                    
+                    order_item_id         Related order item if tracked at item level
+                                                                                    
+                    customer_user_id      Customer who requested cancellation       
+                    request_source        Source of request, currently WhatsApp     
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                            Column                 Meaning                          
+                    cancellation_status   pending, approved, or rejected            
+                                                                                    
+                    customer_request_note Optional note captured from customer message
+                                                                                    
+                    admin_decision_note   Admin note/reason                         
+                                                                                    
+                    requested_at          Request timestamp                         
+                    resolved_at           Resolution timestamp                      
+                                                                                    
+                    resolved_by_admin_user_id Admin who approved/rejected the request
+                                                                                    
+         The request window is valid only within 48 hours aer orders.delivered_at, and only admin
+                                                                                    
+         can finalize approval or rejection.[cite:73][cite:79]                      
+                                                                                    
+         reviews                                                                    
+                                                                                    
+                            Column              Meaning                             
+                                                                                    
+                       review_id      Unique review ID                              
+                                                                                    
+                       product_id     Reviewed product                              
+                                                                                    
+                       customer_user_id Customer who wrote the review               
+                       order_item_id  Delivered purchased line item proving eligibility
+                                                                                    
+                       rating_value   Numeric rating from 1 to 5                    
+                                                                                    
+                       review_title   Optional review heading                       
+                                                                                    
+                       review_text    Review body                                   
+                       is_visible     Whether review is publicly visible            
+                                                                                    
+                       created_at     Review creation timestamp                     
+                                                                                    
+                       updated_at     Last review update timestamp                  
+                                                                                    
+         Constraint:UNIQUE (customer_user_id, product_id) allows at most one review per customer
+         per product.[cite:57][cite:61]                                             
+                                                                                    
+                                                                                    
+         review_blocks                                                              
+                                                                                    
+                        Column                    Meaning                           
+                                                                                    
+                 review_block_id      Unique review block row ID                    
+                 customer_user_id     Customer blocked from future review creation  
+                                                                                    
+                 product_id           Product on which new review is blocked        
+                                                                                    
+                 order_item_id        Order item tied to the approved cancellation  
+                                                                                    
+                 cancellation_request_id Cancellation row that triggered the block  
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                        Column                    Meaning                           
+                 block_reason         Reason for blocking, such as approved_cancellation
+                                                                                    
+                 created_at           Block creation timestamp                      
+                                                                                    
+         Constraint:UNIQUE (customer_user_id, product_id) prevents duplicate block rows for the
+                                                                                    
+         same customer-product pair.[cite:57][cite:61]                              
+                                                                                    
+         admin_users                                                                
+                                                                                    
+                               Column         Meaning                               
+                                                                                    
+                            admin_user_id Unique admin account ID                   
+                                                                                    
+                            email_address Admin login email                         
+                            password_hash Admin password hash                       
+                                                                                    
+                            full_name    Admin full name                            
+                                                                                    
+                            is_active    Whether admin account is active            
+                                                                                    
+                            last_login_at Last login timestamp                      
+                                                                                    
+                            created_at   Creation timestamp                         
+                            updated_at   Update timestamp                           
+                                                                                    
+                                                                                    
+         site_settings                                                              
+                                                                                    
+                          Column              Meaning                               
+                                                                                    
+                      setting_key  Unique setting name                              
+                                                                                    
+                      setting_type Data type for validation: string, integer, decimal, boolean
+                                                                                    
+                      setting_value Stored setting value                            
+                      updated_at   Last update timestamp                            
+                                                                                    
+         Required initial keys include whatsapp_number, premium_price_threshold, and currency, and
+                                                                                    
+         numeric settings must be parsed and validated by type before saving or use.[cite:53][cite:59]
+         [cite:73]                                                                  
+                                                                                    
+         Rule note                                                                  
+                                                                                    
+                                                                                    
+         Dynamic filters                                                            
+                                                                                    
+         Dynamic filters are implemented only through filter_types, filter_values, and
+         product_filter_values, which means future filter expansion does not require schema changes
+         to products.[cite:57][cite:61][cite:79]                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+         Review eligibility                                                         
+                                                                                    
+         A new review can be created only when a delivered order_item exists for the same customer
+                                                                                    
+         and product, there is no existing review for that customer-product pair, and there is no
+         matching row in review_blocks.[cite:57][cite:73]                           
+                                                                                    
+         If a cancellation is later approved for that order item, a review_blocks row is created if needed,
+         which blocks only future review creation and does not remove any existing review.[cite:42]
+         [cite:45][cite:73]                                                         
+                                                                                    
+                                                                                    
+         Shipping                                                                   
+                                                                                    
+         If the selected address resolves to Gujarat through the normalized states lookup, shipping is
+         free; otherwise the checkout service computes weight-based shipping using the active zone rate
+         and minimum charge.[cite:43][cite:46][cite:49]                             
+                                                                                    
+                                                                                    
+         Media upload                                                               
+         Admin product media must come from device file upload only, not pasted links, and the
+                                                                                    
+         backend should enforce max media counts plus exactly one cover image per product before
+         saving records.[cite:41][cite:44][cite:47]                                 
+                                                                                    
+         Implementation readiness note                                              
+                                                                                    
+         The schema, constraints, and rule clarifications are now in a state that is ready for
+         implementation planning, because the data model, validation expectations, and business-rule
+                                                                                    
+         enforcement points are explicitly documented.[cite:73][cite:74][cite:79]   
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
+                                                                                    
