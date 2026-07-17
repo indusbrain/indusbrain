@@ -13,6 +13,7 @@ from app.services.parser import pdf_parser_service
 from app.services.chunker import cognitive_chunker
 from app.services.vector_store import vector_store_engine
 from app.services.graph_store import graph_store_engine
+from app.services.conflict_engine import industrial_conflict_engine
 
 router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
 
@@ -28,11 +29,9 @@ def sanitize_text_payload(text: str) -> str:
 async def resolve_document_context(document_id: int, db: AsyncSession) -> KnowledgeDocument:
     """
     🪐 DUAL-KEY LOOKUP FALLBACK PROTOCOL
-    Self-heals frontend state desynchronization. If an ID query fails due to a local 
-    container/database reset, this routine scans the text cache registry to map the 
-    active processing asset, restoring pipeline integrity on the fly.
+    Self-heals frontend state desynchronization by scanning the text cache registry
+    to map the active processing asset if a database sequence resets.
     """
-    # Try primary lookup by numeric ID first
     query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
     execution = await db.execute(query)
     doc = execution.scalars().first()
@@ -40,17 +39,12 @@ async def resolve_document_context(document_id: int, db: AsyncSession) -> Knowle
     if doc:
         return doc
         
-    # Fallback Pass: If the ID is missing, read the directory files to discover the active log
     print(f"⚠️ SYSTEM REGISTRY: ID Context {document_id} missing. Initiating self-healing lookup fallback...")
     cache_dir = os.path.join("storage", "text_cache")
     if os.path.exists(cache_dir):
         cache_files = [f for f in os.listdir(cache_dir) if f.startswith("doc_") and f.endswith(".txt")]
         if cache_files:
-            # Match the most recently modified text processing stream cache asset
             cache_files.sort(key=lambda x: os.path.getmtime(os.path.join(cache_dir, x)), reverse=True)
-            discovered_filename = cache_files[0] # e.g., "doc_2.txt"
-            
-            # Secondary index query directly on the active records ledger
             fallback_query = select(KnowledgeDocument).order_by(KnowledgeDocument.id.desc())
             fallback_execution = await db.execute(fallback_query)
             latest_doc = fallback_execution.scalars().first()
@@ -127,7 +121,6 @@ async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depen
         return {"id": new_document_row.id, "filename": new_document_row.filename, "status": "pending"}
     except Exception as exc:
         await db.rollback()
-        print(f"❌ POSTGRES TRANSACTION FAULT: {str(exc)}")
         raise HTTPException(status_code=500, detail=f"Ledger entry registration failed: {str(exc)}")
 
 # =====================================================================
@@ -137,7 +130,6 @@ async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depen
 async def process_document_structure(document_id: int, db: AsyncSession = Depends(get_db)):
     print(f"🚀 PARSER CORE: Executing layout analysis loop for ID: {document_id}")
     
-    # Resolve document row using the self-healing resolver loop
     target_document = await resolve_document_context(document_id, db)
     true_id = target_document.id
 
@@ -328,3 +320,52 @@ async def map_document_graph_topology(document_id: int, db: AsyncSession = Depen
     except Exception as exc:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Graph index milestone confirmation pass failed: {str(exc)}")
+
+# =====================================================================
+# 🆕 🛡️ STAGE 6: GLOBAL CROSS-DOCUMENT CONFLICT AUDIT ENGINE
+# =====================================================================
+@router.post("/scan-conflicts", status_code=status.HTTP_200_OK)
+async def scan_cross_document_conflicts(db: AsyncSession = Depends(get_db)):
+    """
+    Asynchronous System Audit Gate. Intercepts all database context blocks,
+    maps tracking vectors, and executes programmatic discrepancy reviews.
+    """
+    print("📡 ANALYTICS GRID: Compiling multi-document chunk payloads for safety review...")
+    
+    try:
+        # Execute relational join query to align text strings with original filenames
+        query = select(KnowledgeChunk, KnowledgeDocument.filename).join(
+            KnowledgeDocument, KnowledgeChunk.document_id == KnowledgeDocument.id
+        )
+        query_execution = await db.execute(query)
+        results = query_execution.all()
+        
+        if not results:
+            return {
+                "conflict_detected": False,
+                "severity": "OK",
+                "message": "System ledger is currently empty. No context segments found to analyze.",
+                "detected_anomalies": []
+            }
+            
+        # Format the database records exactly into the schema structure expected by the algorithm
+        payload_buffer = []
+        for chunk_row, filename_string in results:
+            payload_buffer.append({
+                "content": chunk_row.content,
+                "filename": filename_string
+            })
+            
+        print(f"📡 ANALYTICS GRID: Passing {len(payload_buffer)} data segments to the Conflict Engine...")
+        
+        # Stream structured array payload into the conflict algorithm matrix
+        analysis_report = industrial_conflict_engine.analyze_context_slices(payload_buffer)
+        
+        return analysis_report
+
+    except Exception as exc:
+        print(f"❌ ANALYTICS FAULT: Analysis execution terminated: {str(exc)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Cross-document anomaly analysis collapsed: {str(exc)}"
+        )
