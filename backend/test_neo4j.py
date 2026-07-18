@@ -1,58 +1,50 @@
-import os
-from neo4j import GraphDatabase
-from dotenv import load_dotenv
+import asyncio
+from app.services.graph_store import graph_store_engine
 
-# Initialize live system environment process configurations from local disk
-load_dotenv()
+print("📡 CONNECTING DIRECTLY TO NEO4J GRAPH ROUTING LABELS...")
 
-def verify_graph_engine():
-    print("====================================================")
-    print("🕸️  NEO4J GRAPH INFRASTRUCTURE: AUTHENTICATION AUDIT DIAGNOSTIC")
-    print("====================================================")
-    
-    # Retrieve credential parameters from environment context mapping
-    uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-    user = os.getenv("NEO4J_USER", "neo4j")
-    password = os.getenv("NEO4J_PASSWORD")
-    
-    print(f"📡 Initializing binary Bolt driver connection channel to: {uri}")
-    print(f"👤 target Authentication Identity: {user}")
-    
-    if not password:
-        print("🚨 AUDIT CRITICAL FAILURE: NEO4J_PASSWORD is not present inside environment memory.")
-        return False
-
-    # Instantiate the formal native Graph database connection client driver
-    try:
-        with GraphDatabase.driver(uri, auth=(user, password)) as driver:
-            print("🔄 Driver instantiated. Executing remote session query handshake...")
+def execute_graph_topology_sweep():
+    # Verify if the application engine instance carries an open connection driver
+    driver_instance = None
+    for attr in dir(graph_store_engine):
+        val = getattr(graph_store_engine, attr, None)
+        if val and "driver" in str(type(val)).lower():
+            driver_instance = val
+            break
             
-            # Open a thread-safe execution workspace context path to run a test cypher line
-            with driver.session() as session:
-                # Execute a primitive math computation return loop directly inside the graph engine
-                result = session.run("RETURN 1 AS handshake_telemetry")
-                record = result.single()
-                
-                if record and record["handshake_telemetry"] == 1:
-                    print("🟢 SUCCESS: Neo4j driver authenticated perfectly!")
-                    print("📊 Telemetry Response Verified: Graph engine is fully operational.")
-                    return True
-                else:
-                    print("❌ FAILURE: Connection response returned unreadable data blocks.")
-                    return False
-                    
-    except Exception as e:
-        print(f"❌ AUDIT EXCEPTION FAILURE: Driver could not authenticate with the container instance.")
-        print(f"📝 Raw Engine Diagnostics Error: {str(e)}")
-        print("\n💡 REMEDY STEP: Ensure you have initialized your database container using 'docker compose up -d'.")
-        return False
+    if not driver_instance:
+        # Emergency fallback connection string mapping
+        from neo4j import GraphDatabase
+        print("⚠️ Driver property isolated. Initializing direct socket channel connection...")
+        driver_instance = GraphDatabase.driver("bolt://127.0.0.1:7687", auth=("neo4j", "password"))
+
+    with driver_instance.session() as session:
+        # Audit A: Global Node Verification Counts
+        node_query = "MATCH (n) RETURN labels(n) as label, count(*) as count;"
+        node_results = session.run(node_query)
+        
+        print("\n🧮 1. GRAPH NODE DENSITY MAPPING:")
+        has_nodes = False
+        for record in node_results:
+            has_nodes = True
+            print(f"   🔹 Entity Node Label: {record['label']} ──► Active Count inside Cluster: {record['count']}")
+        if not has_nodes:
+            print("   [Pristine Graph Cluster: 0 Active Nodes Generated]")
+
+        # Audit B: Global Functional Edge Relationship Counts
+        rel_query = "MATCH ()-[r]->() RETURN type(r) as relationship, count(*) as count;"
+        rel_results = session.run(rel_query)
+        
+        print("\n🕸️ 2. TOPOLOGICAL EDGE RELATIONSHIP COUNTS:")
+        has_rels = False
+        for record in rel_results:
+            has_rels = True
+            print(f"   🔹 Functional Edge Link: [:{record['relationship']}] ──► Count: {record['count']} active connections")
+        if not has_rels:
+            print("   [0 Explicit Semantic Relationships mapped]")
 
 if __name__ == "__main__":
-    success = verify_graph_engine()
-    print("====================================================")
-    if success:
-        print("🏆 GRAPH LAYER SCORECARD: 100% VALIDATED. Infrastructure is locked down.")
-        exit(0)
-    else:
-        print("🚨 GRAPH LAYER SCORECARD: AUTHENTICATION ERROR. Check your .env file credentials.")
-        exit(1)
+    try:
+        execute_graph_topology_sweep()
+    except Exception as exc:
+        print(f"❌ KNOWLEDGE GRAPH AUDIT FAULT: Connection rejected: {str(exc)}")
