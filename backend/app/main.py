@@ -85,10 +85,6 @@ app = FastAPI(
 )
 
 # Provision environmental token metrics for CORS validation
-allowed_origins_env = os.getenv(
-    "ALLOWED_ORIGINS", 
-    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
-)
 origins = [
     "http://localhost:3000", 
     "http://localhost:3001",   
@@ -106,7 +102,7 @@ app.add_middleware(
     allow_headers=["*"],  # Authorize all custom network headers
 )
 
-# Mount Routers
+# Mount Routers under the unified /api/v1 core namespace
 app.include_router(ingestion.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
 
