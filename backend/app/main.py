@@ -86,6 +86,8 @@ class ASGIExceptionMiddleware:
 # ========================================================
 # APPLICATION CORE INITIALIZATION & ROUTING INSTANTIATION
 # ========================================================
+from app.api.endpoints import ingestion, query, telemetry 
+
 app = FastAPI(
     title="Industrial Knowledge Intelligence Platform (IKIP)",
     description="The Operating System for Industrial Knowledge. Enterprise-grade ASGI operating core grid.",
@@ -109,6 +111,11 @@ app.add_middleware(
     allow_methods=["*"],  # Authorize all standard HTTP verbs (GET, POST, OPTIONS, etc.)
     allow_headers=["*"],  # Authorize all custom network headers
 )
+
+app.include_router(ingestion.router, prefix="/api/v1")
+app.include_router(query.router, prefix="/api/v1")
+# 🟢 Mount the Telemetry route under our primary unified core namespace prefix
+app.include_router(telemetry.router, prefix="/api/v1")
 
 # Mount Routers under the unified /api/v1 core namespace
 app.include_router(ingestion.router, prefix="/api/v1")
