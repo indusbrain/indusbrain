@@ -27,6 +27,14 @@ from app.exceptions import (
     industrial_exception_handler
 )
 
+from app.database import engine, Base
+
+# Explicitly import models to register tables into the SQLAlchemy metadata scope
+from app.models.document import KnowledgeDocument
+from app.models.chunk import KnowledgeChunk
+# 🟢 THE FIX: Ingest the new historical session model schema to build the database tables
+from app.models.chat_history import ChatMessage
+
 # 🛡️ ENTERPRISE LOGGING HOOK: Bind directly to Uvicorn's active terminal streaming engine
 logger = logging.getLogger("uvicorn.error")
 
