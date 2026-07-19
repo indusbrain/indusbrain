@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 # Ensure all dynamic environment parameters are loaded from local storage disk
 load_dotenv()
 
+# 🎯 THE LOG CLEANER FIX: Suppress internal HTTP client pooling logs from flooding your terminal window
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 # Import our async database engine drivers and core metadata sheets
 from app.database import engine, Base
 
@@ -28,7 +32,7 @@ from app.exceptions import (
     industrial_exception_handler
 )
 
-# 🛡️ ENTERPRISE LOGGING HOOK: Bind directly to Uvicorn's active terminal streaming engine
+# Bind directly to Uvicorn's active terminal streaming engine
 logger = logging.getLogger("uvicorn.error")
 
 # ========================================================
@@ -43,19 +47,15 @@ class ASGIExceptionMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        # Only process standard HTTP web traffic routes
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
         try:
-            # Pass execution context down to the next internal framework layer
             await self.app(scope, receive, send)
         except Exception as exc:
-            # Trap any unhandled Python crash instantly
             error_signature = traceback.format_exc().splitlines()[-1]
             
-            # Formulate a structured, single-line log payload for Uvicorn streams
             log_payload = {
                 "event": "CORE_PERIMETER_FAULT",
                 "path": scope.get("path", "UNKNOWN"),
@@ -65,7 +65,6 @@ class ASGIExceptionMiddleware:
             }
             logger.error(f"🚨 REASONING CORE FAULT ISOLATED: {json.dumps(log_payload)}")
 
-            # Formulate the sanitized public response object
             response = JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={
@@ -85,7 +84,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Provision environmental token metrics for CORS validation
 origins = [
     "http://localhost:3000", 
     "http://localhost:3001",   
@@ -99,11 +97,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Authorize all standard HTTP verbs (GET, POST, OPTIONS, etc.)
-    allow_headers=["*"],  # Authorize all custom network headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
-# Mount Routers under the unified /api/v1 namespace once to prevent duplication warnings
+# Mount Routers under the unified /api/v1 namespace
 app.include_router(ingestion.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
 app.include_router(telemetry.router, prefix="/api/v1")
@@ -120,10 +118,6 @@ app.add_exception_handler(AssetNotFoundException, industrial_exception_handler)
 # ---------------------------------------------------------------------
 @app.on_event("startup")
 async def database_table_migration_handshake():
-    """
-    Asynchronous table bootstrapping hook. Verifies physical connection pools 
-    and instantiates database tables using declarative metadata mappings.
-    """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -132,9 +126,6 @@ async def database_table_migration_handshake():
 # ---------------------------------------------------------------------
 @app.get("/")
 async def read_root():
-    """
-    Root Gateway Entry Path.
-    """
     return {
         "platform": "Industrial Knowledge Intelligence Platform (IKIP)",
         "status": "Operational",
@@ -143,12 +134,8 @@ async def read_root():
 
 @app.get("/api/health")
 async def health_check():
-    """
-    Production-grade System Health & Infrastructure Dependency Telemetry Endpoint.
-    """
     db_status = "Online"
     try:
-        # Check if the PostgreSQL database port is responsive
         with socket.create_connection(("localhost", 5432), timeout=1.0):
             pass
     except Exception:
@@ -158,22 +145,4 @@ async def health_check():
         "api_engine": "Healthy",
         "transactional_database_route": db_status,
         "telemetry_handshake": "Verified"
-    }
-
-# ==========================================================
-# DIAGNOSTIC MOCK TESTING ROUTES (Temporary Verification Hub)
-# ==========================================================
-@app.get("/api/test/domain-error")
-async def trigger_domain_error():
-    """
-    Forces an explicit AssetNotFoundException to verify custom handler mapping layout.
-    """
-    raise AssetNotFoundException("Valve-4B maintenance history log entry index is missing.")
-
-@app.get("/api/test/fatal-error")
-async def trigger_mock_fatal_exception():
-    """
-    Diagnostic fault-injection route designed specifically to audit 
-    the logging format and performance of the pure ASGI exception gate.
-    """
-    raise ValueError("CRITICAL SIMULATED HARDWARE FAULT: Core temperature sensor channel 4 dropped offline.")
+    }   

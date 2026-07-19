@@ -1,0 +1,4933 @@
+ 
+ 
+ 
+ 
+OIL INDUSTRY SAFETY DIRECTORATE 
+ 
+पेट्रोलियम रिफाइनिीयों एवं तेि / गैस प्रोसेलसंग संयंत्रो 
+की अलनन संिक्षण सुलवधाएं 
+ओ आई एस डी–मानक- 116 
+ 
+FIRE PROTECTION FACILITIES FOR 
+PETROLEUM REFINERIES & OIL/GAS PROCESSING PLANTS 
+OISD-STANDARD-116 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+FOR RESTRICTED CIRULATION ONLY 
+ 
+  
+OIL INDUSTRY SAFETY DIRECTORATE 
+Government of India 
+Ministry of Petroleum & Natural Gas 
+8th Floor, OIDB Bhavan, Plot No. 2, Sector – 73, Noida – 201301 (U.P.) 
+Website: https://www.oisd.gov.in       Tele: 0120-2593833
+Inception 
+1991 
+Revised Edition 
+August 2007 
+Amended Edition 
+July 2008 
+Amended Edition 
+October 2010 
+Amended Edition 
+July 2012 
+Amended Edition 
+October 2017 
+Errata and Updation  
+March 2022 
+
+                                                                                                                                 Page No. I 
+ 
+ 
+ 
+PREAMBLE 
+ 
+Indian petroleum industry is the energy lifeline of the nation and its continuous performance is essential 
+for sovereignty and prosperity of the country. As the industry essentially deals with inherently 
+inflammable substances throughout its value chain – upstream, midstream and downstream – Safety 
+is of paramount importance to this industry as only safe performance at all times can ensure optimum 
+ROI of these national assets and resources including sustainability.  
+While statutory organizations were in place all along to oversee safety aspects of Indian petroleum 
+industry, Oil Industry Safety Directorate (OISD) was set up in 1986 by Ministry of Petroleum and 
+Natural Gas, Government of India as a knowledge centre for formulation of constantly updated world-
+scale standards for design, layout and operation of various equipment, facility and activities involved 
+in this industry. Moreover, OISD was also given responsibility of monitoring implementation status of 
+these standards through safety audits. 
+In more than three decades of its existence, OISD has developed a rigorous, multi-layer, iterative and 
+participative process of development of standards – starting with research by in-house experts and 
+iterating through seeking & validating inputs from all stake-holders – operators, designers, national 
+level knowledge authorities and public at large – with a feedback loop of constant updation based on 
+ground level experience obtained through audits, incident analysis and environment scanning. 
+The participative process followed in standard formulation has resulted in excellent level of compliance 
+by the industry culminating in a safer environment in the industry. OISD – except in the Upstream 
+Petroleum Sector – is still a regulatory (and not a statutory) body but that has not affected 
+implementation of the OISD standards. It also goes to prove the old adage that self-regulation is the 
+best regulation. The quality and relevance of OISD standards had been further endorsed by their 
+adoption in various statutory rules of the land. 
+Petroleum industry in India is significantly globalized at present in terms of technology content 
+requiring its operation to keep pace with the relevant world scale standards & practices. This matches 
+the OISD philosophy of continuous improvement keeping pace with the global developments in its 
+target environment. To this end, OISD keeps track of changes through participation as member in 
+large number of International and national level Knowledge Organizations – both in the field of 
+standard development and implementation & monitoring in addition to updation of internal knowledge 
+base through continuous research and application surveillance, thereby ensuring that this OISD 
+Standard, along with all other extant ones, remains relevant, updated and effective on a real time basis 
+in the applicable areas. 
+Together we strive to achieve NIL incidents in the entire Hydrocarbon Value Chain. This, besides other 
+issues, calls for total engagement from all levels of the stake holder organizations, which we, at OISD, 
+fervently look forward to. 
+Jai Hind!!! 
+ 
+ 
+ 
+Executive Director 
+  
+ 
+ 
+ 
+ 
+ 
+Oil Industry Safety Directorate 
+ 
+ 
+ 
+ 
+ 
+ 
+
+                                                                                                                                 Page No. II 
+ 
+ 
+FOREWORD 
+ 
+The Oil Industry in India is over 100 years old. As such, various practices have been in vogue because of 
+collaboration/ association with different foreign companies and governments. Standardization in design 
+philosophies, operating and maintenance practices remained a grey area. This coupled with feedback from 
+some serious accidents that occurred in the past in India and abroad, emphasized the need for the industry to 
+review the existing state-of-the-art in designing, operating and maintaining of Oil and Gas installations. 
+With this in view, the Ministry of Petroleum and Natural Gas in 1986 constituted a Safety Council assisted by 
+the Oil Industry Safety Directorate (OISD) staffed from within the industry in formulating and implementing a 
+series of self-regulatory measures aimed at removing obsolescence, standardizing and upgrading the existing 
+standards to ensure safe operations. Accordingly, OISD constituted a number of functional committees of 
+experts nominated from the industry to draw up standards and guidelines on various subjects.   
+Petroleum Refining & Gas Processing operations and its management is challenging because of large numbers 
+of processing units in the facility coupled with storage, handling of inflammable petroleum products. Refineries 
+comprise of Crude & vacuum Distillation units along with a number of complex, secondary units like Catalytic 
+Reforming, Fluidized catalytic cracking, Delayed Cokers ,Vis-Breaker, Hydrotreater, Hydrocracker & Hydrogen 
+Units including process like Sulphur Recovery units and facilities like Flare etc. Refining units as well as Gas 
+processing facilities are subjected to operations at high temperature and high pressures conditions and present 
+its own set of challenges requiring focused approach with respect to safety to sustain smooth operation and 
+ensure supply of petroleum products in the hydrocarbon value chain.  Refineries & Gas processing play a pivotal 
+role in ensuring product availability and continuous safe operation of these units is a national imperative. 
+Even though Petroleum refineries & Gas processing plants are generally located in remote areas, experience 
+shows that residential /industrial units come up in close proximity with the passage of time. Hence these 
+installations which process, store & handle large quantity of flammable materials may also pose threat to 
+surroundings as well in addition to their own safety. Such conditions therefore necessitate the introduction of 
+inbuilt fire protection facilities which would ensure adequacy in terms of its ability to contain any incident from 
+developing into a catastrophe while achieving optimality in terms of life cycle cost of installation, operation and 
+maintenance.  
+This standard was first released in 1991. Subsequently, with the adoption of new process & technology 
+especially the secondary processing facilities coupled with capacity augmentation of existing facilities increased 
+the complexity of the installations which necessitated up-gradation of this standard and the sequent revision 
+was issued in Aug 2007. Further amendments to the same were issued in July 2008 and last in October 2010 
+which emanated out of the in-depth analysis of the recent major fire incident by an expert committee.  
+This amendment, issued in July 2012, incorporated the duly optimized recommendations, over and above the 
+October 2010 amendment, emanating out of the in-depth analysis by a series of high-power committees 
+constituted in this context in addition to the view of the Safety Council of OISD. In this amendment, substantive 
+additions had been made to bring more clarity in critical firefighting and mitigating systems after optimizing the 
+same. Attempts had also been made to align the standard to international codes of design, practice and 
+certification. 
+The amendment, issued in October 2017 is related to deletion of educatory text from clause 4.2.7 of the 
+standard. 
+The figures and photographs used in the document, if any, are representative in nature. 
+We, at OISD, are confident that the provisions of this standard, when implemented in totality, would go a long 
+way in ensuring safe operation of the target group of locations.  
+Needless to mention, this standard, as always would be reviewed based on field level experience, incident 
+analysis and environment scanning. Suggestions from all stake holders may be forwarded to OISD. 
+ 
+ 
+ 
+
+                                                                                                                                 Page No. III 
+ 
+ 
+NOTE 
+ 
+Oil Industry Safety Directorate (OISD) publications are prepared for use in the Oil and Gas industry under 
+Ministry of Petroleum & Natural Gas. These are the property of Ministry of Petroleum & Natural Gas and 
+shall not be reproduced or copied and loaned or exhibited to others without written consent from OISD. 
+Though every effort has been made to assure the accuracy and reliability of the data contained in these 
+documents, OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting from 
+their use. 
+These documents are intended only to supplement and not to replace the prevailing statutory requirements 
+of PESO, DGMS, Factory Inspectorate or any other Government body which must be followed as 
+applicable. 
+Wherever Acts/ Rules/ Regulation and National/ International Standards are mentioned in the standard, 
+the same relates to in-vogue version of such documents.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+                                                                                                                                 Page No. IV 
+ 
+ 
+ 
+FUNCTIONAL COMMITTEE   
+(First Edition - March, 1989) 
+  
+ 
+Name 
+Designation / Organisation 
+Status 
+ 
+S/Shri 
+ 
+ 
+1. 
+M.M.Kapoor 
+ 
+ 
+R.P. Bhatla 
+ 
+(upto 31.12.94) 
+Engineers India Limited  
+(w.e.f. 1.1.95) 
+Engineers India Limited 
+Leader 
+ 
+Leader 
+ 
+2. 
+A.A. Raichur  
+Hindustan Petroleum  
+Corporation Limited 
+Member 
+3. 
+S. Neelkanthan 
+Madras Refineries  
+Limited 
+Member 
+4. 
+P.J. Joshuva 
+Cochin Refineries  
+Limited 
+Member 
+5. 
+Sunil Kumar 
+Indian Oil Corporation 
+Limited 
+Member 
+6. 
+V.P. Vaidhya 
+Hindustan Petroleum 
+Corporation Limited 
+Member 
+7. 
+S.N. Mukharjee 
+Bharat Petroleum 
+Corporation Limited 
+Member 
+8. 
+A.K. Das 
+Bongaigaon Refineries 
+& Petrochemicals Ltd. 
+Member 
+9. 
+R.P. Saxena 
+Oil & Natural Gas 
+Corporation Ltd. 
+Member 
+10. 
+H.K. B. Singh 
+IBP Co. Ltd. 
+Member 
+11. 
+Vijay M. Ranalkar 
+Oil Industry Safety 
+Directorate 
+Member 
+Coordinator 
+ 
+In addition to the above, several other experts from industry contributed in the preparation, 
+review and finalisation of the document. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+                                                                                                                                 Page No. V 
+ 
+ 
+ 
+FUNCTIONAL COMMITTEE   
+(Second Edition - March 2007) 
+ 
+Name 
+Organisation 
+LEADER 
+ 
+Shri Arvind Kumar 
+Engineers India Limited, New Delhi 
+MEMBERS 
+ 
+Shri A.A. Raichur  
+Hindustan Petroleum Corporation Limited, Mumbai. 
+Shri S. P. Garg 
+GAIL (India) Limited, Pata (UP). 
+Shri G. B. Tolmore  
+Indian Oil Corporation Limited, New Delhi. 
+Shri G. C. Kundu 
+Indian Oil Corporation Limited, Panipat. 
+Shri S.N. Mukherjee 
+Bharat Petroleum Corporation Limited. Mumbai. 
+Shri P. K. Bora 
+Bongaigaon Refineries & Petrochemicals Ltd, 
+Bongaingaon. 
+Shri A.K. Das 
+Kochi Refineries Limited, Kochi. 
+Shri K. V. Singh 
+Hindustan Petroleum Corporation Limited, Vizag. 
+Shri J.P.K.Hepat 
+Chennai Petroleum Corporation Limited, Chennai. 
+Shri D. K. Varshney 
+Oil Industry Safety Directorate, New Delhi. 
+MEMBER COORDINATOR 
+ 
+Shri P. Kulshreshtha 
+Oil Industry Safety Directorate, New Delhi. 
+ 
+ 
+ 
+In addition to the above, several other experts from industry contributed in the 
+preparation, review and finalisation of the document. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+                                                                                                                                 Page No. VI 
+ 
+ 
+ERRATA AND UPDATION (March 2022) 
+ 
+The following contents were updated based on the PNGRB regulations  
+ 
+3.0 
+DEFINITIONS  
+(xiv) EMERGENCY (Added) 
+Emergency means a situation or scenario which has the potential to cause serious danger 
+to persons, environment, or damage to property and which tends to cause disruption 
+inside or outside the premises and may require the help of outside resources.  
+ 
+        CLASSIFICATION OF EMERGENCIES: - 
+ 
+Emergencies can be categorized into three broad levels based on seriousness and 
+response requirements, namely: - 
+ 
+(a) Level - I: This is an emergency or an incident which 
+(i) can be effectively and safely managed, and contained within the site, location, 
+or installation by the available resources;  
+(ii) has no impact outside the site, location, or installation.  
+(b) Level - II: This is an emergency or an incident which 
+(i) cannot be effectively and safely managed or contained at the location or 
+installation by available resource and additional support is alerted or required;  
+(ii) is having or has the potential to have an effect beyond the site, location, or 
+installation and where external support of mutual aid partner may be involved;  
+(iii) is likely to be a danger to life, the environment, industrial assets, or reputation.  
+(c) Level - III: This is an emergency or an incident with off-site impact which could be 
+catastrophic and is likely to affect the population, property and environment inside 
+and outside the installation, and management and control is done by district 
+administration. Although the Level-III emergency falls under the purview of District 
+Authority but till they step in, it should be responsibility of the unit to manage the 
+emergency.  
+ 
+Note: Level - I and Level - II shall normally be grouped as an Onsite emergency and Level - III 
+as an Off-site emergency. 
+ 
+ 
+15.0 COMMUNICATION SYSTEM  
+ 
+iv) SIREN CODES 
+ 
+The emergency siren* should be located suitably to cover the whole area with the operational 
+control in the Fire station control room. The siren code should be as follows: 
+ 
+(a) Level - I: The siren code for Level - I shall be decided by an entity depending upon the size 
+and complexity of installation; 
+ 
+(b) Level - II: A wailing siren for two minutes;  
+(c) Level - III: Same type of siren as in case of Level - II but the same will be sounded for three 
+times at the interval of one minutes i.e. (wailing siren 2 min + gap 1 min + wailing siren 2 min + 
+gap 1 min + wailing siren 2 min) total duration of disaster siren to be eight minutes. 
+ 
+(d) ALL CLEAR: Straight run siren for two minutes.  
+ 
+(e) TEST: Straight run siren for two minutes at the frequency at least once a week. 
+* Wherever ‘Fire siren’ is mentioned in the standard, the same shall be read as ‘Emergency siren’. 
+
+                                                                                                                                 Page No. VII 
+ 
+ 
+ 
+FIRE PROTECTION FACILITIES FOR PETROLEUM 
+REFINERIES AND OIL/GAS PROCESSING PLANTS 
+ 
+SL.NO. 
+DESCRIPTION 
+PAGE NO. 
+1.0 
+Introduction 
+1 
+2.0 
+Scope 
+1 
+3.0 
+Definitions 
+2 
+4.0 
+Fire Protection philosophy 
+3 
+4.1 
+General considerations 
+3 
+4.2 
+Design criteria 
+4 
+5.0 
+Fire Water System 
+5 
+5.1 
+Basis 
+6 
+5.2 
+Firewater Flow Rate 
+6 
+5.3 
+Header Pressure 
+6 
+5.4 
+Storage & Make up water 
+7 
+5.5 
+Firewater Pumps 
+7 
+5.6 
+Distribution Network 
+8 
+5.7 
+Hydrants and Monitors - Details 
+10 
+5.8 
+Material Specifications 
+12 
+5.9 
+Fixed Water Spray System 
+12 
+5.10 
+Fixed Water Sprinkler System 
+13 
+6.0 
+Foam Systems  
+14 
+6.1 
+Types of Foam 
+14 
+6.2 
+Low Expansion Foam 
+14 
+6.3 
+Foam Conveying Systems 
+14 
+6.4 
+Floating Roof Tank Protection using foam 
+15 
+6.5 
+Fixed Roof Tank Protection using foam 
+15 
+6.6 
+Floating cum Fixed Roof Tank Protection using foam 
+16 
+6.7 
+Dyke Area/Spill/Oil Separator Protection using foam 
+16 
+6.8 
+Foam Application Rate 
+16 
+6.9 
+Duration of Foam Discharge 
+16 
+6.10 
+Foam Quantity Requirement 
+16 
+6.11 
+Foam Compound Storage 
+17 
+7.0 
+Clean Agent Based Protection System For Control Room, SPR And 
+Computer Room Protection 
+17 
+8.0 
+Carbon Dioxide Systems 
+18 
+9.0 
+Dry Chemical Extinguishing System 
+18 
+9.1 
+Recommended use 
+18 
+9.2 
+System Design 
+18 
+10.0 
+Modernization plan for firefighting equipments 
+19 
+11.0 
+First Aid Fire-fighting & other Equipment 
+19 
+11.1 
+Criteria to determine the Quantity needed 
+19 
+11.2 
+Other fire fighting Equipment 
+21 
+12.0 
+Mobile Fire-fighting Equipment 
+21 
+12.1 
+Fire Tenders 
+21 
+12.2 
+Other Mobile Equipment 
+21 
+12.3 
+Other Fire Fighting Equipment 
+22 
+13.0 
+Storage of Fire Fighting Agents 
+22 
+14.0 
+Detection system and Alarm 
+24 
+14.1 
+Areas to be covered with detectors 
+24 
+15.0 
+Communication System 
+25 
+16.0 
+Inspection & Testing of Fire Protection System 
+26 
+16.1 
+Fire water tank, reservoir & foam tanks 
+26 
+16.2 
+Fire Water Pumps 
+26 
+16.3 
+Fire Water Ring Main 
+27 
+16.4 
+Fire Water Spray System 
+ 
+27 
+ 
+ 
+
+                                                                                                                                 Page No. VIII 
+ 
+ 
+SECTION 
+DESCRIPTION 
+PAGE NO. 
+16.5 
+Fixed/Semi Fixed Foam System 
+27 
+16.6 
+Clean Agent (Halon Substitute) based Extinguishing System 
+27 
+16.7 
+Mobile Fire Fighting Equipment and Accessories 
+27 
+16.8 
+DCP / CO2 / Foam type Fire Extinguishers 
+28 
+16.9 
+Communication System 
+28 
+16.10 
+Detectors 
+28 
+17.0 
+Fire Fighting Organisation 
+28 
+18.0 
+Fire Protection Training 
+29 
+19.0 
+Mutual Aid 
+29 
+20.0 
+Fire Emergency Procedures 
+29 
+21.0 
+Fire Station/Control Room  
+30 
+22.0 
+Passive Fire Protection Measures / Other Safety measures 
+30 
+23.0 
+Fire Protection system Audit 
+31 
+24.0 
+References 
+31 
+ 
+A N N E X U R E S   
+ 
+I 
+Example for calculation of Fire Water  Flow Rate 
+ 
+33 
+II 
+Example for calculation of Foam Compound Requirement 
+39 
+III 
+Broad specifications for Fire Fighting Equipment 
+41 
+IV 
+Fire Training Ground - Facilities 
+43 
+V 
+Arrangement of Mutual Aid 
+46 
+VI 
+Example Of Fire Case In A Large Floating Roof Tank After Sinking Of 
+Floating Roof 
+48 
+VII 
+System of automatic actuated rim seal fire detection and extinguishing system 
+for external floating roof tanks storing Class- A petroleum 
+ 
+49 
+VIII 
+Brief description of fire-fighting foam 
+51 
+IX 
+Explanatory Note for Implementation 
+54 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  1    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/GAS PROCESSING PLANTS 
+ 
+ 
+1.0 INTRODUCTION 
+Even though petroleum refineries and oil/ gas processing installations are generally located in remote 
+areas, experience shows that residential/industrial units come up in close proximity with the passage 
+of time.  Hence, these installations which store, process and handle large quantity of flammable 
+materials, pose threat to surroundings as well, in addition to their own safety. Such conditions, therefore, 
+necessitate the introduction of in-built fire protection facilities. 
+It is impractical and prohibitively costly to design fire protection facilities to control catastrophic fires. 
+Usual requirement of an effective fire protection system is to prevent emergencies from developing into 
+major threat to the installations and surroundings. 
+The requirement of fire fighting facilities, described in the following chapters is based on the 
+consideration that the fire fighting services from city fire brigade and/or from other neighbouring 
+industries will not be available. 
+2.0 SCOPE 
+i) 
+This standard covers the minimum design criteria and details of the various fire protection facilities 
+to be provided in petroleum refineries and oil/gas processing plants. 
+ii) 
+This standard also covers the facilities located within the refineries and oil/ gas processing plants 
+which includes: 
+ LPG storage, handling and bottling plants, 
+ Marketing & Pipeline Terminals with their loading / un-loading/ pumping and handling 
+facilities 
+ 
+iii) 
+This standard does not cover the facilities located outside the premises of Refineries & gas 
+processing plants such as LPG mounded storage, handling & bottling plants, LNG storage 
+Petroleum Depots, Terminals, Lube Blending   plants   &   Pipeline Installations located out side. 
+However, this standard shall be applicable to those of above mentioned facilities located outside 
+the premises under the same management and in close proximity to the refineries & gas processing 
+plants. For such cases, common firewater storage and pumping facilities should be considered. 
+Otherwise, to protect the facilities located outside the following OISD standards shall apply:  
+ LPG storage, handling & bottling plants --- under OISD-STD-144 & OISD-GDN-169. 
+Mounded storage – under OISD-STD-150. 
+ Petroleum Depots, Terminals, AFS, Lube Blending   plants &   Pipeline Installations --- 
+under OISD-STD-117. 
+ Central Tank Farm (CTF) --- OISD-STD – 117. 
+ Group Gathering Station (GGS), Oil Collecting Stations (OCS) --- under OISD-STD-189. 
+ 
+iv) 
+ Wherever specified in the standard, the use of equivalent or superior performance systems / 
+methods to those already prescribed in the standard, should be considered, provided these 
+equivalent systems / methods are duly approved by a technical committee constituted by OISD, 
+based upon technical documentation, performance record and field demonstration by the user 
+industry. 
+v) 
+It is intended that the provisions specified in this standard shall be implemented progressively for 
+the existing facilities. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  2    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+For the new/upcoming locations, these shall be implemented along with commissioning of the tank.  
+The replacement of the extant Rim seal fire protection system in the existing Class “A” floating roof 
+tanks would be governed by equivalency clause as given in the standard. 
+(Refer Explanatory Note for Implementation in Annexure-IX). 
+3.0 
+DEFINITIONS  
+i)   PETROLEUM REFINERY 
+A plant where crude oil is received and processed to produce various intermediates and 
+finished products. 
+ii)  OIL/GAS PROCESSING PLANT 
+A plant where oil/natural gas is collected and processed to produce Oil/LPG and other 
+petroleum fractions. Drilling activities and facilities upstream of the Christmas tree of a well are 
+not covered under this definition. 
+ 
+iii) LPG BOTTLING PLANT 
+A plant where LPG is stored and filled into cylinders. Receipt and despatch of LPG by rail, road 
+and pipeline are also considered under this definition. 
+iv) PETROLEUM DEPOTS, TERMINALS AND OIL & GAS INSTALLATIONS 
+These include locations where Petroleum crude/Products/LPG are received by tanker, 
+pipelines, tank wagons and tank trucks and stored or blended in bulk and   despatched by 
+tankers, pipelines, tank wagons, tank trucks, portable tanks or containers. Lube oil installations 
+including lube blending plant / Grease manufacturing plants and can-filling facilities also form 
+part of such installations. 
+v) INSTALLATION 
+For the purpose of this Standard, installation includes all the facilities as listed in 3(i) to 3(iv) 
+which are located in a Refinery or Oil/Gas Processing Plant.  
+vii) FLASH POINT: 
+The minimum temperature at which the liquid gives so much vapour that this vapour, when 
+mixed with air, forms an ignitable mixture and gives a momentary flash on application of a small 
+pilot flame under specified conditions of test. 
+viii) CLASSIFICATION OF PETROLEUM PRODUCTS 
+ 
+a) General Classification of Petroleum Products: 
+Petroleum products are classified according to their closed cup FLASH POINTS as follows: 
+Class 'A' Petroleum: Liquids having flash point below 23 degrees C. 
+Class 'B' petroleum: Liquids having flash point of 23 degrees C and above but below 65 degrees 
+C. 
+     Class 'C' petroleum : Liquids having flash point of 65 degrees C and above but below 93 
+degrees C. 
+Excluded Petroleum: Liquids having flash point of 93 degrees C and above. 
+Liquefied gases including LPG, do not fall under this classification but form a separate category. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  3    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+b)    Classification for heated products : 
+At locations where the handling temperatures are higher than the flash point of the product in 
+circumstances  where product handled is artificially heated to above its flash point, class 'C' 
+product shall be considered as Class 'B' product and Class 'B' product shall be considered as 
+Class 'A' product. 
+ 
+ix) CLASSIFICATION OF FIRES 
+Class A Fires: involve combustible materials of organic nature, such as wood, paper, rubber 
+and many plastics, etc., where the cooling effect of water is essential for extinction of fires. 
+Class B Fires: involve flammable liquids,   petroleum products, or the like, where a blanketing 
+effect is essential. 
+Class C Fires: involve flammable gases under pressure including liquefied gases and energised 
+electrical equipment where it is necessary to inhibit the burning gas at a fast rate with an inert 
+gas, powder or   vapourising    liquid   for extinguishment. 
+Class D Fires: involve combustible materials such as magnesium, aluminum, zinc, sodium, 
+potassium.  The burning metals are reactive to water and water containing agents, and in 
+certain cases carbon dioxide, halogenated hydrocarbons and ordinary dry powders. These fires 
+require special media and technique to extinguish. 
+x) Shall: indicates provision that is mandatory in nature. 
+xi) Should: indicates that provision is recommendatory as per good engineering practices. 
+xii) Clean Agent: electrically non-conductive, volatile or gaseous fire extinguishants that does not 
+leave a residue upon evaporation and meets the requirements given in the latest NFPA 
+Standard 2001 (latest edition) on clean agent fire extinguishing systems in line with 
+environmental consideration of Kyoto and Montreal Protocols & latest MoEF regulations.  
+xiii) GPM denotes US gallons (1GPM=3.785 LPM) 
+4.0 
+FIRE PROTECTION PHILOSOPHY 
+The Fire Protection Philosophy is based on Loss Prevention and Control. It considers that a 
+hydrocarbon processing plant carries inherent potential hazard. A fire in one part/section of the 
+plant can endanger other sections of plant as well. If fire breaks out, it must be controlled / 
+extinguished as quickly as possible to minimise the loss to life and property and to prevent 
+further spread of fire.  
+4.1       GENERAL CONSIDERATIONS 
+The size of process plant, pressure and temperature conditions, size of storage, plant location 
+and terrain determine the basic fire protection need. Layout of an installation shall be done in 
+accordance with OISD-Standard-118 on Layouts to ensure adequate fire fighting access, 
+means of escape in case of fire and also segregation of facilities so that the adjacent facilities 
+are not endangered during a fire. 
+Material of construction for infrastructure facilities shall conform to National Building Code 
+(NBC) / statutory regulations. 
+The following fire protection facilities shall be provided depending upon the nature of the 
+installation and risk involved. 
+- 
+Fire Water System 
+- 
+Foam System 
+- 
+Clean Agent Fire Protection system  
+- 
+Carbon Dioxide System 
+- 
+Dry Chemical Extinguishing System 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  4    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+- 
+Detection and Alarm system 
+- 
+Communication System 
+- 
+Portable fire fighting equipment 
+- 
+Mobile fire fighting equipment 
+- 
+First Aid Fire Fighting Equipment. 
+4.2 
+DESIGN CRITERIA 
+The following shall be the basic design criteria for a fire protection system. 
+i) 
+Facilities shall be designed on the basis that city fire water supply is not available close to 
+the installation. 
+ii) 
+Fire protection facilities shall be designed to fight two major fires simultaneously any where 
+in the installation. 
+Fire water requirements shall be as per guidelines given in Annexure-l. 
+iii) 
+All the tank farms and other areas of installation where hydrocarbons are handled shall be 
+fully covered by hydrant System. 
+4.2.1    Fixed Water Spray on storage Tanks 
+i) 
+Class ‘A’ Petroleum storage in above ground tanks shall have fixed water spray system, 
+whether floating roof or fixed roof. 
+ii) 
+Class 'B' Petroleum storage tanks of following dimensions shall be provided with fixed water 
+spray. 
+- 
+Floating roof tanks of diameter larger than 30 M. 
+- 
+Fixed roof tanks of diameter larger than 20 M. 
+4.2.2    Semi-fixed Foam system for Storage 
+i) 
+         Semi-fixed Foam system  shall be provided for the following tanks: 
+- 
+Floating roof tanks storing Class 'A' and Class 'B' petroleum products. 
+- 
+Fixed roof tanks storing Class 'A' and class 'B' petroleum products. 
+- 
+Fixed roof tanks storing class 'C' petroleum products, of diameter larger than 40 M.  
+ 
+4.2.3 
+Automatic Actuated Rim seal Protection System for External Floating roof tanks: 
+Automatic actuated Rim Seal fire detection and extinguishing system shall be provided on all 
+existing as well as new external floating roof tanks storing Class A Petroleum products. 
+The rim seal protection system shall be of linear hollow metallic tube type detectors with foam 
+based extinguishing media or equivalent system*, for existing, new installation as well as for 
+replacements of existing system when due. These detection systems shall be listed and/or 
+approved by any of the international agencies like UL, FM, VdS or LPC to ensure that those 
+systems are used which meet with highest standards of safety. 
+The minimum requirement for design of the system is given in Annexure VII. This shall be in 
+addition to the water spray and semi-fixed foam system on all the floating roof tanks storing 
+class-A products.  
+ 
+(Refer Explanatory Note for implementation in Annexure-IX). 
+* Refer clause at para 2.0 (iv) for equivalency. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  5    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+4.2.4 
+Automatic Water Spray  for Pressurised storages including LPG / Hydrogen 
+i) 
+LPG and hydrogen Pressure storage vessels shall be provided with automatic water spray 
+system. 
+ii) 
+Automatic water spray system shall be provided in LPG bottling stations, LPG 
+loading/unloading gantries and LPG pump and compressor areas in all new refineries and 
+for existing refineries this conversion to automatic shall be done in phased manner. 
+4.2.5   Water Spray System in Process Unit  
+i) 
+Water spray system shall be provided for hazardous locations and equipment in process 
+unit areas. Some of these areas are: 
+- 
+Un-insulated vessels having capacity larger than 50 m3 and containing class A or B 
+flammable liquid.  
+- 
+Vessels inaccessible to fire tender/ mobile equipment, fire hydrants 
+- 
+Pumps handling petroleum products class 'A' under pipe racks. 
+- 
+Pumps handling products above auto-ignition temperature under pipe racks 
+- 
+Air fin coolers in hydrocarbon service located above pipe racks / elevated location. 
+- 
+Water spray rings for columns of height more than 45 M shall be provided  
+4.2.6 Water Spray for Electrical Installation 
+Water spray requirement with mode of operation   to be considered in line with provisions of 
+OISD-STD-173. The water to be used should be clear and non saline.  
+4.2.7 Clean Agent (Halon substitute) for Control rooms & Satellite Rack Room (SRR) 
+Selection of Clean Agent and design of Fire protection system for process control rooms, 
+computer rooms, SRR and pressurized rooms shall follow the Standard on “Clean Agent 
+Extinguishing systems NFPA Standard 2001 (latest edition) including its safety guidelines with 
+respect to “Hazards to Personnel”, electrical clearance and environmental factors in line with 
+environmental considerations of Kyoto & Montreal Protocols and latest MoEF regulations. (For 
+areas to be covered with clean agent refer OISD STD 163).  
+4.2.8     Loading / unloading Gantry 
+Oil loading/unloading Tank Truck & Tank Wagon Gantries shall be provided with water spray 
+and/or foam system. 
+In case automatic fixed water spray  system is provided in TW gantry, the gantry may be divided 
+into suitable number of segments (each segment having min. length of 15 m length & width of 12 
+m) and three largest segments operating at a time shall be considered as single risk for calculating 
+the water requirement.  
+ 
+Accordingly, a provision shall be made to actuate the water spray system from a safe 
+approachable central location i.e. affected zone and adjoining zones.  
+ 
+5.0 
+FIRE WATER SYSTEM 
+Based on the site requirement, water shall be used for fire extinguishment, fire control, cooling 
+of equipment and protection of equipment as well as personnel from heat radiation. For these 
+purposes water in appropriate form should be used such as straight jet, water fog, water mist, 
+water curtain, water spray, deluge/ sprinkler, for foam making etc.  
+Fire water system shall comprise of fire water storage, fire water pumps and distribution piping 
+network along with hydrants and monitors, as the main components. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  6    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+5.1 
+BASIS 
+In line with the design criteria given at 4.2 (ii), the fire water system in an installation shall be 
+designed to meet the fire water flow requirement for fighting two fires simultaneously or single 
+fire for largest floating roof tank roof sinking case, whichever requiring   largest water demand. 
+5.2 
+ 
+FIREWATER FLOW RATE 
+Two of the largest flow rates calculated for different sections as shown below shall be added 
+and that shall be taken as design flow rate. An example for calculating design major fire water 
+flow rate is given in Annexure-1. 
+i) 
+Fire Water flow rate for tank farm shall be aggregate of the following: 
+- 
+Water flow calculated for cooling a tank-on-fire at a rate of 3 Ipm/m2 of tank shell area. 
+- 
+Water flow calculated for all other tanks falling within a radius of (R+30) M from centre of 
+the tank on fire at a rate of 3 Ipm/m2 of tank shell area. 
+- 
+Water flow calculated for all other tanks falling outside a radius of (R+30) M from centre of 
+the tank on fire and situated in the same dyke area at a rate of 1 Ipm/m2 of tank shell area. 
+- 
+Water flow required for applying foam into a single largest cone roof or floating roof tank 
+(after the roof has sunk) burning surface area of oil, by way of fixed foam system, where 
+provided or by use of water/foam monitors. (Refer section 6.8 for foam rates). 
+- 
+Fire water flow rate for supplementary stream, shall be based on using 4 single hydrant 
+outlets and 1 HVLR (1000GPM) simultaneously. Capacity of each hydrant outlet as 36 
+m3/hr and of each monitor as 228 m3/hr shall be considered at a pressure of 7 kg/cm2g.  
+ii)  Fire water flow rate for LPG sphere storage area shall be aggregate of the following: 
+- 
+Water flow calculated for cooling LPG sphere on fire at a rate of 10.2 Ipm/ m2 of sphere 
+surface area. 
+- 
+Water flow calculated for all other spheres falling within a radius of (R+30) metre from 
+centre of the sphere on fire at the rate of 10.2 Ipm/ m2 of surface area. 
+- 
+If the water rate as calculated above works out to be more than 2000 m3/hr the layout of 
+the spheres should be reviewed. 
+- 
+Water flow for supplementary stream shall be considered as 372 m3/hr as indicated under 
+item (i). 
+- 
+The spheres should be laid in two separate groups with each group limited to a maximum 
+of 6 vessels The groups shall preferably be separated by a distance of (R+30) metre. 
+iii) Water flow required for applying foam into a single largest cone roof or floating roof tank 
+(after the roof has sunk) burning surface area of oil, by way of fixed foam system, where 
+provided or by use of water/foam monitors. (Refer section 6.8 for foam rates). 
+iv) Water flow rate requirements for fire fighting in other major areas shall be calculated based 
+on criteria in terms of lpm/ m2 given in section 5.9. 
+5.3 
+   HEADER PRESSURE 
+The fire water system shall be designed for a minimum residual pressure of 7.0 kg/cm2g at the 
+hydraulically remotest point of application at the designed flow rate at that point. 
+The fire water network shall be kept pressurised at minimum 7.0 kg/cm2g at all the time. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  7    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+5.4 
+STORAGE & MAKE-UP WATER 
+ 
+5.4.1 
+FIREWATER STORAGE 
+ 
+ 
+Water for the hydrant service shall be stored in any easily accessible surface or underground lined 
+reservoir or above ground tanks of steel, concrete or masonry. The fire water storage should be 
+located as far away as possible (not less than 60 M) from hazardous areas to avoid any damage in 
+case of fire/explosion.  The effective capacity of the reservoir above the level of suction point shall 
+be minimum 4 hours aggregate working capacity of main pumps (excluding standby pumps). Where 
+rate of make up water supply is 50% or more, this storage capacity can be reduced to 3 hours 
+aggregate working capacity of main pumps.  
+ 
+Storage reservoir shall be in two equal interconnected compartments to facilitate cleaning and 
+repairs. In case of aboveground steel tanks there shall be minimum two tanks each having 50 % of 
+required capacity.  
+ 
+Large natural reservoirs having water capacity exceeding 10 times the aggregate fire water 
+requirement can be left unlined. 
+In addition to fire water storage envisaged as above, emergency water supply in the event of 
+depletion of water storage shall be considered. Such water supplies can be connected from cooling 
+water supply header and/or treated effluent discharge headers. 
+Fire water supply shall be from fresh water source such as river, tube well or lake. Where fresh 
+water source is not easily available, fire water supply can be sea water or other acceptable source 
+like treated effluent water. In case sea water or treated effluent water is used for fire fighting 
+purposes, the material of the pipe selected shall be suitable for the service.  
+ 
+5.4.2 
+MAKE UP WATER 
+Suitable provisions shall be kept for make up firewater during fire fighting time. Provision should be 
+made to divert water from various sources like ETP, Process Cooling Water, river, ponds etc. to the 
+fire water system.  
+5.5    FIREWATER PUMPS 
+Firewater pumps shall be used exclusively for fire fighting purposes. 
+ 
+5.5.1 
+Type of Pumps 
+ 
+Fire water pumps shall be of the following type: 
+ 
+i) 
+Electric motor driven centrifugal pumps 
+ii) 
+Diesel engine driven centrifugal pumps 
+The pumps shall be horizontal centrifugal type or vertical turbine submersible pumps.  
+Each pump shall be capable of discharging 150% of its rated capacity at a minimum of 65% of 
+the rated head. The shut-off head shall not exceed 120% of rated head, for horizontal pumps 
+and 140% in case of vertical turbine type pumps. 
+Number of diesel driven pumps shall be minimum 50% of the total number of pumps (inclusive 
+of standby pumps). Minimum 50% of total flow requirement should be available through diesel 
+driven pumps all the time. Power supply to the electric driven pumps should be from two 
+separate feeders. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  8    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+5.5.2  Capacity of main Pumps  
+The capacity and number of main fire water pumps shall be fixed based on design fire water 
+rate, worked out on the basis of design criteria as per section 5.2. The capacity of each pump 
+shall not be less than 400 m3/hr or more than 1000 m3/hr. All pumps should be identical with 
+respect to capacity and head characteristics.  
+5.5.3  Standby pumps 
+i) 
+When total number of Working pumps work out to be one or two, 100% standby pumps 
+shall be provided. 
+ii) 
+When total numbers of working pumps are more than two, 50% standby pumps shall be 
+provided. 
+iii) 
+In cases where two sets of firewater storage and pumps are provided, the number of pumps 
+at each location shall be according to hydraulic analysis of piping network. 
+5.5.4  Jockey Pumps 
+The fire water network shall be kept pressurised at minimum 7.0 kg/cm2 g by jockey pumps. 2 
+Jockey pumps (1 working plus 1 standby) shall be provided. The capacity of the pump shall be 
+sufficient to maintain system pressure in the event of leakages from valves etc. The capacity 
+of jockey pumps shall be 5% minimum and maximum 10% of the design fire water rate. Its head 
+shall be higher than the main fire water pumps. Auto cut-in / cut-off facility should be provided 
+for jockey pumps  
+5.5.5  
+Power Supply for Fire Water Pumps 
+i) 
+A direct feeder dedicated only to fire water pumps shall be laid from the sub-station to 
+ensure reliable power supply. The direct feeder line shall not run along with other HT 
+cables. 
+ii) 
+The diesel engines shall be quick starting type with the help of push buttons located near 
+the pumps, or at remote location. 
+iii) 
+Each diesel engine shall have an independent fuel tank adequately sized for 6 hours 
+continuous running of the pump. 
+iv) 
+Main fire water pumps shall start automatically and sequentially with pressure 
+switches/PLC on fire water mains. The system shall ensure auto start of the standby pump 
+in case a pump in sequence   failed to take start.   
+ 
+5.5.6  Location of pumps 
+Firewater pumps shall be located as far away as possible (not less than 60 M) from hazardous 
+areas to avoid any damage in case of fire/explosion. The location and inter-distances for 
+firewater pump house and related facilities shall follow OISD-STD-118. 
+ 
+5.6    DISTRIBUTION NETWORK 
+5.6.1 
+ Looping & Maintainability  
+The fire water network shall be laid in closed loops as far as possible to ensure multi-directional 
+flow in the system. Isolation valves shall be provided in the network to enable isolation of any 
+section of the network without affecting the flow in the rest. The isolation valves shall be located 
+near the loop junctions. Additional valves shall be provided in the segments where the length 
+of the segment exceeds 300 M. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  9    
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+For ease of maintenance, Firewater pumps should be segregated in two groups by providing 
+an isolation valve on common discharge header of pumps. 
+Flushing connections with isolation valves should be provided at suitable locations in the 
+firewater ring main. 
+For branch piping, an isolation valve shall be provided at the take-off point. 
+Permanent connection shall not be taken from fire water line / system for purposes other than 
+fire protection/ fire prevention.  
+5.6.2  
+Criteria for above / underground network 
+The firewater network piping should normally be laid above ground at a height of atleast 300 
+mm above finished ground level. However, the fire water network piping shall be laid below 
+ground level at the following places. Pipes made of composite material shall be laid 
+underground. 
+i) 
+Road crossings. 
+ii) 
+Places where the above ground piping is likely to cause obstruction to operation and vehicle 
+movement, and get damaged mechanically. 
+iii) 
+Where frost condition warrants, the ring main system shall be laid underground beneath 
+the frost layer. 
+5.6.3  
+Protection for underground pipelines 
+Where the pipes are laid underground the following protections shall be provided: 
+i) 
+The main shall have at least one meter earth cushion in open ground and 1.5 metre earth 
+cushion under the roads. In case of crane movement areas, pipes should be protected with 
+concrete/steel encasement. 
+ii) 
+The mains shall be provided with protection against soil corrosion by suitable 
+coating/wrapping. 
+iii) 
+Pipe supports under the pipe line shall be suitable for soil conditions. 
+5.6.4  
+Protection for above ground pipelines 
+Where the pipes are laid above ground, the following protection shall be provided: 
+i) 
+The firewater mains shall be laid on independent sleepers by the side of road. These shall 
+not be laid along with process piping on common sleepers. 
+ii) 
+The mains shall be supported at regular intervals not exceeding 6 metre. It should be 
+supported at every 3 M for pipes less than 150 mm diameter. 
+iii) 
+The system for above ground portion shall be analysed for flexibility against thermal 
+expansion and necessary expansion loops shall be provided wherever called for. 
+5.6.5 Hydraulic Analysis & Sizing of Firewater Network 
+i) The hydraulic analysis of network shall be done. Also whenever fire water demand increases 
+due to addition of plant & facilities or extensive extension of network, fresh hydraulic analysis 
+shall be carried out. 
+ii)  Fire water distribution ring main shall be sized for 120% of the design water rate. Design flow 
+rates shall be distributed at nodal points to give the most realistic way of water requirements 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  10  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+in an emergency. Several   combinations   of   flow requirements shall be assumed for design 
+of network. For large water requirement for floating roof tank (Annexure-VI), the network 
+around tank farm shall be suitably designed.  
+5.6.6 Fire hydrants 
+Fire water hydrants shall be provided on the fire water network (Ref. Section 5.7 for details). 
+Each of these connections shall be provided with independent isolation valves. Refer item 5.7.1 
+for further details on hydrants. 
+5.6.7  
+Fixed  water monitors 
+Fixed water monitors shall be provided on the fire water network (Ref. Section 5.7 for details). 
+Each of these connections shall be provided with independent isolation valves. 
+5.6.8  
+Layout 
+i) 
+Fire water mains shall not pass through buildings or dyke areas. 
+ii) Hydrants / monitors shall not be located inside the dyke area. 
+5.7 
+HYDRANTS & MONITORS - DETAILS 
+5.7.1  Hydrants 
+i) 
+Hydrants shall be located keeping in view the fire hazards at different sections of the 
+premises to be protected and to give most effective service. At least one hydrant post shall 
+be provided for every 30 M of external wall measurement or perimeter of unit battery limit 
+in case of hazardous areas. Hydrants protecting utilities and non plant buildings can be 
+spaced at 45 M intervals. The horizontal range and coverage of hydrants with hose 
+connections shall not be considered more than 45 M. 
+ii) The hydrants shall be located at a minimum distance of 15 M from the periphery of storage 
+tank or hazardous   equipment   under protection.  For process plants location of hydrants 
+shall be decided based on coverage of all areas. In the case of buildings, this distance shall 
+not be less than 5 M and more than 15 M from the face of building. Provision of hydrants 
+within buildings shall be in accordance with Standard IS Standard-3844.  
+iii) Hydrants / Monitors shall be located along road side berms for easy accessibility as far as 
+possible. 
+iv) Double headed hydrants with two separate landing valves on 4" stand post shall be used. 
+All hydrant outlets shall be situated at a workable height of about 1.2 metre above ground 
+level.  
+v) Fire hydrants around the tank should be provided with 4” size pumper connection. 
+vi) Hydrants / Monitors shall be located with branch connections and not directly over main 
+header for easy accessibility. 
+5.7.2   Monitors 
+i) 
+Monitors shall be located at strategic locations for protection of cluster of columns, heaters, 
+gassifiers, etc., and where it is not possible to approach the higher levels.  A minimum of 2 
+monitors shall be provided for the protection of each such area.   Water monitors for 
+protection of heaters shall be installed so that the heater can be isolated from the remainder 
+of the plant in an emergency. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  11  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ii)        Monitors shall be located to direct water on the object as well as to provide water shield to 
+firemen approaching a fire. The monitors should not be installed less than 15 M from 
+hazardous equipment. 
+iii) 
+        Field adjustable variable flow monitors shall be installed at critical locations. These 
+shall be UL/FM listed / approved. 
+            The requirement of monitors shall be established based on hazard involved and layout 
+considerations.  
+              The location of HVLRs to be planned in such a way that the very purpose of these monitors 
+is served and throw of the monitors is safely delivered at the aimed object. The location of 
+monitors shall not exceed 45 M from the hazard to be protected.  
+              Monitors should be painted with luminous color for ease of identification during emergency. 
+5.7.3    Dry/Wet Risers with hydrants should be provided on  each floor of  technological structures. 
+5.7.4  
+Fixed Remote / Manual operated High Volume Long Range Water cum Foam Monitors 
+Remote / Manual operated high volume long range water cum foam monitors (Capacity 1000 
+GPM & above) shall be variable flow type with flow adjustable manually in the field, with foam 
+induction to monitor being possible from  minimum 60 m distance from the monitor and  shall 
+be provided in 
+ i) Tank farm area. 
+ii) Inaccessible areas such as column, reactor, compressor house etc in critical units like CCRU, 
+DHDS, HCU, Hydrogen, FCCU, DCU, CDU etc  
+iii) Critical equipments at higher locations    (above 45 mtrs.) 
+The basic water cum foam monitors shall be UL/ FM listed / approved. The electrical or 
+hydraulic remote control mechanism shall be in line with Hazardous Area Classification.  
+Following criteria shall be followed for installation of variable flow foam-cum-water monitors in 
+tank farm area:  
+ 
+a) Remote/ manual operated variable flow monitors shall be installed in such ways that all the 
+tanks in the installation are within the horizontal range of foam throw. 
+b) Number and capacity of monitor shall be provided in such a way that foam application rate 
+from the monitors meet requirement of foam application rate (8.1 LPM/m2) for full surface 
+tank fire as per NFPA-11. 
+For determining the total foam solution requirement, potential foam loss from wind and other 
+factors shall be considered. 
+5.7.5  
+Hose Boxes 
+Provision of hose boxes should be given at critical locations for housing hoses and nozzles. 
+5.7.6 Water cum Foam monitors for Gantry area 
+Tank Wagon & Tank Lorry loading/ unloading gantry area shall be provided with alternate water 
+cum foam monitors having multipurpose combination nozzles for jet spray & fog arrangement 
+and fire hydrants located at a spacing of 30 M on either sides of the gantry. These monitors shall 
+be UL/FM listed / approved variable flow type. 
+(This is in addition to water spray requirement given in 4.2.8.) 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  12  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+5.8 
+  MATERIAL SPECIFICATIONS 
+ 
+All the materials required for firewater system using fresh water shall be of approved type as 
+indicated below. 
+ 
+i) Pipes: Carbon Steel as per IS: 3589/ IS: 1239/IS:1978 or Composite materials as per API 
+15LR/API 15 HR or its equivalent shall be used. 
+In case saline water/ treated effluent water is used , the fire water main of steel  pipes shall 
+be, internally cement mortar lined or glass reinforced epoxy coated or made of pipe material 
+suitable for the quality of water.  Alternatively, pipes made of composite materials shall be 
+used. 
+Cast iron pipes shall not be used for fire water services.  
+ 
+ii)  Isolation Valves: Cast Steel valves shall be used in all areas including unit areas, offsite and 
+fire water pump stations.  
+Isolation valves having open/close indication shall be Gate valves more than 16” should be 
+provided with gear mechanism.  
+ 
+iii)  Hydrant: 
+Standpost: Carbon Steel 
+Outlet valves: Gunmetal / Aluminium Landing valves: Stainless Steel / AI-Zn Alloy/gun metal. 
+  iv)   Monitors:  
+Water Monitors: Carbon Steel/ Gun        Metal Foam  
+Monitors:  stainless steel/ brass. 
+ 
+  v)    Fire Hose: Reinforced Rubber Lined Hose as per IS 636 (Type A)/Non-percolating Synthetic 
+Hose (Type B). 
+vi)   In case of underground mains the isolation valves shall be located in RCC/brick masonry 
+chamber. 
+vii)  The above ground fire water mains and the fire hydrant standpost shall be painted with 
+corrosion resistant "Fire Red" paint shade 536 of  IS: 5. 
+ viii)   Water monitor and hose box shall also be painted in "Fire Red" shade 536 of IS: 5. 
+ix)    Corrosion resistant paint shall be used in corrosion prone areas. 
+ 
+5.9       FIXED WATER SPRAY SYSTEM 
+5.9.1  General 
+It is a fixed pipe system connected to a reliable source of water supply and equipped with water 
+spray nozzles for specific water discharge and distribution over the surface of area to be 
+protected. The piping system is connected to the hydrant system water supply through an 
+automatically or manually actuated valve which initiates the flow of water. 
+i) Fixed water spray system should be provided in high hazard areas where immediate 
+application of water is required (refer 4.2.1,4.2.5,4.2.6, 4.2.8 above). 
+ii) Water supply patterns and their densities shall be selected according to need. Fire water 
+spray system for exposure protection shall be designed to operate before the possible 
+failures of any containers of flammable liquids or gases due to temperature rise. The system 
+shall, therefore, be designed to discharge effective water spray within shortest possible time. 
+5.9.2  
+Water Spray Application Rates 
+The following water spray application rates are recommended for general guidance. These 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  13  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+rates should be reviewed on case to case basis and increased, if required. While calculating 
+the water rates for spray application for cases other than tanks/vessels, the area should be 
+divided into suitable segments so that maximum water requirement for spray application should 
+generally not exceed 1200 m3/hr. 
+           Application Area        
+ 
+ 
+ 
+ 
+Water application rate 
+            Atmospheric storage  
+ 
+3 Ipm/m2 of tank shell area for tank on fire 
+          Tanks  
+  
+3 Ipm/m2 of tank shell area for exposure protection for 
+tanks located within (R+30) M from centre of tank-on- fire 
+within the same dyke area. 
+1 Ipm/m2 of tank shell area for exposure protection for 
+tanks located outside (R+30) metre from centre of tank-
+on-fire within the same dyke area.  
+ 
+         Pressure Storage Vessels  
+10.2 Ipm/m2 of shell area 
+ 
+          
+ 
+         Process Unit Area 
+         -   Pumps (Volatile product service     20.4Ipm/m2  
+              located under Pipe rack) 
+- 
+Columns, other Extremely            10.2 Ipm/m2   
+               hazardous area 
+    
+           LPG pump house 
+                            20.4 Ipm/m2   
+ 
+           LPG Tank Truck & Tank Wagon           10.2 Ipm/m2   
+           loading/ Unloading gantries 
+ 
+ 
+        LPG Bottling plants: 
+           - Carousel machine                             10.2 Ipm/m2   
+ 
+- Filled cylinder storage 
+       10.2 Ipm/m2   
+ 
+- Empty cylinder storage 
+     10.2 Ipm/m2   
+           - LPG cylinder cold repair.       
+  
+ 10.2 Ipm/m2   
+          Shed 
+ 
+        Oil Tank Truck & Tank Wagon 
+        10.2 Ipm/m2 
+        loading/unloading gantries 
+ 
+        Cable Trays                                            10.2 Ipm/m2   
+         Transformers                                         10.2 Ipm/m2   
+ 
+5.10   FIXED WATER SPRINKLER SYSTEM 
+ 
+i) Fixed water sprinkler system is a fixed pipe tailor made system to which sprinklers with fusible 
+bulbs are attached. Each sprinkler riser/system includes a controlling valve and a device for 
+actuating an alarm for the operation of the system. The system is usually activated by heat from 
+a fire and discharges water over the fire area automatically. 
+ 
+ii) Sprinkler systems are used for fire extinguishment when the hazards located inside buildings. 
+Some of the examples being: 
+ 
+a) Car parking in basement 
+b) Building/sheds storing    combustible and flammable materials. 
+ 
+iii) The water for sprinkler system shall be tapped from plant fire hydrant system, the design of which 
+should include the flow requirement of the largest sprinkler installation. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  14  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+iv) The design flow for sprinkler installation would depend on the type of hazard and height of piled 
+storage. The water flow rate for automatic sprinkler system for car parking area shall be taken as 
+5.1 Ipm/m2 of the area   protected   by sprinkler installation. The design water flow shall be 
+restricted to a minimum 100 m3/hr and to a maximum 200 m3/hr. The design flow rate for other 
+areas shall be taken as 10.2 Ipm/ m2 of the area protected by sprinkler installation, subject to a 
+minimum of 150 m3/hr. and a maximum of 400 m3/ hr. Higher water application rates should  be 
+used if called for depending on risk involved. 
+ 
+6.0 
+FOAM SYSTEMS 
+ 
+6.1 
+TYPES OF FOAM 
+ 
+For detailed description of Fire Fighting Foam Compounds, please refer Annexure-VIII. 
+ 
+6.2       LOW EXPANSION FOAM 
+ 
+For combating large hydrocarbon fires particularly in a contained area like storage tank, foam 
+has proved useful for its inherent blanketing ability, heat resistance and security against burn-
+back. Aqueous Film Forming Foam (AFFF) compound is technically superior and compatible 
+with other fire fighting agents. 
+Efficient and effective foam delivery system is a vital tool for its usefulness in controlling the 
+fire. 
+The process of adding or injecting the foam to water is called proportioning. The mixture of 
+water and foam compound (foam solution) is then mixed with air in a foam maker for onward 
+transmission to burning surface. 
+ 
+ 
+6.3 
+FOAM CONVEYING SYSTEMS 
+ 
+The system consists of an adequate water supply, supply of foam concentrate, suitable 
+proportioning equipment, a proper piping system, foam makers and discharge devices 
+designed to adequately distribute the foam over the hazard. 
+Conventional systems are of the open outlet type in which foam discharges from all outlets at 
+the same time, covering the entire hazard within the confines of the system. There are three 
+types of systems: 
+i) 
+Fixed 
+ii) 
+Semifixed 
+iii) 
+Mobile 
+ 
+6.3.1  Fixed Foam System 
+ 
+Fixed foam conveying system comprises of fixed piping for water supply at adequate pressure, 
+foam concentrate tank, eductor, suitable proportioning equipment for drawing foam concentrate 
+and making foam solution, fixed piping system for onward conveying to foam makers for making 
+foam, vapour seal box, and foam pourer.  
+ 
+6.3.2  Semifixed Foam System 
+ 
+Semi-fixed foam system gets supply of foam solution through the mobile foam tender. A fixed 
+piping system connected to foam makers cum vapour seal box in case of cone roof tanks and 
+foam maker and foam pourers in the case of floating roof tanks conveys foam to the surface of 
+tank. 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  15  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+6.3.3 Mobile Foam System 
+ 
+Mobile system includes foam producing unit mounted on wheels which can be self propelled or 
+towed by a vehicle. These units supply foam through monitors/foam towers to the burning 
+surface. 
+6.3.4 However, certain other systems as follows are also available: 
+ 
+Sub-surface foam injection: This is a system for protection of fixed roof storage tanks. This 
+comprises of high back pressure foam generator and connected through product lines or 
+separate lines near the bottom of the tank. 
+Under the Seal Foam application:  
+This is a system for floating roof tank where the foam travels through a flexible pipe inside the 
+tank upto the center of the tank roof and exits at the seal rim of the floating roof precisely where 
+the fire is located thus rapidly flooding the rim seal area and quickly extinguishing the fire. 
+Automatic Actuated Foam Flooding system:  
+In this system all the components and ingredients including premix solution are contained within 
+the system. Such systems usually have a premix solution supply tank pressurised by air or inert 
+gas. The automatic sensing of fire releases this pressure and places the system into operation. 
+The minimum requirement in design for the automatic actuated foam flooding system is given 
+in Annexure VII.  
+6.4 
+FLOATING ROOF TANK PROTECTION USING FOAM 
+6.4.1 Protection using Semi-Fixed Foam System: 
+ 
+For floating roof tank, foam shall be poured at the foam dam to blanket the roof’s rim seal. 
+Features of foam system for floating roof tank protection shall be as follows: 
+ 
+i) 
+System shall be designed to create foam blanket on the burning surface in a reasonably 
+short period. 
+ 
+ii) 
+Foam shall be applied to the burning hazard continuously at a rate high enough to 
+overcome the destructive effects of radiant heat. 
+ 
+iii) 
+Foam makers/foam pourers shall be located not more than 24 M apart on the shell 
+perimeter based on 600 mm foam dam height. The height of foam dam shall be at least 
+51 mm above the top of metallic secondary seal. 
+ 
+iv) 
+A minimum of two foam pourers shall be provided. 
+6.4.2 
+Protection using Automatic Actuated Foam Flooding system:  
+Provision of an automatic rim-seal protection system  of foam flooding type shall be in line with 
+the details mentioned at 4.2.3 and at Annexure-VII. 
+ 
+6.5  
+FIXED ROOF TANK PROTECTION USING FOAM 
+Foam conveying system shall have same features as of floating roof tank excepting that a 
+vapour seal chamber is required before the foam discharge outlet. 
+Features of the foam system for fixed roof protection shall be as follows: 
+i) 
+The vapour seal chamber shall be provided with an effective and durable seal, fragile under 
+low pressure, to prevent entrance of vapour into the foam conveying piping system. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  16  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ii) Where two or more vapour seal chambers are required these shall be equally spaced at 
+the periphery of the tank and each discharge outlet shall be sized to deliver foam at 
+approximately the same rate. 
+iii) Tanks should be provided with foam discharge outlets/ vapour seal chambers as indicated 
+below: 
+ 
+        Tank Diameter in M. 
+Minimum number of foam discharge outlet 
+upto 20                                     2 
+>20 upto 25                              3 
+>25 upto 30                              4 
+>30 upto 35                              5 
+>35 upto 40                              6 
+>40 upto 45                              8 
+>45 upto 50                             10 
+The estimation of number of foam discharge outlet is based on pourer capacity of 1000 Ipm at 
+a pressure of 7 kg/cm2g upstream of eductor. This can be suitably adjusted for different vapour 
+seal chamber capacity in accordance with para 6.4 (iii). 
+ 
+6.6 
+FLOATING CUM FIXED ROOF TANK PROTECTION USING FOAM 
+Protection facilities shall be provided as required for fixed roof tank. 
+6.7 
+DYKE AREA/ SPILLS/ OIL SEPARATOR PROTECTION USING FOAM 
+Portable monitors/ Medium Expansion foam generator/ foam hose streams shall be considered 
+for fighting fires in dyke area, spills and oil separator. 
+6.8 
+FOAM APPLICATION RATE 
+The minimum delivery rate for primary protection based on the assumption that all the foam 
+reaches the area being protected shall be as indicated below. In determining   total solution 
+flow requirements, potential foam losses from wind and other factors shall be considered.   For 
+cone roof tanks containing liquid hydrocarbons, the foam solution delivery rate shall be at least 
+5 Ipm/m2 of liquid surface area of the tank to be protected. For floating roof tanks containing 
+liquid hydrocarbons foam solution delivery rate shall be at least 12 Ipm/m2 of seal area with 
+foam dam height of 600 mm of the tank to be protected. In case of floating roof sinking, the rate 
+considered should be 8.1 Ipm/m2 of liquid surface areas. 
+6.9  DURATION OF FOAM DISCHARGE 
+The equipment shall be capable of providing primary protection at the specified delivery rates for 
+the following minimum period of time. 
+i)   Tanks containing liquid hydrocarbons - Class 'C' Petroleum              - 30 minutes. 
+ii)  Tanks containing Class 'A' & 'B' Petroleum or liquids heated              - 65 minutes. 
+     above their flash points 
+ 
+iii) Where the system's primary purpose is for spill fire protection            - 30 minutes. 
+ 
+6.10 
+FOAM QUANTITY REQUIREMENT 
+Calculation of foam compound storage should be based on the design criteria as per item 4.2. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  17  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+The aggregate quantity of foam solution for a single largest tank fire should be calculated as 
+sum total indicated below under items (i), (ii) and (iii) for a minimum period of 65 minutes. The 
+quantity of foam compound required should be calculated based on 3% or 6% concentrate. 
+i) Foam solution application at the rate of 5 Ipm/m2 for the liquid surface of the single largest 
+cone roof tank or at the rate of 12 Ipm/m2 of rim seal area of the single largest floating roof 
+tank whichever is higher. 
+          However, a foam solution application rate of 8.1 Ipm/m2 of the liquid surface of the largest 
+floating roof tank for 65 minutes shall be considered for a roof sinking case. (Refer 
+Annexure-VI for sample calculation) 
+ii) One portable foam monitor of 4500 Ipm foam solution capacity. 
+iii) Two hose streams of foam each with a capacity of 1140 Ipm of foam solution. A typical 
+example showing calculation of foam compound requirement is given at Annexure - II. 
+6.11 
+FOAM COMPOUND STORAGE 
+- 
+Foam compound should be stored in containers of 20-30 Iitre capacity or 200 / 210 Iitre capacity 
+barrels in case of protein, fluoroprotein or AFFF. Foam compound can also be stored in 
+overhead storage tank of suitable capacity for quick filling of foam tender / nurser during 
+emergency. 
+- 
+Type of foam compound used can be protein or fluoro-protein or AFFF. Alcohol Resistant Foam 
+can be used for specific application. Minimum of 90% of storage of foam compound shall be of 
+AFFF type. Minimum life of foam compound shall be taken as per manufacturer's data. 
+- 
+Foam compound should be tested periodically for ensuring its quality and the deteriorated 
+quantity replaced. The deteriorated foam compound can be used for fire training purposes. 
+- 
+Quantity of foam compound equal to 100% of requirement as calculated in 6.11 should be 
+stored in the Installation, subjected to a minimum of 60,000 litres. However, for installations 
+having tankages larger than 60 M diameter, minimum of 77000 liters foam should be stored 
+(refer Annexure VI) or foam sufficient to fight two major fires whichever is more. 
+7.0 
+CLEAN AGENT BASED   PROTECTION SYSTEM FOR CONTROL ROOM , SRR 
+AND COMPUTER ROOM PROTECTION 
+Selection of Clean Agent and system design for fire protection shall in line with the “Standard 
+on Clean Agent Fire Extinguishing Systems – NFPA Standard 2001 (latest edition).  The clean 
+agent shall comply with the requirements of the “Ozone Depletion Substances Regulation & 
+Control Rules 2000, Ministry of Environment & Forests, Government of India. 
+QUANTITY AND STORAGE  OF CLEAN AGENT  
+Each hazard area to be protected by the protection system shall have an independent system. 
+The time needed to obtain the gas for replacement to restore the systems shall be considered 
+as a governing factor in determining the reserve supply needed. 100% standby charge of clean 
+agent containers shall be considered for each protected hazard. 
+Storage containers shall be located as near as possible to hazard area but shall not be 
+exposed to fire. 
+Storage containers shall be carefully located so that they are not subjected to mechanical, 
+chemical or other damage. 
+All the components of the system shall be capable of withstanding heat of fire and severe 
+weather conditions. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  18  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+8.0 
+CARBON DIOXIDE SYSTEMS 
+Fixed CO2 systems shall be provided in Turbo generator enclosure, Gas turbine enclosure etc 
+as per OISD STD 173. Fixed CO2 system should be designed and installed in accordance with 
+NFPA-12. 
+Before the CO2 flooding system is operated; persons in the confined area should be evacuated. 
+Carbon dioxide is an odourless and colourless inert gas having a proven fire extinguishing 
+property. When applied in a proper manner and in proper quantities on a fire hazard, it 
+extinguishes fire by cutting off the oxygen and creating an inert atmosphere around the hazard. 
+If the inert atmosphere is maintained for a reasonable time the possibility of flash back also is 
+reduced. 
+Carbon dioxide is best applied to a fire hazard through a fixed system consisting of CO2 storage, 
+distribution piping and discharge nozzles.  
+9.0 
+DRY CHEMICAL EXTINGUIS-HING SYSTEM 
+The extinguishing system comprises of supplying the Dry Chemical agent, manually or 
+automatically, through a distribution system onto or into the protected hazard. 
+9.1  RECOMMENDED USE: 
+Dry chemical powder extinguishing system can effectively be used on following hazards. 
+- 
+Electrical   hazard   such   as transformers or oil circuit breakers. 
+- 
+Combustible solids having burning characteristic like naphthalene or pit which melts while 
+on fire. 
+- 
+Class 'A','B','C' & 'D' fire using multipurpose dry chemical. Requirement for each item 
+should be finalised while deciding design basis. 
+9.2  
+SYSTEM DESIGN: 
+ 
+Basic requirement of designing the dry chemical extinguishing system is to provide for sufficient 
+quantity and rate of discharge depending upon the hazard. 
+System consists of dry chemical powder and expellant gas container assemblies of capacity 
+sufficient for given hazard with distribution piping and discharge nozzles.  System can be 
+actuated manually or automatically on visual or automatic means of detection. Alarm and 
+indication shall be provided to show that the system has operated and personnel response is 
+needed. 
+Personnel safety shall include training, warning signs, discharge alarm, respiratory protection 
+and prompt evacuation of personnel. 
+Following types of systems can be provided to protect a hazard: 
+a. Total flooding system  
+b. Local application system  
+c. Hand hose line system, and  
+d. `Pre-engineered system 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  19  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+              (Refer NFPA-17 for limitations & precautions for use of dry chemical and for system design) 
+10.0 Modernization plan for fire fighting equipments:  
+Rapid intervention, Water Mist cum Compressed air Foam Technology 
+The technology of water mist cum compressed air foam system involves creation of water mist 
+or a mist combination of water and foam using specialized nozzles.  The mist droplets create an 
+enlarged surface area resulting in rapid cooling due to absorption of heat.  Mist droplets turn to 
+steam on contact with fire resulting in blanketing effect, thereby cutting off oxygen & extinguishing 
+the fire very fast. This is achieved by propelling mixture of water & foam using compressed air.   
+Water mist cum Compressed air foam system is for low as well as high pressure rating. The 
+suitability of the system shall be decided for the particular application based on minimum recoil 
+jerk, safety of the user and refillability criteria. The system shall be approved as per highest 
+international safety standard DIN EN3 or equivalent for maximum fire rating. 
+The water mist cum compressed air foam system has advantage over conventional fire fighting 
+systems (DCP, CO2) as it provides combined effect of cooling & blanketing which results in 
+efficient fire fighting thereby helping control fire in the initial stages. Mist also helps in blocking 
+radiant heat making it easier for the fire fighter to approach the fire.   
+In addition to the conventional fire extinguishing systems such as foam, carbon-dioxide and DCP, 
+the Back pack/Portable/Trolley mounted (mobile) water mist cum compressed air foam 
+technology should be used to fight fires at critical locations such as hot pumps handling fluids 
+above auto ignition temperature, like column bottom pumps at CDU, VDU, Coker, FCCU & HCU 
+units, any other high temperature column, exchangers etc.  Criteria to determine the quantity is 
+given in the following table. 
+11.0 FIRST AID FIRE FIGHTING & Other EQUIPMENT 
+11.1 Criteria to determine the quantity needed: 
+ 
+ Portable fire fighting equipment shall be provided in Refinery/Process plant as indicated in the 
+following table: 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  20  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+Description 
+Norms/criteria to determine the quantity needed 
+Conventional fire fighting equipments 
+i) Dry chemical powder (DCP)* 
+fire extinguishers -10 kg 
+capacity: IS:15683/ UL299 
+ 
+While selecting the Extinguisher, due consideration should be 
+given on the factors like flow rate, discharge time and throw in line 
+with IS: 2190 / UL711. 
+Extinguisher to be located in process units, pump houses, pump 
+area, LPG storage area, LPG bottling plant, Oil separator, tank 
+truck/ tank wagon loading areas, substations, Work shops, 
+laboratory, power station buildings etc. 
+The number should be determined based on the max. Traveling 
+distance of 15 M in above areas. At least one fire extinguisher shall 
+be provided for every 250 m2 of hazardous operating area.  
+There shall be not less than two extinguishers at one designated 
+location e.g. pump house.  
+ii) Dry chemical powder fire 
+extinguishers 25/50/75 kg 
+capacity: IS:10658/ UL299 
+(in addition to 10kg DCP 
+requirement) 
+The extinguishers with the selection criteria viz. flow rate, 
+discharge time and throw mentioned as above, to be located in 
+critical operating areas.  
+At least one fire extinguisher should be provided for every 750 m2 
+of hazardous operating area. 
+iii) 
+CO2 
+extinguishers  
+4.5/6.5/9.0/22.5 kg capacity  
+(IS:2878/UL154) 
+ 
+To be located in substations, power stations, office building and 
+control room. The number should be determined based on the 
+maximum traveling distance of 15 metre.  
+At least one fire extinguisher shall be provided for every 250 m2 of 
+hazardous operating area. There shall not be less than 2nos. 
+extinguishers at one designated location e.g. control room. 
+iv)Portable 
+clean 
+agent 
+extinguishers 
+This should be as an alternate to CO2 extinguisher.  
+To be located in control rooms, computer rooms, laboratories and 
+office buildings. 
+v) Portable water-cum-foam 
+monitor. 
+Minimum 2 no. for Petroleum refinery and 1 no. for Gas Processing 
+Plant 
+vi) Steam lancers(as a part of 
+utility station) 
+For fighting incipient fires at flange leakages & hot pumps. 
+ 
+vii) Rubber hose reel (25mm) 
+To be located in Process unit battery limits and other process 
+areas for quenching of incipient fires. 
+Modernization plan for fire fighting equipments 
+viii)Rapid intervention, Water 
+Mist cum Compressed air 
+Foam Technology: 
+Filling capacity 35 to 50 litres 
+for trolley mounted & 9 litres 
+for backpack system. The 
+system shall be approved as 
+per 
+highest 
+international 
+safety standard DIN EN3 or 
+equivalent for maximum fire 
+rating. 
+In addition to the conventional fire extinguishing systems such as 
+foam, carbon-dioxide and DCP, Minimum of one trolley type should 
+be provided as an alternate to existing DCP system at each critical 
+locations such as hot pumps handling fluids above auto ignition 
+temperature, like column bottom pumps at CDU, VDU, Coker, 
+FCCU & HCU units and minimum one back pack at critical high 
+temperature column & exchangers in these units. 
+Note : 1) In place of 10 kg, 5 Kg DCP Extinguisher shall be provided at elevated locations. 
+ 
+2) For substations, power station; the number and area for placement of extinguishers 
+should be decided as per OISD STD-173 requirements. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  21  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+11.2  Other fire fighting Equipment:   
+Additionally, following items should also be provided. The number of units required for these shall be 
+decided by local management, on case-to-case basis.  
+i) 
+Thermal imaging Camera: As an aid to the fireman during fire fighting operation to locate the seat 
+of the fire and to facilitate search and rescue operation in smoky area e.g. during cable gallery.  
+ii) 
+Personal Protective Equipment required during Fire Fighting like Water gel based blanket, Fire 
+Proximity Suit, Self contained breathing apparatus, Air line breathing apparatus, Safety Helmets, 
+Fire Helmets, Stretcher, First Aid box, Rubber hand gloves, canister mask etc. 
+iii) 
+Other Equipments like Portable Gas detectors, Explosive meter, Oxygen meter, Hand operated 
+siren, Red/Green Flag for fire drill, Safe walk roof top ladder, emergency lighting, portable mega 
+phone, various leak plugging gadgets, oil dispersants and oil adsorbents, lifting jacks (for rescue of 
+trapped workers), etc. 
+Note: The number of unit required for these should be decided by local management, on case to case 
+basis. 
+ 
+12.0 MOBILE   FIRE FIGHTING EQUIPMENT 
+12.1 Fire Tenders:  
+The exact number of fire tenders shall be higher of the items (a) or (b): 
+(a) The quantities firmed up in each case based on two simultaneous major fires taking into 
+consideration the size, location of the plant and statutory requirements. 
+(b) The quantities indicated below. 
+i) 3 nos. of foam tenders out of which two are for fire fighting one for spill/ standby. The foam 
+tender should have foam tank capacity of 3000/3600 Iitre and the pump capacity of minimum 
+4000 Ipm at 8.5 kg/cm2. 
+ii) One DCP tender having 2 vessels of 2000 kg capacity each with Nitrogen as expellant gas. 
+These are required for fighting LPG/Gas fires. 
+A monitor should have a variable throw of 15/25/40 kg/sec. The throw of the monitor shall be 
+40 to 50 M for the DCP charge.  
+12.2 Other Mobile Equipment 
+In addition to fixed monitors provided in the tank farm, following additional mobile equipments shall 
+be provided: 
+i) 
+Minimum 2 nos. of foam tank trailers with field adjustable variable flow water cum foam monitors 
+having foam tank capacity of 500-1000 liters and monitors capacity of minimum 1000 GPM and 
+UL/FM listed / approved. 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  22  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ii)    Minimum 2 nos. of Trolley mounted water cum foam monitors of capacity of minimum 2000 
+GPM with field adjustable variable flow and UL/FM listed / approved. Foam induction to the 
+monitor shall be possible from minimum 60M distance from the monitor. 
+iii)  1 to 2 numbers of Foam Nurser (i.e. Trailer mounted foam compound supply tank) with foam 
+compound tank of 7000 – 16000 litre capacity with suitable pump for foam transfer. 
+iv) 
+1 to 2 nos. of portable/ trailer  fire pumps of capacity ranging from 1800 to 2250 Ipm at discharge 
+pressure of 7 kg/cm2 g.  
+ 
+12.3     Other Fire Fighting Equipment  
+Following other fire fighting equipments shall be provided: 
+i)  Emergency rescue equipment like cutters, expanders, inflatable lifting bags, leak pads, protective 
+clothing, breathing apparatus, trolley mounted BA set 
+ii)  Fire Hoses: IS 636: Type A or Synthetic hose of Type B. 
+The hose length shall be calculated as follows: 
+i) For installation with hydrants upto 100 Nos: - One 15 mtrs hose length/hydrant. 
+ii) For installation with more than 100 hydrants: 
+- 
+One 15 metre hose length/hydrant, for the first 100 hydrants; and,  
+- 
+One 15 M hose length for every 10 hydrants above 100. 
+The hose length so calculated shall be suitably divided into hose lengths of 15 M, 22.5 M or 30 M. 
+Of the total requirement of the hoses, minimum 50% of hoses shall be of type B. 
+ 
+iii) Fire jeep (s) with two way radio communication facility and towing facility. 
+ 
+iv) One ambulance fitted with medical aid and suitable arrangements. 
+ 
+v) Other accessories, foam making branch pipes, nozzles, etc. as per requirements. 
+ 
+vi) 4" Hoses of suitable length for feeding to large capacity monitors wherever installed. 
+ 
+            In addition to above, provision of following equipment should also be considered: 
+i)  
+Suitable equipment for fighting high level fires. 
+ii)  
+Multipurpose fire fighting skid should be used as a single self sufficient unit of having capacity of 
+discharging foam, water/ water mist & DCP and thus performing multiple functions effectively, 
+individually or together, saving power and time in combating a fire. Such a Multipurpose fire 
+fighting skid should  be used in lieu of one foam tender/ DCP tender as described in 10.1(b)-(i). 
+Broad specifications of the fire fighting equipment listed above are given in Annexure-lll. 
+13.0 STORAGE OF FIRE FIGHTING AGENTS 
+The following quantities of fire fighting agents shall be stored in the Refinery as given below in the 
+table. 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  23  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+S.
+No 
+Description 
+Quantity to be stored 
+i) 
+Dry chemical powder:   Reaction product 
+of urea and Potassium bicarbonate i.e. 
+Potassium Carbamate or Potassium 
+Allophonate base - as spare charge for 
+the DCP tender/Trolleys. The DCP 
+product should be UL listed. 
+While selecting the dry chemical powder, 
+due consideration should be given to the 
+typical properties viz. Apparent Density 
+(0.65 +/- 0.05), Fire Rating (144B), 
+Thermal 
+Gravimetric 
+Analysis 
+(with 
+decomposition at around 250oC) and  
+foam compatibility. 
+4000 kg for the DCP tender plus 500 kg 
+for additional requirement. This is in 
+addition to the charge loaded on tender. 
+ 
+ii) 
+Siliconised Potassium bicarbonate DCP 
+powder (IS 4308:2003/UL listed) / Mono-
+ammonium 
+phosphate 
+based 
+DCP 
+powder 
+(IS: 
+14609/UL 
+listed) 
+for 
+recharging of fire extinguishers. 
+As required based on shelf life. However, 
+minimum 10% of the total charge in the 
+extinguishers should be maintained. 
+iii) 
+Foam compound: (IS: 4989 (Part-III) / UL 
+listed (UL-162) 
+ 
+Higher of the quantities in : 
+1. 60,000 litre (excluding that in foam 
+tender) for installation having largest 
+tank of diameter as 60 M. 
+2. 77,000 litre (excluding that in foam 
+tender) for installation having largest 
+tank of diameter as 79 M. Or, (as 
+calculated in 6.11). 
+3. In the installation where the largest 
+tank diameter is less than 60 M, foam 
+quantity requirement (excluding that 
+in foam tender) shall be calculated as 
+per 4.4.11 of OISD-STD-117. 
+(Refer Annexure- II and Annexure-VI for  
+typical calculation for foam requirement) 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  24  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+14.0 
+DETECTION  SYSTEM AND ALARM 
+ 
+Human beings are excellent fire detectors since they possess sense of smell, sight, and touch. But 
+since human senses are also unreliable due to the need for frequent rest and relaxation, a number 
+of mechanical, electrical and electronic devices have been developed to mimic human senses in 
+the detection of gases / smoke / heat and flame. 
+A flammable gas detector is designed to give a warning of the presence of flammable gases or 
+vapours in air, well before   they   reach   explosive concentrations. Normally, the detector provides 
+visible and audible alarm signals, but frequently it performs a further function by initiating control 
+action such as increasing ventilation or shutting off the source of gas. A flammable gas detector 
+can also be used for tracing leaks and checking that vessels or tunnels are gas free before entering. 
+14.1 
+AREAS TO BE COVERED WITH DETECTORS 
+14.1.1 The following areas shall be provided with hydrocarbon gas detectors: 
+- 
+Light hydrocarbon pumps in process units. 
+- 
+Process cooling tower top platform in the units having pressurised cooling water return. 
+- 
+Fuel gas knock out drum 
+- 
+Suction side of forced draft air blowers if located where hydrocarbon vapours can be 
+present. 
+- 
+Light hydrocarbon pump stations if located below grade level. 
+- 
+LPG Horton spheres 
+- 
+LPG pump house 
+- 
+LPG bulk truck loading area 
+- 
+LPG bulk wagon loading area 
+- 
+LPG bottling, storage, repair sheds. 
+- 
+Gas compressor 
+- 
+Air-intake point   for control room, in line with OISD-STD-163. 
+The exact location and number of points should be decided on need basis. 
+14.1.2 Following areas shall be provided with Smoke/ Flame / Heat detectors with alarm and/or system to 
+actuate relevant fire suppression system: 
+- 
+LPG spheres  
+- 
+LPG filling sheds 
+- 
+LPG pumps/compressors 
+- 
+LPG loading/unloading, both in tank truck and tank wagon gantry 
+14.1.3 Hydrocarbon detectors shall be installed near all potential leak source of class-A e.g. tank dykes, 
+tank manifolds, pump house manifold etc.  
+
+ 
+ 
+OISD – STD – 116 
+       Page No  25  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+Hydrocarbon detector of proper type shall be selected and also shall be proof tested and shall be 
+maintained in good condition. 
+14.1.4 Additionally, following areas should also be provided with suitable detectors: 
+- 
+Extremely hazardous area in process units 
+- 
+Computer  room, Server room, Process control rooms, Record room 
+- 
+Unmanned electric substations / MCC rooms 
+- 
+Cable galleries 
+- 
+Chemical Storage 
+15.0 COMMUNICATION SYSTEM 
+Effective communication is an essential element in the fire protection system of any plant. The 
+following communication systems should be provided in the Refinery/Process plants. 
+ 
+i)  TELEPHONE 
+ 
+Fire Station Control Room shall be provided with 2 nos. of internal telephones which are exclusively 
+meant for receiving fire/emergency calls only. These phones should have facilities for incoming 
+calls only. For general communication a separate telephone should be provided. 
+Fire Station should also have a direct P&T telephone. Hot line, telephone for contacting mutual aid 
+parties shall be provided wherever possible. 
+ii)  PUBLIC ADDRESS SYSTEM 
+Public address system should be connected to all control rooms, administration building (all floors), 
+all departmental heads, security etc. Telephone exchange should control and take care of this 
+system. 
+iii)  A.R.P. (AIR RAID PROTECTION) SYSTEM / PAGING 
+Air raid communication system (with civil defence) should be provided in the control room of fire 
+station. The details of such a system should be worked out in association with civil defence 
+authorities of the area. 
+Alternatively, group communication system (all call system)/ alpha numerical pager system should 
+be considered for group emergency communication. 
+iv)  FIRE SIRENS 
+The Fire siren/s should be located suitably to cover the whole area with the operational control in 
+the Fire station control room. These should be tested at least once in a week to keep them in 
+working condition. 
+Fire siren code should be as follows: 
+1. 
+SMALL FIRE: No siren 
+2. 
+MAJOR FIRE: A wailing siren for two minutes. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  26  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+3. 
+DISASTER: Same type of siren as in case of Major Fire but the same will be sounded for three 
+times at the interval of one minutes i.e.( wailing siren 2min + gap 1 min + wailing siren 2min + gap 
+1min + wailing siren 2min) total duration of Disaster siren to be eight minutes. 
+4. 
+ALL CLEAR (For fire): Straight run siren for two minutes. 
+5. 
+TEST: Straight run siren for two minutes at frequency atleast once a week. 
+v) WALKIE-TALKIE / WIRELESS 
+All the Fire Tenders shall be provided with a walkie-talkie/ wireless system which will help in 
+communicating with the people in case the other system fails. Besides, key personnel coordinating 
+emergency operations should also be provided with walkie-talkie. 
+vi)  FIRE ALARM SYSTEM 
+The fire alarm systems includes manual call points (break glass), automatic gas/smoke/heat 
+detectors, release & inhibit switches for fire suppressing clean agent and conventional or micro-
+processor based data gathering panels viz. central fire alarm panel, mimic panels & associated 
+equipments.  
+Manual Call Points shall be provided at suitable locations like access point, approach roads, 
+walkways etc. to cover the critical areas.  These manual call points activate the audio-visual alarm 
+in the Central fire alarm panel installed in fire station and in the repeater panel installed in the 
+respective area control room(s). The location of these points shall be conspicuously marked on the 
+annunciation panel for proper identification. These manual call points should also have suitably 
+wired telephone handset to facilitate communication with respective area control room and fire 
+station. 
+16.0     INSPECTION & TESTING OF FIRE PROTECTION SYSTEM:  
+The fire protection equipment shall be kept in good operating condition all the time and the fire 
+fighting system shall be periodically tested for proper functioning and logged for record and 
+corrective actions. In addition to routine daily checks/maintenance, the following periodic 
+inspection/testing shall be ensured. 
+16.1 
+FIRE WATER TANK/RESERVOIR /Foam Tanks 
+ 
+i) Above ground fire water tanks should be inspected externally & internally as per OISD-STD-129. 
+ii) The water reservoir shall be emptied out & cleaned once in 3 years. However, floating leaves, 
+material or algae, if any shall be removed once in 6 months or as & when required.  
+iii) The foam tanks shall be inspected every 3 years externally and shall undergo internal inspection 
+every 10 years. 
+16.2 FIRE WATER PUMPS 
+i) 
+Every pump should be tested by running it minimum two times a week. 
+ 
+ii) Once a month each pump should be checked for the shut off pressure and auto start operation. 
+Observations should be logged. 
+iii) Once in six months each pump shall be checked for performance. This can be done by opening 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  27  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+required number of hydrants/monitors depending on the capacity of the pump and by verifying that 
+the discharge pressure, flow and the motor load are in conformance with the design parameters. 
+For flow measurement suitable devices like ultrasonic instrument can be considered. 
+16.3 FIRE WATER RING MAIN 
+The ring main should be checked once a year for leaks etc. by operating one or more pumps with 
+the hydrant points kept closed as required to get the maximum operating pressure. 
+The ring main, hydrants, monitors, valves should be visually inspected every month for any 
+pilferage, defects and damage. 
+All fire main valves should be checked for operation and lubricated once in six months for fresh 
+water and once in three months for saline/ETP water. 
+Thickness survey & inspection of Firewater header should be done once in three years.  
+Segment - wise flushing of main header should be done once a year. 
+16.4 FIRE WATER SPRAY SYSTEM 
+Fixed water cooling spray systems on storage tanks should be tested at least once in six months. 
+Deluge systems on LPG spheres and bullets should be tested at least once in every three months, 
+for proper performance. 
+Spray system in LPG bottling plant and should be tested at least once in every quarter. Operation 
+of ROVs should be checked once in three months.  
+16.5 
+FIXED / SEMI-FIXED FOAM SYSTEM 
+Foam system on storage tanks should be tested once in 12 months. This shall include the testing 
+of foam maker/ chamber. 
+The foam chamber should be designed suitably to facilitate testing of foam discharge outside the 
+cone roof tank. 
+Piping should be flushed with water after testing foam system. 
+Thickness survey & inspection of Foam system piping should be done as per OISD STD 142.  
+16.6 
+CLEAN AGENT (HALON SUBSTITUTE) BASED EXTINGUISHING SYSTEM 
+The systems should be checked as given below: 
+a) 
+Agent quantity and pressure of refillable containers should be checked, six monthly. 
+b) 
+The complete System should be inspected for proper operation once every year (Refer latest NFPA 
+Standard 2001 (latest edition) for details of inspection of various systems). 
+16.7   MOBILE FIRE FIGHTING EQUIPMENT AND ACCESSORIES 
+Foam tenders should be tested at least once a week. This should include running of pump and 
+foam generation equipment. 
+All other mobile equipment should be checked, serviced and periodically tested under operating 
+conditions, at least once a month. 
+Trailer mounted pumps should be test run at least once a week. 
+All the fire hoses should be hydraulically tested at least once in six months. 
+DCP tender should be visually inspected every week. This should include checking of expelled gas. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  28  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+Records shall be maintained of all maintenance, testing and remedial/ corrective actions taken 
+wherever necessary.  
+ 
+16.8     DCP/ CO2/ FOAM TYPE FIRE EXTINGUISHERS: 
+Inspection and testing frequency and procedure should be in line with OISD-STD-142. 
+16.9 
+COMMUNICATION SYSTEM 
+Fire sirens should be tested at least once a week. Testing of Manual call points once in a month, 
+walkie-talkies every week and other communication systems covered under item 13.0 should be 
+done as per manufacturer’s guidelines. 
+16.10    DETECTORS 
+The operability of all types of detectors should be tested once in every three months. Calibration of 
+gas detectors using test gas should be done once in every six months or as per manufacturer's 
+specification whichever is earlier. 
+17.0     FIRE FIGHTING ORGANISATION 
+ 
+A full-fledged fire fighting organisation shall be provided. A typical organisation for the fire and 
+safety department for a large size, Refinery/Gas Process Plant is given below: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+           The Fire Protection / Fighting organisation shall be manned by personnel having suitable 
+professional qualification & training. For ease of identification of the fire fighters, the crew members 
+should be provided separate uniform. 
+ 
+DGM/CHIEF MANAGER 
+FIRE & SAFETY 
+SR MGR/MANAGER  
+( FIRE PROTECTION) 
+SR MANAGER./ 
+MANAGER  (SAFETY) 
+MGR/DY.MGR./ 
+SR.FIRE OFFICER 
+(FIRE MAINT.) 
+MGR/DY.MGR /  
+SR. OFFICER 
+(OPERATIONS) 
+EACH SHIFT SR. FIRE OFFICER & FIRE 
+OPERATORS 
+SAFETY 
+OFFICER 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  29  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+18.0 FIRE PROTECTION TRAINING 
+ 
+All the plant personnel shall be trained on fire prevention and fire fighting aspects. Fire fighting skill 
+upgradation / refresher training shall be given periodically. The fire crew belonging to the fire fighting 
+department shall be given intensive training for the use of all equipment and in various fire fighting 
+methods for handling different types of fires. 
+  
+Regular contractors and security personnel shall be given safety, fire Fighting and rescue operation 
+Training through oil industry approved reputed institute and record maintained.  
+ 
+A fire training ground with the following minimum training facilities should be set up: 
+a) Trench fire simulation facilities 
+b) A small open top tank fire simulation facility 
+c)   Pan fire simulation facility. 
+d) Pipeline flange leak fire simulation facility 
+e) Fire suits and breathing apparatus. 
+ 
+A mock fire drill should be conducted once in a month to rehearse the fire emergency procedure 
+and to keep the fire fighting team trained and alert and facilities in top order.  
+ 
+A layout of typical fire training ground and a brief write up on the facilities in the training ground are 
+given in Annexure-IV. 
+ 
+For refineries & Gas Processing Plants not equipped with adequate fire training facilities; skill up 
+gradation/ refresher training shall be periodically conducted at reputed institutes having live module 
+fire fighting training facilities. 
+19.0 MUTUAL AID 
+ 
+Refineries/process plants should have written mutual aid agreements with similar neighbouring 
+industries fully detailing the responsibilities of the members of the scheme, the procedures to be 
+adopted, the minimum number of equipment and manpower and minimum quantity of consumables 
+to be exchanged/loaned. A model agreement of mutual aid is given in Annexure - V. 
+ 
+A chart showing mutual aid arrangement shall be exhibited prominently at least in fire station and 
+Disaster Control Room. 
+20.0 FIRE EMERGENCY PROCEDURES 
+ 
+Each installation shall prepare a detailed "Fire emergency procedures" manual outlining the actions 
+to be taken by each personnel during a major incident for use by the organization and this manual 
+shall be available to all personnel in the installation. 
+ 
+The fire emergency procedures including fire fighting plan should be prepared for fighting fires in 
+the process units, in and around tanks, in the LPG storage and bottling plants, product loading 
+gantries, separators, electrical fire, warehouse and building fires etc. 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  30  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+21.0 FIRE STATION / CONTROL ROOM 
+ 
+Fire Station Control Room is of critical importance as it is main coordinating centre between the 
+emergency site and response crew. Important activities of control room are communication, 
+mobilisation,    up-keeping    and maintenance.  The location and construction of control room should 
+therefore be suitable for these activities. 
+21.1 LOCATION 
+ 
+Fire station should be located at minimum risk area. It should be spaced at a safe distance from any 
+process plant and other hazardous areas. For details refer OISD-STD-118. 
+ 
+When planning for new fire station, adequate land should be provided for parking and maneuvering 
+of fire appliances. Also, access and exits of the building should not be obstructed by other vehicles. 
+ 
+Fire station control room should be close to parking bay for fire appliances and should have good 
+view of vehicles parked. 
+ 
+Additional Fire-post should be considered during the expansion for improving the response time.  
+21.2 COMMUNICATION: 
+ 
+Reliable communication system is must for supporting effective fire service dept. operations. 
+Following equipment must be available in the Control Room, (i) Telephones (2) Wireless sets/ 
+walkie-talkie (with a dedicated frequency) (3) Hotlines to neighbouring industries/civil Fire Brigade 
+(4) Fire Alarm system with central control in fire station. 
+21.3 GENERAL: 
+a) Fire Station should have 2 overhead storage tanks for foam compound storage, so that during 
+emergency refilling is not delayed. 
+b) Control room should have portable emergency lights. 
+c) Fire Station should have prominently located pressure gauge showing fire water network 
+pressure. 
+d) Emergency power supply shall be ensured for Fire Station & Fire water Pump House. 
+ 
+22.0 PASSIVE FIRE PROTECTION MEASURES / OTHER SAFETY MEASURES 
+ 
+Although adequate fire protection is provided in an installation, Passive fire protection measures as 
+indicated below should be adopted wherever required. 
+a) Fire Proofing of structural members 
+b) Spark Arresters and Flame Arresters 
+c) Fire Separation Walls in concealed space/Electrical     Substation/ transformer yard/ bays/ cable 
+galleries. 
+d) Fire Seals in underground sewer system / Flare Knock out Drums 
+e) Impounding Basins/Dyke Walls 
+f) 
+Lightning Arresters 
+g) Pressurisation of Enclosure 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  31  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+h) Venting Facilities of process equipment 
+i) 
+Electrical Relays and Fuses, earth leakage circuit breakers, neutral current circuit breaker 
+j) 
+Fire retardant coatings and tapes for cables 
+k) Fire resistant low smoke insulation cable. 
+l) 
+Flame proof and flame resistant electrical enclosure. 
+m) Insulation of hot surfaces. 
+23.0 FIRE PROTECTION SYSTEM AUDIT 
+           In view of continuous expansion and additions in refineries, the system should be internally audited 
+once in 3 years for compliance of OISD standards and statutory requirements 
+24.0 REFERENCES 
+1) 
+NFPA-11 Standard For Low Expansion Foam Systems 
+2) 
+NFPA 11-A Standard  For Medium & High Expansion Foam Systems 
+3) 
+NFPA 13 Standard For The Installation Of Sprinkler Systems 
+4) 
+NFPA  15  Standard  For Installation Of Water Spray Systems 
+5) 
+NFPA 17 DCP System 
+6) 
+NFPA 20 Standard For Installation Of Centrifugal Fire Pumps 
+7) 
+NFPA-2001 Standard For Clean Fire Extinguishing System 
+8) 
+API - 2001 Fire Protection In Refineries 
+9) 
+Petroleum Rules -2002 
+10) Fire Protection Manual (Part-II) Of TAC 
+11) TAC Building Regulations 
+12) TAC    Regulations    For Electrical Equipment Of Buildings 
+13)  Model   Code   Of   Safe Practices - The Institute Of Petroleum (U. K. ) 
+14) International Safe Practices Of Oil Industry 
+15) IS:3844- Code Of Practice For Installation Of Internal Fire Hydrants In Multistorey Building 
+16) OISD-STD-142 Inspection Of Fire Fighting Equipment & Systems 
+17) OISD-STD-154 Safety Aspects In Functional Training 
+18) Ozone Depletion Substances Regulation & Control Rules 2000, Ministry of Environment & Forests, 
+Government of India 
+19) IS-15683: Portable Fire Extinguishers - Performance and Construction - Specification 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  32  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+20) IS:14609 : Dry Chemical Powder for fighting A,B,C Class Fires - Specification  
+21) UL154: Carbon-Dioxide Fire Extinguishers 
+22) UL299:Dry Chemical Fire Extinguishers 
+23) UL711:Rating & Fire Testing of Fire Extinguishers 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  33  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE-1 
+ 
+EXAMPLE FOR CALCULATION OF FIRE WATER FLOW RATENote1 
+ 
+ 
+1. 
+DESIGN BASIS 
+ 
+The fire water system in an installation shall be designed to meet the fire water flow requirement to 
+fight two major fires simultaneously. 
+2. 
+FIRE WATER DEMAND  
+ 
+Various areas which can be under fire shall be considered and fire water demand for each area 
+shall be calculated based on design basis, as indicated below: 
+2.1 
+FLOATING ROOF TANKS PROTECTION 
+ 
+a) Data:  
+ 
+ 
+Total storage capacity in one dyke area 
+= 
+1,20,000 m3 
+ 
+ 
+No. of tanks 
+ 
+= 
+2 
+ 
+ 
+Capacity of each tank 
+ 
+= 
+60,000 m3 
+ 
+ 
+Diameter of each tank 
+ 
+= 
+79 m 
+ 
+ 
+Height of each tank 
+ 
+= 
+14.4 m 
+ 
+ 
+b) Cooling water requirement: 
+ 
+ 
+Cooling water rate  @ 3 lpm/ m2 of tank shell area for tank on fire, 
+ 
+ 
+Cooling water required 
+ 
+=  
+(π x 79 x 14.4 x 3) lpm 
+ 
+ 
+ 
+ 
+= 
+10,726 lpm 
+ 
+ 
+ 
+ 
+= 
+644 m3/hr 
+ 
+Assuming that second tank is located within the tank dyke at a distance more than 30 meters from 
+the tank shell.  
+ 
+Therefore, in such case cooling water required at the rate of 1 lpm/ m2 of tank shell area shall be 
+215 m3/hr. 
+ 
+Total cooling water = 859 m3/hr    
+ 
+ 
+c) Foam water requirement for rim seal area:   
+ 
+ 
+Water flow required for applying foam on a largest tank burning surface area.  
+ 
+ 
+For floating roof tank of 79 m diameter,  
+ 
+ 
+Diameter of the tank (D1)  
+ 
+=  
+79 m 
+ 
+ 
+Distance of foam dam from shell  
+ 
+=  
+0.8 m 
+ 
+ 
+Diameter of roof up to foam dam (D2)   
+=  
+79- (2 x 0.8)  = 77.4 m 
+ 
+ 
+the rim seal area                                       
+=  
+((π /4) x (792 - 77.42)) m2 
+ 
+                                                                
+ 
+=   197 m2 
+ 
+ 
+Foam solution rate @ 12 lpm/ m2                    =  
+2,364 lpm 
+                           (For 3% foam concentrate)                 =    (0.97 x 2364) lpm  
+  
+ 
+ 
+ 
+=     2293 lpm. 
+ 
+ 
+ 
+ 
+=    2293 x 60  m³/hr  
+                                                                                               1000 
+ 
+ 
+ 
+ 
+=   138 m³/hr. 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  34  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+Note-1: These are sample calculations only. Calculations on the basis of actual site conditions and dimensions need to be carried out 
+for each installation as per guidelines provided in clause 5.2. 
+ 
+ 
+ 
+ 
+ 
+ 
+d) Fire water for supplementary hose stream based on 4 hydrant streams + 1 High Volume Long 
+Range water monitor. 
+ 
+ 
+4 x 36 m3/hr + 1 x 228 m3/hr = 372 m3/hr 
+ 
+ 
+ 
+e) Total water required:  
+ 
+ 
+Tank cooling 
+859 m3/hr 
+ 
+ 
+Foam application 
+138 m3/hr 
+ 
+ 
+Supplementary stream 
+372 m3/hr 
+ 
+ 
+Total 
+1369 m3/hr 
+ 
+ 
+2.2 
+CONE ROOF TANKS PROTECTION 
+ 
+ 
+a) Data: 
+ 
+ 
+Total storage capacity 
+ = 
+50,000 m3 
+ 
+ 
+No. of tanks 
+ = 
+4 with 12,500 m3 capacity each. 
+ 
+ 
+Diameter of each tank 
+ = 
+37.5 m 
+ 
+ 
+Height of each tank 
+ = 
+12 m 
+ 
+ 
+b) Cooling water requirement: 
+ 
+ 
+Cooling water rate 
+= 
+3 lpm/ m2 of tank shell area for tank-on-fire 
+ 
+ 
+Cooling water required 
+= 
+π   x 37.5 x 12 x 3 
+ 
+ 
+ 
+= 
+4243 lpm 
+ 
+ 
+ 
+= 
+255  m3/hr  
+ 
+ Cooling water required for other tanks at the rate of 3 lpm/ m2 of shell area for tanks falling within  
+(R+30) metre  from centre of tank on fire,  
+ 
+ 
+ 
+= 
+3 x 255 m3/hr 
+ 
+ 
+ 
+= 
+765 m3/hr 
+ 
+ 
+Total cooling water rate 
+= 
+(255 + 765) m3/hr 
+ 
+ 
+ 
+=   
+1020 m3/hr 
+ 
+ 
+c) Foam water requirement (for 1 tank only) @ 5 lpm/ m2, 
+ 
+ 
+Foam solution rate 
+= 
+(π  x (37.5)2 x 5) lpm 
+ 
+ 
+ 
+ 
+          4 
+ 
+ 
+ 
+= 
+5525 lpm 
+ 
+ 
+For 3% foam concentration 
+= 
+(5525 x 0.97) lpm 
+ 
+ 
+ 
+= 
+5359 lpm 
+ 
+ 
+ 
+= 
+322 m3/hr 
+      
+ 
+d) Fire water for supplementary hose stream 
+=  
+372 m3/hr 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  35  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+e) Total water required : 
+ 
+ 
+Tank cooling 
+ 
+1020 m3/hr 
+ 
+ 
+Foam application 
+ 
+322  m3/hr 
+ 
+ 
+Supplementary stream (including 2 HVLR) 
+372  m3/hr 
+ 
+ 
+ 
+ 
+    
+ 
+ 
+Total 
+ 
+1,714 m3/hr  
+ 
+ 
+2.3 
+LPG SPHERES AREA PROTECTION 
+ 
+a) Data:  
+ 
+ 
+No. of sphere in one area 
+= 
+3 
+ 
+ 
+Diameter of each sphere 
+= 
+17 m 
+ 
+ 
+b) Cooling water requirement: 
+ 
+ 
+water rate for cooling 
+= 
+(π x172 x 10.2) lpm 
+ 
+ 
+ 
+= 
+9,265 lpm 
+ 
+ 
+ 
+= 
+556 m3/hr 
+ 
+ 
+Considering other 2 spheres located within 
+ = (3 x 556) m3/hr  
+ 
+ 
+(R+30) M from centre of sphere and fire  
+ 
+ 
+cooling water rate for 3 spheres     
+ 
+ 
+    
+ 
+ = 1668 m3/hr 
+ 
+c) Hose stream requirement (including 1 HVLR)  = 372 m3/hr 
+ 
+ 
+d) Total water requirement 
+ 
+ = 2040 m3/hr 
+ 
+ 
+ 
+2.4 
+LPG RAIL WAGON LOADING GANTRY PROTECTION 
+ 
+ 
+a) Data:  
+ 
+ 
+Total No. of loading points 
+ 
+= 
+Conventional or BTPN. 
+ 
+ 
+Width of Tank wagon gantry 
+ 
+= 
+12 m 
+ 
+ 
+ 
+   
+b) Cooling water requirement: 
+ 
+ 
+Divide total area of gantry into equal segments such that each segment measuring 15 m X 12 
+m and consider 3 segments operating at a time. 
+ 
+ 
+ 
+Water rate required 
+ 
+= 
+(3 x 15 x 12 x10.2) lpm 
+ 
+ 
+ 
+ 
+=   5508 lpm                                                   ‘                              
+ 
+ 
+ 
+=    330 m3/hr 
+ 
+ 
+Water Requirement for supplementary Hose: 
+ 
+ 
+Water for 4 single hydrant streams 
+ 
+= 
+4 x 36 = 144 m3/hr. 
+ 
+ 
+Water for 1 monitor stream (HVLR) 
+ 
+= 
+1x 228 = 228 m3/hr. 
+ 
+ 
+Total water requirement 
+ 
+= 
+372 m3 / hr. 
+ 
+ 
+Total water flow rate for gantry protection 
+ 
+ 
+(a) Gantry cooling 
+ 
+=   330 m³/hr. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  36  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+  
+(b) Supplementary hose requirement 
+ 
+= 
+372 m3/ hr 
+ 
+ 
+ Total 
+ 
+= 
+702 m³/hr.  
+ 
+2.5 
+PROCESS UNIT PROTECTION 
+ 
+For process unit protection in case of fire, water is to be applied using fixed water monitors and 
+hose lines.  Unit blocks separation is by 30 metre. Three following alternatives are considered for 
+fire water rate. 
+ 
+ 
+Alternate-I   
+ 
+Total unit area 
+ 
+  
+ 
+ 
+ 
+= 120 x 80 m2 
+ 
+Consider water rate @ 1 lpm/ m2 on area basis, 
+ 
+Water rate 
+ 
+  
+ 
+ 
+ 
+= (9600 x 1) lpm  
+ 
+ 
+ 
+ 
+  
+ 
+ 
+ 
+= 576 m3/hr 
+ 
+Water for supplementary hose stream (including 1 HVLR) 
+ 
+= 372 m3/hr 
+ 
+Total   water rate 
+ 
+  
+ 
+ 
+ 
+= 948 m3/hr 
+ 
+ 
+Alternative - II 
+ 
+Consider a 10m x 10m portion of process unit area on fire. Provide water cover over an area of 
+30m x 30m at the rate of 10.2 lpm/ m2, 
+ 
+Water rate 
+ 
+  
+ 
+ 
+= (900x10.2) lpm 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+=  9180 lpm 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+= 551 m3/hr 
+ 
+Water for supplementary hose steam (including 1 HVLR)  
+= 372 m3/hr 
+ 
+Total water rate 
+ 
+  
+ 
+ 
+= 923 m3/hr 
+ 
+ 
+Alternate – III 
+ 
+Water required for portion of unit area provided with fixed spray system (Extreme Hazardous Area) 
+ 
+Area assumed 
+ 
+  
+ 
+ 
+= 1000 m2 
+ 
+Water rate 
+ 
+  
+ 
+ 
+= 10.2 lpm/ m2 
+ 
+Cooling water required 
+ 
+  
+ 
+ 
+= 10200 lpm 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+= 612 m3/hr 
+ 
+Water for supplementary hose stream (including 1 HVLR) 
+= 372 m3/hr 
+ 
+Total cooling water required 
+ 
+  
+ 
+ 
+= 984 m3/hr 
+ 
+ 
+Considering the maximum water under alternative I, II & III 
+ 
+Design flow rate 
+ 
+  
+ 
+ 
+= 984 m3/hr 
+ 
+ 
+ 
+2.6   
+Fire water calculation for full surface fire on largest floating roof tank (roof sinking case) – 
+Treated as a single contingency 
+ 
+ 
+a) Data:  
+ 
+ 
+Total storage capacity in one dyke area 
+= 
+120,000 m3 
+ 
+ 
+No. of tanks 
+ 
+= 
+2 
+ 
+ 
+ 
+Capacity of each tank 
+ 
+= 
+60,000 m3 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  37  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+ 
+Diameter of each tank 
+ 
+= 
+79 m 
+ 
+ 
+Height of each tank 
+ 
+= 
+14.4 m 
+ 
+ 
+ 
+ 
+ 
+b) Cooling water requirement: 
+ 
+ 
+Cooling water rate @ 3 lpm/ m2 of tank shell area for tank-on-fire 
+ 
+ 
+Cooling water required 
+ = 
+π x 79 x 14.4 x 3 
+ 
+ 
+ 
+= 
+10726 lpm 
+ 
+ 
+ 
+= 
+  644 m3/hr 
+ 
+ 
+Assuming that second tank is located within the tank dyke at a distance more than 30M  from 
+the tank shell.  
+ 
+   Then, cooling water requirement @ 1 lpm/ m2 of tank shell area shall be 215 m3/hr. 
+ 
+ 
+   Total cooling water  
+=  
+(644 + 215) m3/hr  
+ 
+ 
+ 
+= 
+859 m3/hr  
+ 
+ 
+c)  Water requirement in foam application                 
+ 
+ 
+Foam Application Rate 
+: 
+8.1 lpm  
+ 
+ 
+Foam Solution Requirement  
+= 
+((π x 79 x 79) / 4  x 8.1) lpm 
+ 
+                    
+= 
+39720 lpm 
+ 
+ 
+                   
+=   
+2383 m3/hr 
+ 
+ 
+Water required for the foam solution    = 
+97% x 2383 m3/hr  
+                                                                              =   
+   2312 m3/hr         
+ 
+ 
+…… refer Note-2 
+ 
+ 
+d) Fire water for supplementary hose stream based on 4 hydrant streams + 1 High Volume Long 
+Range water monitor. 
+ 
+ 
+4x36 m3/hr + 1X228 m3/hr = 372 m3/hr 
+ 
+ 
+e) Total water required:  
+ 
+ 
+Tank cooling 
+859 m3/hr 
+ 
+ 
+Foam application 
+2312 m3/hr (Plus requirement for foam losses as per Note-2) 
+ 
+ 
+Supplementary stream 
+372 m3/hr 
+ 
+ 
+Total 
+3543 m3/hr 
+ 
+ 
+ 
+Say Total water requirement  
+=  
+3550 m3/hr (Plus requirement for foam losses as per Note-2) 
+ 
+ 
+ 
+3.0 
+TOTAL DESIGN FIRE WATER RATE 
+ 
+ 
+For two major fire fought simultaneously 
+ 
+Fire water rates for 5 cases are given below: 
+ 
+ 
+ i) Floating roof tank protection  
+= 1369 m3/hr 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  38  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ ii) Cone roof tank protection  
+ 
+= 1714 m3/hr 
+ iii) LPG sphere protection 
+ 
+ 
+= 2040 m3/hr 
+ iv) LPG rail wagon loading gantry = 702 m3/hr  
+  
+Protection 
+ 
+ v) Process unit protection 
+ 
+ 
+= 984 m3/hr 
+ 
+ 
+Note-2: Potential foam losses from wind and other sources to be added to this value as per design requirements. These losses are 
+not considered in this typical calculation sheet. 
+ 
+ 
+3.1  
+For fighting the above two major fires simultaneously, the design firewater rate is the sum of the 
+two highest water rates i.e.  
+ 
+Design fire water rate 
+= 
+2040 m3/hr + 1714 m3/hr 
+ 
+ 
+ 
+= 
+3754 m3/hr 
+ 
+Say 
+= 
+3750 m3/hr 
+ 
+ 
+ 
+ 
+  
+    
+    
+3.2 
+For full surface fire of largest floating roof tank (Roof sinking case): 
+ 
+Total firewater flow rate required as per typical calculations shown at 2.6 is 3550 m3/hr. (Plus requirement 
+for foam losses as per Note-2)   
+ 
+ 
+The design Firewater rate shall be highest of above 3.1 or 3.2. 
+ 
+ 
+NOTE: 
+ 
+Full surface fire of a floating roof tank roof sinking case being a remote possibility, it is 
+considered as a single largest contingency for the purpose of arriving at design fire water 
+requirement.   
+ 
+ 
+ 
+Note-2: Potential foam losses from wind and other sources to be added to this value as per design requirements. These losses are 
+not considered in this typical calculation sheet. 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  39  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE - II 
+ 
+ 
+EXAMPLE FOR CALCULATION OF FOAM COMPOUND REQUIREMENT 
+ 
+ 
+1. 
+CONE ROOF TANK PROTECTION: 
+ 
+ 
+i) Data : 
+ 
+ 
+ 
+Total Storage capacity in one dyke area 
+= 
+50000 m3 
+ 
+ 
+Number of tanks 
+ 
+= 
+4 
+ 
+ 
+Diameter of each tank 
+ 
+= 
+37.5 m 
+ 
+ 
+Height of each tank 
+ 
+=   12 m  
+ 
+ 
+ii) The quantity of foam compound shall be calculated as follows:  
+ 
+ 
+ 
+Consider foam solution application @ 5 lpm/ m2 for the liquid surface of the single largest cone 
+roof tank in the dyke area. 
+ 
+ 
+ 
+ 
+  
+ 
+  
+ 
+ 
+Foam solution rate 
+ 
+π x (37.5)2 
+ 
+ 
+ 
+=       ---------------  x 5 
+ 
+ 
+ 
+ 
+      4 
+ 
+ 
+ 
+= 
+5525 lpm 
+ 
+ 
+Foam compound required (3%) 
+= 
+(5525 x 3 / 100) lpm 
+ 
+ 
+ 
+= 
+166 lpm 
+ 
+ 
+Foam compound quantity for 65 minutes 
+= 
+166 x 65 
+ 
+ 
+ 
+ 
+= 
+10,790 litre 
+ 
+ 
+iii) Consider one portable foam monitor of 4500 lpm foam solution capacity: 
+ 
+ 
+ 
+3% Foam compound required 
+ 
+= 
+135 lpm 
+ 
+ 
+Foam compound required for 65 minutes 
+= 
+8,775 litre 
+ 
+ 
+iv) Consider 2 hose streams of foam with a capacity of 1140 lpm of foam solution capacity 
+ 
+ 
+ 
+3% Foam compound required 
+ 
+= 
+68.4 lpm 
+ 
+ 
+Foam compound required for 65 minutes 
+= 
+4,446 litre      
+ 
+ 
+v) Total foam compound required for cone roof tank area Protection: 
+ 
+ 
+Foam compound required for Cone Roof Tank  = 10,790 litre 
+ 
+ 
+Foam Compound required for 1 Foam Monitor = 8,775 litre 
+ 
+ 
+Foam Compound required for 2 hose streams = 4,446 litre 
+ 
+ 
+Total 
+ 
+ = 24,011 litre 
+ 
+ 
+ 
+Say 
+ 
+ = 24,000 litres 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  40  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+2. 
+FLOATING ROOF TANK PROTECTION 
+ 
+ 
+i) Data: 
+ 
+ 
+ 
+Total Storage Capacity in one dyke 
+= 
+1,20,000 m3 
+ 
+ 
+No. of Tanks 
+= 
+2 
+ 
+ 
+Capacity of Each Tank 
+= 
+60,000 m3 
+ 
+ 
+Diameter of each tank 
+= 
+79 m 
+ 
+ 
+Height of each tank 
+= 
+14.4 m 
+ 
+iii) Consider foam solution application rate of 12  lpm/ m2  of seal area of the single largest floating 
+roof tank in the dyke area : 
+ 
+ 
+ 
+For floating roof tank of 79 m diameter,  
+ 
+ 
+Diameter of the tank (D1) 
+=  
+79 m 
+ 
+ 
+Distance of foam dam from shell  
+=  
+0.8 m 
+ 
+ 
+Diameter of roof up to foam dam (D2) =  
+(79- (2X0.8)) m = 77.4 m 
+ 
+ 
+Rim seal area                             
+=  
+((π /4) x (792-77.42)) m2 
+ 
+ 
+ 
+=       197 m2 
+               
+Foam solution rate @ 12 lpm/ m2  
+                =  
+2364 lpm 
+ 
+ 
+3% Foam Compound required 
+ 
+      =   
+70.9 lpm 
+ 
+ 
+Foam Compound required for 65 mins.  
+  
+=  
+4,609 liter 
+ 
+ 
+ 
+ 
+  
+  
+ 
+iii) Foam Compound required for 1 foam monitor and 2 hose streams as calculated for cone roof 
+protection 
+ 
+ 
+1 Foam monitor 
+ 
+8,775 liter 
+ 
+ 
+2 Hose streams 
+ 
+4,446 litre 
+ 
+ 
+iv) Total foam compound required for floating roof tank area Protection: 
+ 
+ 
+Foam Compound required for Floating Roof Tank  
+4,609 liter 
+ 
+ 
+Foam compound required for 1 foam monitor   
+ 
+8,775 liter 
+ 
+ 
+Foam compound required for 2 hose streams   
+ 
+4,446 litre 
+ 
+ 
+Total required 
+ 
+  
+ 
+17,830 liter 
+ 
+ 
+ 
+Say, 
+ 
+  
+ 
+18,000 liter 
+ 
+3. 
+On the lines of the above example foam compound requirement should be calculated for various 
+dyke areas. Requirements to fight major fires in two dyke areas (with maximum foam compound 
+rates requirements) should be added, to arrive at the total requirement of the installation. 
+ 
+For example, for 2 cone roof tank dyke areas with largest tank diameter of 37.5 metres in each 
+area, foam compound required works out as 2x24000 liters i.e.   48,000 liters. 
+ 
+Similarly for 2 floating roof tank dyke areas with largest tank diameter of 79 M. in each area, foam 
+compound required works out as 2 X 18000 liters i.e.  36,000 liters.  
+ 
+4.  
+Foam Requirement for Full surface fire of the largest floating roof tank (roof sinking Case): 
+considered as a single largest contingency & detailed at Annexure-VI 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  41  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE - III 
+ 
+BROAD SPECIFICATIONS FOR FIRE FIGHTING EQUIPMENT 
+(Refer OISD STD -115 for details) 
+ 
+ 
+N
+o
+. 
+Equip
+ment 
+Broad Specification Capacity 
+And Size 
+Suitabilit
+y 
+I. 
+Foam Tender 
+- 
+Diesel Engine Chassis with 
+ 
+compatible PTO Unit 
+- 10 ton 
+ 
+payload 
+- 
+Foam compound Tank 
+- 3000 lts. 
+- 
+Water tank 
+- 2600 lts. 
+- 
+Pump capacity 
+- 4000 lpm@ 
+ 
+ 
+ 
+8.5 kg/sq.cm g 
+ 
+ 
+ 
+& 2500 lts/min 
+ 
+ 
+ 
+@ 10 kg/sq.cm g 
+ 
+Foam/water monitor of capacity 
+ 
+2500 to 2800 lts/min – 1 No. 
+ 
+- 
+To supply 
+ 
+Foam 
+ 
+Solution to 
+ 
+Fixed foam 
+ 
+System. 
+ 
+- 
+To supply  
+ 
+form to  
+ 
+spill fires 
+ 
+II. 
+Hydraulic Platform 
+with articulated or 
+telescopic arm 
+- 
+Diesel Engine Chassis with 
+ 
+compatible PTO Unit - MIN.HP280 
+- 
+Foam generating equipment 
+- 
+Cage area – 1.4 sq. mt. 
+- 
+Extinguishing Articulated boom 
+ 
+Of 30 M height 
+- 
+Throwing distance Horizontal :100-120M 
+ 
+                               Height: 65-75mt. 
+- 
+Boom movement – 360 degrees 
+- 
+Foam/water monitor capacity 
+ 
+5000 to 6000 plum 
+- 
+Pump capacity – 5000 to 6000 
+ 
+Lts/min. at 10 kg/sq. cm.g 
+- 
+Remote operation from rear of truck 
+- 
+Operation to suit water 
+ 
+Connection from hydrants 
+  
+ 
+- 
+For foam 
+ 
+application  
+ 
+on oil fires 
+ 
+- 
+For fire fighting 
+ 
+Of tall columns  
+ 
+And inaccessible   
+      area 
+ 
+ 
+ 
+ 
+- 
+For rescue 
+III. 
+DCP Tender 
+- 
+Diesel engine chassis –payload :13 
+- 
+2 spheres of 2000 kg DCP each 
+- 
+Expellent gas system (Nitrogen gas  
+ 
+cylinders 28x50 lts at 140 kg/cm2 g 
+- 
+Automatic regulator for output and range 
+- 
+DCP monitor with range 15, 25 and  
+ 
+40 kg/second at operating pressure of 
+     14 kg/cm2 g 
+- 
+Monitor throw - 40 to 50 mtrs  
+ 
+- 
+For gas 
+ 
+Fires and 
+ 
+Spill fires 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  42  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+IV. 
+Emergency 
+Rescue 
+Tender 
+- 
+Rescue equipment 
+- 
+Breathing equipment 
+- 
+Protective clothing 
+- 
+First Aid Equipment 
+ 
+- 
+For rescue 
+ 
+Operations 
+ 
+ 
+V. 
+Foam Tank 
+Trailers with 
+Water-cum- 
+Foam monitors 
+ 
+- 
+Foam compound storage capacity 1000 litres 
+- 
+Filed adjustable variable flow Water cum foam monitor of 
+capacity 1000 GPM with UL/FM listed / approved  
+- 
+For spill  
+ 
+fires 
+ 
+ 
+VI. 
+Trolley mounted 
+Water-foam- 
+Monitors 
+- 
+Filed adjustable variable flow Water cum foam monitor of 
+capacity 2000 GPM with UL/FM listed / approved. Foam 
+induction to the monitor shall be possible from minimum 
+60M distance from the monitor. 
+ 
+- 
+For oil fire 
+- 
+For hot work 
+VII. 
+Foam Nurser 
+(Trailor 
+mounted foam 
+supply tank) 
+- 
+Foam Compound storage  
+- 4500 litres.  
+ 
+ 
+- 
+Pump capacity : 160 lts/min 
+ 
+- 
+To supply 
+ 
+Foam 
+ 
+compound 
+ 
+During fire 
+ 
+fighting 
+ 
+ 
+VIII. 
+Mobile fire 
+Trailer pump 
+ 
+ 
+- 
+Pump capacity 1800 to 2250 
+  
+ 
+Lts/min at 7 kg/sq.cm. g 
+ 
+- 
+As a booster 
+ 
+Pump 
+- 
+Fire water use 
+ 
+from additional
+ 
+source 
+ 
+ 
+IX. 
+Fire hoses 
+-2 ½” 
+ 
+- 
+Reinforced rubber lined hoses type   
+ 
+“A” or “B” as per IS 636 
+ 
+- 
+General fire 
+ 
+Fighting  
+X. 
+Fire jeep 
+ 
+ 
+ 
+- 
+Standard design with two-way radio   
+ 
+Communication facility 
+ 
+ 
+- 
+Towing trailer 
+ 
+Type  
+ 
+equipment 
+- 
+General 
+ 
+vigilance 
+ 
+ 
+XI. 
+Ambulance 
+- 
+Medical first aid equipment 
+  
+- 
+Medical aid  
+XII. 
+Other accessories 
+Foam making 
+branch pipes, 
+nozzle etc. 
+- 
+As per standard specifications 
+  
+ 
+Lts/min at 7 kg/sq.cm. g 
+ 
+- 
+For fire  
+ 
+Fighting 
+ 
+NOTE: The capacities of equipment given above are minimum required. However, higher 
+capacities can be provided on need basis. 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  43  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE - IV 
+ 
+FIRE TRAINING GROUND - FACILITIES 
+ 
+ 
+1.0 
+LAYOUT OF TYPICAL FIRE TRAINING GROUND 
+ 
+ 
+A typical layout of a fire training ground is shown in fig.1 
+ 
+ 
+ 
+ 
+ 
+Fig. 1 
+LAYOUT OF TYPICAL FIRE TRAINING GROUND 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  44  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+ 
+ 
+2.0 DETAILS OF FACILITIES IN TRAINING GROUND 
+ 
+ 
+Details of different facilities in the fire training ground are described below. 
+ 
+2.1. 
+Facility for storage tank fire 
+ 
+ 
+Storage tanks are provided with fixed foam line connection and fixed cooling water                                                   
+ 
+ 
+system to fight tank fires.  The foam is to extinguish the fire and cooling water is to 
+prevent spreading of fire in the neighbouring tanks. Training ground should have a tank 
+with fixed foam installation with isolation valves on product lines. 
+ 
+2.2 
+Facility for pit fire: 
+ 
+ 
+During operation of the refinery, sometimes hydrocarbon liquids get released from the 
+process equipment and accumulate in the open areas/ pit. To fight such fires, the facility 
+should be provided on the ground. 
+ 
+2.3 
+Facility for pipeline fires: 
+ 
+ 
+In the refinery equipment are connected by pipelines and to rundown the products from 
+the process units to storage tanks. These pipes can leak at flange joints and result in a 
+fire.  Facilities should be provided to simulate such fires.  
+ 
+2.4. 
+Facilities for wagon gantry fire: 
+ 
+ 
+Gantry fires are difficult to control due to rapid spreading of fires all around the gantry.  
+Such fires can be controlled with the following arrangements  
+ 
+a) 
+Isolate the oil supply 
+ 
+b) 
+Cooling the area as well as surroundings with water spray & facilities should be 
+provided for such simulations.  
+ 
+2.5 
+Facilities for LPG fire 
+ 
+ 
+LPG is produced in the refinery and stored in containers from where it is despatched to 
+the market.  Chances of fires due to leakage of LPG in the process unit are less as it is 
+processed in closed system.  Probability of LPG fires during bottling; loading/unloading 
+of cylinders is more. 
+ 
+ 
+The most dangerous aspect in LPG fires is explosion of bullet/cylinders. To tackle such 
+fires, training facility should be installed. 
+ 
+ 
+2.6    
+Facility for high elevation column fire 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  45  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+In the refinery, there are tall structures such as columns/vessels.  To tackle fires on 
+such equipment the most important activities are isolation and cooling the equipment 
+as well as surrounding area.  Generally, isolation of inlet side of the equipment is not 
+much difficult, most difficult isolation is on the outlet side.  To approach to the isolation 
+valve, personal protective equipment with water screen is necessary.  Facilities should 
+be provided to simulate all such actions. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  46  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE-V 
+ 
+ARRANGEMENT OF MUTUAL AID 
+ 
+A typical arrangement through mutual aid agreement is given below: 
+ 
+Chembur Trombay Industrial belt spread over about 10 sq.KM is situated in north-east Greater Bombay.  
+Industries operating in the zone include oil refineries, chemical and petrochemical complexes, fertilizer, 
+power generation and a nuclear complex.  The area at present is inhabited by large population living in 
+residential buildings, chawls and hutments.  The Eastern Express Highway and Bombay-Pune Road pass 
+on one side of the area, while on other side; it is bounded by sea and creek.  The roads in the area are 
+loaded with passenger and goods traffic including hazardous chemicals.  A railway line for goods traffic 
+also runs from Kurla to the end of Corridor road, to meet the rolling stock requirement of the industries. 
+The industries in the area have fire fighting and emergency handling equipment and services depending 
+upon the nature and size of their operations.  Industries have also drawn up their On-Site Emergency Plans 
+which are periodically revised and updated. However, the resources available with a single factory being 
+limited can not be sufficient to control a major emergency.  To overcome such constraints, the factories 
+have come forward to form the Mutual Aid Scheme of Chembur-Trombay Region. 
+The main objective of Mutual Aid Scheme is to provide necessary help in case of emergencies when 
+requisitioned by any of the members, in the minimum possible time to save life, property and minimise 
+damage. 
+The members of Mutual Aid Response Group are 
+ Aegis Chemicals 
+ Apar Industries 
+ BARC 
+ BPCL 
+ Bombay Paint 
+ CTTL 
+ HPCL 
+ HP BDU 
+ IOBL 
+ IOCL 
+ MBPT 
+ 
+ ONGC 
+ RCF 
+ TATA Power 
+ 
+The members have agreed to extend help by 
+a) Rushing fire fighting appliances and 
+equipment 
+b) Deployment 
+of 
+trained 
+/ 
+technical 
+personnel 
+c) Passenger transport and ambulance 
+d) Mobile equipment 
+e) Tools, tackles and service equipment 
+f) 
+Personal Protective / Special equipment 
+g) Medical and Health Services 
+Mutual Aid members meet and discuss items of common interest like preparedness and compliance 
+status of Emergency Plans along following lines in scheduled meetings. 
+a) Location of factory, accessibility, escape 
+routes 
+b) Information about hazardous chemicals 
+c) Likely on-site / off-site emergencies 
+d) Method of communication 
+e) Strengths and weaknesses. 
+All members carryout on-site mock drills in their respective factories as well as combined mock drill for on 
+site emergencies.  All the real emergencies in this area have been so far effectively tackled by Mutual Aid 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  47  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+Guidelines for Seeking 
+ Assistance from Mutual Aid Response Group (MARG) 
+ 
+1. An effort has to be made to dovetail On-site emergency plan to Off-site plan. 
+2. Training sessions and mock drills in First Aid, Fire Fighting, Evacuation, First Responders, should be 
+conducted to appraise and train different levels of responders in emergency control. 
+3. During an emergency assistance should be sought from the immediate neighboring MARG members 
+enlisted having appropriate expertise as per the guidelines and equipments, gadgets for controlling 
+situation and statutory authorities simultaneously. 
+4. All the personnel in the factory who are responders for emergencies must be made aware of the 
+availability of such MARG assistance and methods of getting it. 
+5. Assisting organization must be properly briefed by the unit seeking the assistance about the nature of 
+emergency, materials involved and metrological conditions ( wind direction), precise nature of help 
+required to ensure proper response. 
+6. Assisting can be requested in the form of either equipment or expertise or both with expert operating 
+personnel. 
+7. In case of equipment received from assisting organization : 
+a. It must be properly used. 
+b. Returned promptly. 
+c. In case of damage it should be repaired from approved agency and returned in good working 
+condition. 
+d. Consumables should be replaced / reimbursed. 
+8. It is understood that in case of any accident to any personnel while assisting organization that is 
+receiving the help should extend its co-operation in bearing a reasonable part of expenses, beyond that 
+covered by an insurance policy. 
+General: 
+MARG also has its limitations  
+Each organization is primarily responsible for keeping its plants in safe condition, identifying, assessing, 
+minimizing and eliminating hazards and risk, maintaining necessary equipment for special kinds of risks 
+that the organization might be facing and training its personnel for emergency control. 
+It can seek help from others in the MARG in terms of equipment, expertise and special materials. However, 
+it is only complimentary to its own arrangements and commitment to safety and emergency control. 
+Mutual Aid and Response is sought only when in-house efforts seem to be inadequate to meet the demand 
+of the situation and that of the civic group is not adequately resourced to meet the sudden requirement 
+without loss of time. 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  48  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ANNEXURE-VI 
+ 
+ 
+   
+Example of Fire Case in a large Floating Roof Tank after sinking of floating roof 
+ 
+Example for calculation of Foam Requirement for Floating Roof tank with Portable Monitors: 
+ 
+DATA: 
+ 
+1. Diameter of Tank  
+ 
+ 
+= 79 m        
+ 
+2. Type of Roof  
+ 
+ 
+ 
+ 
+= Floating Roof 
+ 
+3. Foam Application Rate  
+ 
+= 8.1 lpm  
+ 
+  
+Foam Solution Requirement  = π x 79 x 79  
+  
+ 
+      ---------------- x 8.1 
+  
+      
+ 
+4 
+ 
+  
+ 
+= 
+39,720 lpm 
+ 
+  
+ 
+= 
+2,383 m3/hr 
+ 
+ 
+           Say, 
+=    2,400 m3/hr  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+This much quantities has to be thrown over to sunken roof area with the help of external long range 
+high volume monitors from the road side periphery of the tank farm. The same can be achieved by 
+5 nos. of 2000 gpm such monitors. In design firewater rate calculation in Ann-I, sinking of floating 
+roof of the largest tank has been considered as a single largest contingency to sizing the fire water 
+network around tank farms to take up such firewater load so that long range monitors can be fed 
+from this network by diverting water available in other areas of the installation to tank farms in such 
+emergency. 
+ 
+ 
+Foam Compound Requirement 
+= 
+39720 x 3 /100  
+ 
+ 
+ 
+= 
+1192 lpm  
+ 
+ 
+Foam Compound Requirement  
+= 
+(1192 x 65) litre 
+ 
+for 65 minutes with 3% concentration 
+ 
+ 
+ 
+ 
+ 
+ 
+= 
+77,480 litres  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  49  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+                           Annexure-VII 
+SYSTEM OF AUTOMATIC ACTUATED RIM SEAL FIRE DETECTION AND EXTINGUISHING 
+SYSTEM FOR EXTERNAL FLOATING ROOF TANKS STORING CLASS-A PETROLEUM 
+ 
+ 
+The automatic actuated flooding system is designed to automatically detect and extinguish the 
+floating roof tank rim seal fire at its incipient stage.  The system is mounted on the roof of the tank. 
+The minimum requirement for the design of the system is given below: 
+ 
+1.0 
+Foam Flooding system: 
+ 
+Film Forming Fluroprotein Foam (FFFP) / Aqueous Film Forming Foam (AFFF) type 
+concentrate is used in the system. 
+ 
+1.1 
+Foam Application system : 
+ 
+A large storage tank requires one or more than one modular units for foam application in the 
+entire rim seal. Each such unit consists of a foam distribution pipe, laid along the tank 
+perimeter over the rim seal area.  The spray nozzles for foam application are mounted on the 
+distribution pipe at suitable intervals. Distribution pipe is permanently connected to a storage 
+vessel containing pre-mix foam and both are placed on the roof. The foam is kept pressurised 
+with nitrogen. The premix foam solution is contained in a vessel which is kept charged with 
+nitrogen.  The system is designed for minimum foam application rate of @ 18 lpm/ m2 of rim 
+seal area. For effective control, foam is discharged in approximately 40 seconds. 
+ 
+1.2 
+Alarm & Auto-actuation system: 
+ 
+In case of fire on the rim seal, it is automatically detected by a device capable to sense the 
+same. The device then actuates the spray system for application of foam in the complete area 
+of rim seal to quickly extinguish the fire in its incipient stage. An audio-visual alarm is also 
+coupled with the detection & extinguishing system for necessary fire alert. 
+ 
+ 
+The system includes a fire detector network which senses fire and actuates the automatic 
+release of the extinguishing medium on the rim seal area. Each tank shall have independent 
+detection & extinguishing system. 
+ 
+ 
+The validity of the approach must be demonstrated by the designer for an effective total 
+flooding extinguishing system which quickly detects and extinguishes fire in its incipient stage 
+without re-flash. Also, the design considerations should include the impact of the weight of the 
+modules placed on the floating roof. 
+ 
+The detection system needs to be highly reliable and shall work at varied site ambient 
+temperatures for protection of rim seal fire. 
+ 
+The rim seal protection system shall be of linear hollow metallic tube type detectors with foam 
+based extinguishing media or equivalent system*, for existing, new installation as well as for 
+replacement of existing system when due. These detection systems shall be listed and/ or 
+approved by any of the international agencies like UL, FM, VdS or LPC to ensure that those 
+systems are used which meet the highest standards of safety. 
+ 
+* Refer clause at para 2.0 (iv) for equivalency 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  50  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+ 
+1.3 
+Calculations for modular Foam application system for  79 mtr dia tank:      
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  Rim seal area of Tank : π   X 79 X 0.3 = 74.5 m2 (Considering a flexible seal area of 
+typically 300 mm) 
+  Rate of Foam application @ 18 LPM/ m2 = 1341 LPM 
+  Total Foam  solution required in 40 sec  = 894 litre 
+  Total nos. of Modular unit required for the tank = 7 * 
+ * (considering a vessel of 150 litre capacity containing 135 litre of Foam) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANNEXURE-VIII 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  51  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+BRIEF DESCRIPTION OF FIRE FIGHTING FOAM 
+ 
+1.0 
+FIRE FIGHTING FOAM: 
+ 
+ 
+Fire fighting foam is a homogeneous mass of tiny air or gas filled bubble of low specific 
+gravity, which when applied in correct manner and in sufficient quantity, forms a 
+compact fluid and stable blanket which is capable of floating on the surface of flammable 
+liquids and preventing atmospheric air from reaching the liquid. 
+ 
+2.0 
+TYPES OF FOAM COMPOUND 
+ 
+ 
+Two Types of foams are used for fighting liquid fires: 
+ 
+2.1 
+CHEMICAL FOAM:  When two or more chemicals are added the foam generates due 
+to chemical reaction.  The most common ingredients used for chemical foam are sodium 
+bicarbonate and aluminimum sulphate with stabilizer.  The chemical foam is generally 
+used in Fire extinguishers. 
+ 
+2.2 
+MECHANICAL FOAM:  It is produced by mechanically mixing a gas or air to a solution 
+of foam compound (concentrate) in water.  Various types of foam concentrates are used 
+for generating foam, depending on the requirement and suitability.  Each concentrate 
+has its own advantage and limitations.  The brief description of foam concentrates is 
+given below. 
+ 
+3.0 
+MECHANICAL FOAM COMPOUND: 
+ 
+ 
+Mechanical foam compound is classified in to 3 categories based on its expansion ratio. 
+ 
+3.1 
+LOW EXPANSION FOAM:  Foam expansion ratio can be up to 50 to 
+1, but usually between 5:1 to 15:1 as produced by self aspirating foam 
+branch pipes. 
+ 
+ 
+The low expansion foam contains more water and has better resistant to fire. 
+It is suitable for hydrocarbon liquid fires and is widely used in oil refinery, oil 
+platforms, petrochemical and other chemical industries. 
+ 
+3.2 
+MEDIUM EXPANSION FOAM:  Foam expansion ratio vary from 
+51:1 to 500:1 as produced by self aspirating foam branch pipes with 
+nets.  This foam has limited use in controlling hydrocarbon liquid fire 
+because of its limitations w.r.t. poor cooling, poor resistant to hot 
+surface/radiant heat etc. 
+ 
+3.3 
+HIGH EXPANSION FOAM: Foam expansion ratio vary from 501:1 
+to 1500:1, usually between 750:1 to 1000:1 as typically produced by 
+foam generators with air fans.  This foam has also very limited use in 
+controlling hydrocarbon liquid fire because of its limitations w.r.t. poor 
+cooling, poor resistant to hot surface/radiant heat etc.  It is used for 
+protection of hydrocarbon gases stored under cryogenic conditions and 
+for warehouse protection. 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  52  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+ 
+4.0 
+TYPES OF LOW EXPANSION FOAM: 
+ 
+ 
+Foam concentrates to be used shall conform to IS 4989 & UL-162 
+ 
+4.1 
+PROTEIN BASE FOAM: 
+ 
+ 
+The foam concentrate is prepared from hydrolyzed protein either from animals or 
+vegetable source.  The suitable stabilizer and preservatives are also added. 
+ 
+ 
+The concentrate forms a thick foam blanket and is suitable for hydrocarbon liquid fires, 
+but not on water miscible liquids.  The effectiveness of foam is not very good on deep 
+pools or low flash point fuels which have had lengthy pre-burn time unless applied very 
+gently to the surface. 
+ 
+ 
+The concentrate is available for induction rate of 3 to 6%.  The shelf life of concentrate 
+is 2 years. 
+ 
+4.2 
+FLUORO PROTEIN FOAM: 
+ 
+ 
+This is similar to protein base foam with fluro-chemical which makes it more effective 
+than protein base foam. 
+ 
+ 
+The concentrate forms a thick foam blanket and is suitable for hydrocarbon liquid fires, 
+but not on water miscible liquids.  The foam is very effective on deep pools of low flash 
+point fuels which have had lengthy pre burn time. 
+ 
+ 
+The concentrate is available for induction rate of 3 to 6% and the shelf life is similar to 
+that of protein base foam. 
+ 
+4.3 
+AQUEOUS FILM FORMING FOAM (AFFF): 
+ 
+ 
+The foam concentrate mainly consists of fluoro carbon surfactants, foaming agent and 
+stabilizer.  This can be used with fresh water as well as with sea water. 
+ 
+ 
+It produces very fluid foam, which flows freely on liquid surface.  The aqueous film 
+produced suppresses the liquid vapour quickly.  The foam has quick fire knock down 
+property and is suitable for liquid hydrocarbon fires.  As the foam has poor drainage 
+rate, the effectiveness is limited on deep pool fires of low flash point fuels which have 
+lengthy pre burn time. 
+ 
+ 
+The concentrate is available for induction rate of 3 to 6% and the shelf life is more than 
+15 years.  This can also be used with non aspirating type nozzles. 
+ 
+4.4 
+MULTIPURPOSE AFFF: 
+ 
+ 
+Multipurpose AFFF concentrate is synthetic, foaming liquid designed specially for fire 
+protection of water soluble solvents and water insoluble hydrocarbon liquids.  This can 
+be used either with fresh water of sea water. 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  53  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+When applied it forms foam with a cohesive polymeric layer on liquid surface, which 
+suppresses the vapour and extinguishes the fire.  The foam is also suitable for deep 
+pool fires because of superior drainage rate and more resistive to hot fuels/radiant heat. 
+ 
+ 
+The 3% induction rate is suitable for liquid hydrocarbon fires and 5% for water miscible 
+solvents.  The shelf life of concentrate is not less than 10 years.  This can also be used 
+with non aspirating type nozzles. 
+ 
+ 
+4.5 
+FILM FORMING FLOURO PROTEIN (FFFP); 
+ 
+ 
+FFFP combines the rapid fire knock down quality of conventional film forming AFFF with 
+the high level of post fire security and burn back resistance of flouro protein foam.  The 
+concentrate can either be used with fresh water or sea water. 
+ 
+ 
+The foam is suitable for hydrocarbon liquid fires including deep pool fires of low flash 
+point fuels which have had lengthy pre burn time. 
+ 
+ 
+The concentrate is available for induction rate of 3 to 6% and the shelf life is not less 
+than 5 years.  This can also be used with non aspirating type nozzles. 
+ 
+5.0 
+TYPES OF MEDIUM AND HIGH EXPANSION FOAM: 
+ 
+ 
+Synthetic foam concentrate is used with suitable devices to produce medium and high 
+expansion foams.  This can be used on hydrocarbon fuels with low boiling point.  The 
+foam is very light in weight and gives poor cooling effect in comparison to low expansion 
+foams.  The foam is susceptible to easy break down by hot fuel layers and radiant heat. 
+ 
+ 
+The induction rate in water can vary from 1.5 to 3%. 
+ 
+ 
+Many of the low expansion foam concentrate can also be used with suitable devices to 
+produce medium / high expansion foam. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+OISD – STD – 116 
+       Page No  54  
+FIRE PROTECTION FACILITIES FOR PETROLEUM REFINERIES 
+AND OIL/ GAS PROCESSING PLANTS 
+ 
+“OISD hereby expressly disclaims any liability or responsibility for loss or damage resulting  
+from the use of OISD Standards/Guidelines.” 
+ 
+ 
+Annexure-IX 
+ 
+Explanatory Note indicating Implementation schedule  
+ 
+Clause 4.2.3 Automatic actuated rim seal fire detection and extinguishing system 
+shall be provided on all external floating roof tanks storing Class 
+A petroleum. 
+ 
+i) The rim seal protection system shall be implemented in all existing installations 
+progressively within 24 months for class A floating roof tanks above 5000 KL capacity & 
+balance class A floating roof tanks progressively in 36 months from October, 2010.  
+ii) Installation of rim seal system shall be done for all new/upcoming external floating roof 
+tanks storing Class A petroleum storage tanks along with commissioning of the tank. 
+iii) The automatic actuated rim seal fire detection & extinguishing system already provided in 
+the existing tanks shall be replaced with a linear hollow metallic tube type detectors with 
+foam based extinguishing media or equivalent system* whenever the existing system is 
+due for replacement or shall be replaced, within a period of 4 years from the from the day 
+of installation whichever is earlier. 
+* Refer clause at para 2.0 (iv) for equivalency  
+Clause 5.7.4       Remote operated High Volume Water cum Foam Monitors 
+ 
+i) Shall be provided progressively within 24 months from October, 2010 for existing tank farms.  
+ii) Installation of monitors for all new/upcoming tanks shall be done along with commissioning 
+of the tanks. 
+ 
+Clause 14.1.3     DETECTION AND ALARM SYSTEM 
+ 
+i) Hydrocarbon Detectors shall be provided progressively within 24 months from October, 
+2010 for existing locations.  
+ii) For new/upcoming locations it shall be implemented along with commissioning of the 
+facilities. 
+ 
+ 

@@ -10,7 +10,9 @@ export const FileBulkUploadGrid: React.FC = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [logs, setLogs] = useState<IngestionLog[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  // 🎯 THE FIX: Track multiple files simultaneously inside a structured state array
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const appendLog = (type: 'INFO' | 'SUCCESS' | 'WARN', message: string) => {
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -19,82 +21,105 @@ export const FileBulkUploadGrid: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
-      setLogs([]);
-      appendLog('INFO', `Selected payload target: "${e.target.files[0].name}" (${(e.target.files[0].size / 1024).toFixed(1)} KB)`);
+      const filesArray = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...filesArray]);
+      
+      filesArray.forEach((f) => {
+        appendLog('INFO', `Added batch target payload: "${f.name}" (${(f.size / 1024).toFixed(1)} KB)`);
+      });
     }
   };
 
   const executeDocumentIngestionPipeline = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
 
     setIsUploading(true);
-    setUploadProgress(10);
-    appendLog('INFO', "Initializing document ingestion workflow parameters...");
+    setUploadProgress(15);
+    appendLog('INFO', `Initializing parallel batch ingestion for ${selectedFiles.length} documents...`);
     
-    // Create form payload block to map directly to FastAPI ingestion definitions
+    // Construct single Multi-Part network payload matrix
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    selectedFiles.forEach((file) => {
+      // 🎯 THE FIX: Append files under the 'files' field key to align with backend endpoints
+      formData.append('files', file); 
+    });
 
     try {
+      await new Promise((r) => setTimeout(r, 400));
+      setUploadProgress(35);
+      appendLog('INFO', "[STAGE 1]: Allocating file streams across background process workers...");
+      
+      await new Promise((r) => setTimeout(r, 500));
+      setUploadProgress(65);
+      appendLog('INFO', "[STAGE 2]: Running automated computer vision text and schema extractions...");
+      
       await new Promise((r) => setTimeout(r, 600));
-      setUploadProgress(25);
-      appendLog('INFO', "[STAGE 1]: PyMuPDF extractor initializing text vector layers...");
-      
-      await new Promise((r) => setTimeout(r, 800));
-      setUploadProgress(50);
-      appendLog('INFO', "[STAGE 2]: Running OCR extraction checks on embedded image charts...");
-      
-      await new Promise((r) => setTimeout(r, 900));
-      setUploadProgress(75);
-      appendLog('INFO', "[STAGE 3]: Committing chunk matrix vectors to ChromaDB space...");
-      
+      setUploadProgress(85);
+      appendLog('INFO', "[STAGE 3]: Synchronizing parallel vector space indexing configurations...");
+
       const response = await fetch('http://localhost:8000/api/v1/ingestion/upload', {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Ingestion service rejected processing tokens.');
+      if (!response.ok) throw new Error('Ingestion pipeline endpoint rejected the payload batch tokens.');
 
       const outputData = await response.json();
       
       setUploadProgress(100);
-      appendLog('SUCCESS', `[STAGE 4]: Graph alignment complete! Mapped document properties.`);
-      appendLog('SUCCESS', `🎉 Platform successfully updated with "${outputData.filename}". Engine status: ONLINE.`);
-      setSelectedFile(null);
+      appendLog('SUCCESS', `🎉 BATCH SUCCESS: Processed files successfully.`);
+      appendLog('SUCCESS', `System status tracking updated. Active elements compiled into stores.`);
+      setSelectedFiles([]);
     } catch (err: any) {
-      appendLog('WARN', `❌ CRITICAL INGESTION SHIELD FAULT: ${err.message || 'Pipeline rejected files.'}`);
+      appendLog('WARN', `❌ CRITICAL INGESTION BLOCK FAULT: ${err.message || 'Pipeline process broken.'}`);
       setUploadProgress(0);
     } finally {
       setIsUploading(false);
     }
   };
 
+  const removeFileFromBatchQueue = (indexToRemove: number) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-900/30 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
       
-      {/* LEFT SECTION: Upload Actions Box Container */}
+      {/* LEFT SECTION: Advanced Multiple Files Selection Zone */}
       <div className="flex flex-col justify-between border border-slate-800/80 bg-slate-950/60 p-5 rounded-lg font-mono text-xs text-slate-400 gap-4">
         <div>
-          <span className="text-slate-500 font-bold tracking-widest block mb-2 uppercase text-[10px]">Manual Upload Zone</span>
-          <p className="text-slate-500 font-sans text-xs mb-4">Upload equipment documentation, plant blueprints, or operation sheets to extract knowledge data instantly.</p>
+          <span className="text-slate-500 font-bold tracking-widest block mb-2 uppercase text-[10px]">Industrial Batch Upload Center</span>
+          <p className="text-slate-500 font-sans text-xs mb-4">Queue multiple vendor specifications sheets, engineering drawings, or compliance manuals for parallel extraction processing passes.</p>
           
           <label className="flex flex-col items-center justify-center border border-dashed border-slate-800 hover:border-blue-500/40 rounded-lg p-6 bg-slate-950 text-center cursor-pointer transition">
             <span className="text-xl mb-1">📥</span>
-            <span className="text-slate-400 text-xs">Click to select technical PDF document</span>
-            <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" disabled={isUploading} />
+            <span className="text-slate-400 text-xs">Click to choose manual files</span>
+            {/* 🎯 THE FIX: Incorporated HTML5 multiple attribute descriptor tags */}
+            <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" multiple disabled={isUploading} />
           </label>
 
-          {selectedFile && (
-            <div className="mt-3 p-2 bg-blue-950/20 border border-blue-900/40 rounded-lg text-blue-400 flex items-center justify-between">
-              <span className="truncate max-w-[80%]">📄 {selectedFile.name}</span>
-              <button onClick={() => setSelectedFile(null)} disabled={isUploading} className="text-red-400 font-bold font-sans hover:text-red-300 px-1">✕</button>
+          {/* Render files item rows with single element remove capabilities */}
+          {selectedFiles.length > 0 && (
+            <div className="mt-3 flex flex-col gap-2 max-h-[140px] overflow-y-auto pr-1">
+              {selectedFiles.map((file, i) => (
+                <div key={i} className="p-2 bg-blue-950/20 border border-blue-900/40 rounded-lg text-blue-400 flex items-center justify-between animate-fadeIn">
+                  <span className="truncate max-w-[85%]">📄 {file.name}</span>
+                  <button 
+                    type="button" 
+                    onClick={() => removeFileFromBatchQueue(i)} 
+                    disabled={isUploading}
+                    className="text-red-400 font-bold font-sans hover:text-red-300 transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
         {isUploading && (
-          <div className="w-full bg-slate-900 h-2 border border-slate-800 rounded-full overflow-hidden mt-2">
+          <div className="w-full bg-slate-900 h-2 border border-slate-800 rounded-full overflow-hidden mt-1">
             <div className="bg-blue-500 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
           </div>
         )}
@@ -102,15 +127,15 @@ export const FileBulkUploadGrid: React.FC = () => {
         <button
           type="button"
           onClick={executeDocumentIngestionPipeline}
-          disabled={!selectedFile || isUploading}
+          disabled={selectedFiles.length === 0 || isUploading}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-900 disabled:text-slate-700 border border-blue-500/20 py-2.5 text-white font-bold rounded-lg transition text-center text-[11px]"
         >
-          {isUploading ? '⚡ EXTRACTING DATA...' : 'LAUNCH INGESTION PIPELINE'}
+          {isUploading ? '⚡ DISTRIBUTING COMPUTE BATCH...' : `LAUNCH PARALLEL INGESTION [${selectedFiles.length} FILES]`}
         </button>
       </div>
 
-      {/* RIGHT SECTION: Real-Time Stream Terminal Logs Ticker Output Console */}
-      <div className="flex flex-col h-[230px] lg:h-auto bg-slate-950 border border-slate-800/80 rounded-lg font-mono text-[10px] text-slate-300 overflow-hidden shadow-inner">
+      {/* RIGHT SECTION: Logs terminal block */}
+      <div className="flex flex-col h-[240px] lg:h-auto bg-slate-950 border border-slate-800/80 rounded-lg font-mono text-[10px] text-slate-300 overflow-hidden shadow-inner">
         <div className="px-4 py-2 border-b border-slate-800/80 bg-slate-900/60 text-slate-500 font-bold uppercase tracking-widest text-[9px] flex items-center justify-between">
           <span>Ingestion Core Processing Terminal</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
@@ -118,7 +143,7 @@ export const FileBulkUploadGrid: React.FC = () => {
         
         <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-2.5">
           {logs.length === 0 ? (
-            <span className="text-slate-700 text-center block mt-12 italic">System idle. Awaiting document payload target streams...</span>
+            <span className="text-slate-700 text-center block mt-12 italic">System clean. Awaiting target industrial manual streams...</span>
           ) : (
             logs.map((log, i) => (
               <div key={i} className="flex gap-2 items-start leading-relaxed animate-fadeIn">
