@@ -17,23 +17,16 @@ from app.database import engine, Base
 # Explicitly import models to register tables into the SQLAlchemy metadata scope
 from app.models.document import KnowledgeDocument
 from app.models.chunk import KnowledgeChunk
+from app.models.chat_history import ChatMessage
 
-# Ingest our newly engineered Phase 5 & 6 endpoint routes
-from app.api.endpoints import ingestion, query
+# Ingest all core API endpoint routes
+from app.api.endpoints import ingestion, query, telemetry
 
 from app.exceptions import (
     IndustrialBaseException, 
     AssetNotFoundException,
     industrial_exception_handler
 )
-
-from app.database import engine, Base
-
-# Explicitly import models to register tables into the SQLAlchemy metadata scope
-from app.models.document import KnowledgeDocument
-from app.models.chunk import KnowledgeChunk
-# 🟢 THE FIX: Ingest the new historical session model schema to build the database tables
-from app.models.chat_history import ChatMessage
 
 # 🛡️ ENTERPRISE LOGGING HOOK: Bind directly to Uvicorn's active terminal streaming engine
 logger = logging.getLogger("uvicorn.error")
@@ -86,8 +79,6 @@ class ASGIExceptionMiddleware:
 # ========================================================
 # APPLICATION CORE INITIALIZATION & ROUTING INSTANTIATION
 # ========================================================
-from app.api.endpoints import ingestion, query, telemetry 
-
 app = FastAPI(
     title="Industrial Knowledge Intelligence Platform (IKIP)",
     description="The Operating System for Industrial Knowledge. Enterprise-grade ASGI operating core grid.",
@@ -112,14 +103,10 @@ app.add_middleware(
     allow_headers=["*"],  # Authorize all custom network headers
 )
 
+# Mount Routers under the unified /api/v1 namespace once to prevent duplication warnings
 app.include_router(ingestion.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
-# 🟢 Mount the Telemetry route under our primary unified core namespace prefix
 app.include_router(telemetry.router, prefix="/api/v1")
-
-# Mount Routers under the unified /api/v1 core namespace
-app.include_router(ingestion.router, prefix="/api/v1")
-app.include_router(query.router, prefix="/api/v1")
 
 # Mount the pure ASGI transport shield before processing any standard routing matrices
 app.add_middleware(ASGIExceptionMiddleware)

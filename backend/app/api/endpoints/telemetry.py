@@ -7,7 +7,7 @@ from app.database import get_db, engine
 from app.models.document import KnowledgeDocument
 from app.models.chat_history import ChatMessage
 
-# Safe context discovery loops for alternate project layout structures
+# Safe chunk context discovery import loops
 try:
     from app.models.chunk import KnowledgeChunk
 except ImportError:
@@ -21,6 +21,7 @@ async def fetch_live_dashboard_telemetry(db: AsyncSession = Depends(get_db)):
     uploaded_files_list = []
     total_docs = 0
     try:
+        # 🎯 FIX: Query the entire collection without hardcoded row limit clamps
         doc_query = select(KnowledgeDocument).order_by(desc(KnowledgeDocument.id)) 
         query_result = await db.execute(doc_query)
         documents_records = query_result.scalars().all()
@@ -36,7 +37,7 @@ async def fetch_live_dashboard_telemetry(db: AsyncSession = Depends(get_db)):
     except Exception:
         pass
 
-    # Safe system network port tests
+    # Safe system network port connectivity tests
     postgres_health = "ONLINE"
     try:
         with socket.create_connection(("localhost", 5432), timeout=0.2): pass
@@ -91,23 +92,28 @@ async def fetch_live_dashboard_telemetry(db: AsyncSession = Depends(get_db)):
 # =====================================================================
 @router.delete("/document/{doc_id}", status_code=status.HTTP_200_OK)
 async def manual_purge_document_record(doc_id: int, db: AsyncSession = Depends(get_db)):
-    """ Safe Cascade Purge: Handles dropping sub-dependencies before primary indices """
+    """ Safe Cascade Purge: Handles dropping sub-dependencies before primary rows """
     try:
+        # 🎯 FIX: Correctly unwrap using .scalar() to avoid ChunkedIteratorResult attribute errors
         result = await db.execute(select(KnowledgeDocument).where(KnowledgeDocument.id == doc_id))
-        target_doc = result.scalar() # Use .scalar() to get the object directly
+        target_doc = result.scalar() 
         
         if not target_doc:
             raise HTTPException(status_code=404, detail="Target document record not found.")
 
-        # Step A: Safe out-of-band cascade checks to clear relational dependencies
+        # Step A: Drop all child chunks pointing to this document ID first
         if KnowledgeChunk:
             await db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.document_id == doc_id))
         
+        # Step B: Now safely drop the parent document row record
         await db.execute(delete(KnowledgeDocument).where(KnowledgeDocument.id == doc_id))
         await db.commit()
-        return {"status": "DELETED"}
+        
+        print(f"🗑️ TELEMETRY CRUD: Document record #{doc_id} successfully purged from database storage systems.")
+        return {"status": "DELETED", "message": f"Successfully purged reference entry record #{doc_id}"}
     except Exception as e:
         await db.rollback()
+        print(f"❌ TELEMETRY CRUD CRASH: Purge failure on entry #{doc_id}. Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/session/{session_id}", status_code=status.HTTP_200_OK)

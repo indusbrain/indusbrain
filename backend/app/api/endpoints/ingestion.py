@@ -1,83 +1,417 @@
 import os
-from fastapi import APIRouter, UploadFile, File, Depends, status, HTTPException
+import anyio
+import datetime
+import hashlib
+import subprocess
+import multiprocessing
+import asyncio  
+from concurrent.futures import ProcessPoolExecutor
+from typing import List, Dict, Any, Optional
+
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, delete
+
 from app.database import get_db
-from app.models.document import KnowledgeDocument
+from app.models.document import KnowledgeDocument, DocumentStatus
+from app.models.chunk import KnowledgeChunk
+from app.services.storage import storage_service
+from app.services.parser import pdf_parser_service
+from app.services.chunker import cognitive_chunker
+from app.services.vector_store import vector_store_engine
+from app.services.graph_store import graph_store_engine
+from app.services.conflict_engine import industrial_conflict_engine
 
-try:
-    from app.services.ingestion.pdf_extractor import process_and_chunk_pdf
-except ImportError:
-    process_and_chunk_pdf = None
+router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
+
+# =====================================================================
+# 🎛️ MODULE-LEVEL CONCURRENT PAGE EXTRACTOR TASK
+# =====================================================================
+def extract_single_page_compute_task(args: tuple) -> str:
+    """
+    Isolated Multi-Core Compute Worker. This routine runs inside a separate OS 
+    sub-process, bypassing the Python GIL. It contains no database dependencies,
+    allowing clean data serialization across processing pools.
+    """
+    file_path, page_idx, document_id = args
+    page_text = ""
+    
+    # --- Engine Tier 1: PyMuPDF Streaming Character Extraction ---
+    try:
+        import fitz
+        with fitz.open(file_path) as doc:
+            if page_idx < len(doc):
+                page_text = doc[page_idx].get_text("text")
+    except Exception:
+        pass
+        
+    # --- Engine Tier 2: pdfplumber Spatial Layout Fallback ---
+    if not page_text or not page_text.strip():
+        try:
+            import pdfplumber
+            with pdfplumber.open(file_path) as pdf:
+                if page_idx < len(pdf.pages):
+                    page_text = pdf.pages[page_idx].extract_text()
+        except Exception:
+            pass
+            
+    # --- Engine Tier 3: Subprocess Tesseract Optical OCR Fallback ---
+    if not page_text or not page_text.strip():
+        tess_executables = [
+            r"D:\Apps\Tesseract\tesseract.exe",
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            "tesseract"
+        ]
+        temp_dir = os.path.join("storage", "temp_ocr")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        try:
+            import fitz
+            with fitz.open(file_path) as doc:
+                if page_idx < len(doc):
+                    page = doc[page_idx]
+                    pix = page.get_pixmap(dpi=150)
+                    tmp_img_path = os.path.join(temp_dir, f"mp_{document_id}_{page_idx}.png")
+                    pix.save(tmp_img_path)
+                    
+                    out_base_path = os.path.join(temp_dir, f"txt_{document_id}_{page_idx}")
+                    
+                    for exe in tess_executables:
+                        try:
+                            subprocess.run(
+                                [exe, tmp_img_path, out_base_path],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                text=True, timeout=25, check=True
+                            )
+                            txt_file = out_base_path + ".txt"
+                            if os.path.exists(txt_file):
+                                with open(txt_file, "r", encoding="utf-8") as f:
+                                    page_text = f.read()
+                                os.remove(txt_file)
+                                break
+                        except Exception:
+                            continue
+                            
+                    if os.path.exists(tmp_img_path):
+                        os.remove(tmp_img_path)
+        except Exception:
+            pass
+            
+    return page_text if page_text else ""
 
 
-router = APIRouter(prefix="/ingestion", tags=["Document Ingestion Subsystem"])
+def sanitize_text_payload(text: str) -> str:
+    """Removes C-style null characters to prevent database write errors."""
+    if not text:
+        return ""
+    return text.replace("\x00", "").replace("\u0000", "")
 
-@router.post("/upload", status_code=status.HTTP_201_CREATED)
-async def upload_industrial_document(
-    file: UploadFile = File(...), 
+# =====================================================================
+# ⚙️ BACKGROUND PIPELINE COORDINATOR WORKER
+# =====================================================================
+async def orchestrate_background_ingestion(document_id: int, file_path: str, filename: str):
+    """
+    Automated Background Task Orchestrator. Safely steps files through text
+    extraction, chunking, embedding, and graph layout loops out-of-band.
+    """
+    print(f"📡 BACKGROUND PIPELINE: Initializing core task processing array for ID: {document_id}")
+    
+    async for db in get_db():
+        query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+        execution = await db.execute(query)
+        target_document = execution.scalars().first()
+        
+        if not target_document:
+            print(f"❌ BACKGROUND FAULT: Trace target missing for ID {document_id}")
+            return
+
+        try:
+            # Update status flag to processing state natively
+            for state_attr in ["PARSED", "parsed"]:
+                if hasattr(DocumentStatus, str(state_attr)):
+                    target_document.status = getattr(DocumentStatus, str(state_attr))
+                    break
+            await db.commit()
+            
+            if not os.path.exists(file_path):
+                print(f"❌ BACKGROUND FAULT: Target storage asset absent at: {file_path}")
+                target_document.status = getattr(DocumentStatus, "FAILED") if hasattr(DocumentStatus, "FAILED") else "FAILED"
+                await db.commit()
+                return
+                
+            # --- STAGE 2: PARSE VIA DYNAMIC PROCESS CORE POOL ---
+            import fitz
+            total_pages = 0
+            with fitz.open(file_path) as doc:
+                total_pages = len(doc)
+                
+            print(f"🚀 MULTI-CORE WORKER: Slicing {total_pages} pages across system cores...")
+            
+            cpu_cores = multiprocessing.cpu_count()
+            target_workers = max(1, cpu_cores - 2)
+            
+            task_arguments = [(file_path, idx, document_id) for idx in range(total_pages)]
+            
+            with ProcessPoolExecutor(max_workers=target_workers) as pool:
+                native_loop = asyncio.get_running_loop() 
+                
+                asyncio_tasks = [
+                    native_loop.run_in_executor(pool, extract_single_page_compute_task, arg)
+                    for arg in task_arguments
+                ]
+                extracted_pages_list = await asyncio.gather(*asyncio_tasks)
+                
+            compiled_raw_text = "\n".join(extracted_pages_list)
+            compiled_raw_text = sanitize_text_payload(compiled_raw_text)
+            
+            if not compiled_raw_text.strip():
+                raise ValueError("Extraction engines returned an empty text footprint.")
+                
+            cache_dir = os.path.join("storage", "text_cache")
+            os.makedirs(cache_dir, exist_ok=True)
+            cache_path = os.path.join(cache_dir, f"doc_{document_id}.txt")
+            with open(cache_path, "w", encoding="utf-8") as cache_file:
+                cache_file.write(compiled_raw_text)
+                
+            for attr in ["content", "text", "extracted_content", "raw_text"]:
+                if hasattr(target_document, attr):
+                    setattr(target_document, attr, compiled_raw_text)
+                    break
+                    
+            await db.commit()
+            print(f"🟢 STAGE 2 SUCCESS: Character cache locked on hard disk drive layout: {cache_path}")
+            
+            # --- STAGE 3: COGNITIVE CHUNKER FRAGMENTATION ---
+            hierarchical_manifest = cognitive_chunker.generate_hierarchical_chunks(compiled_raw_text)
+            await db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.document_id == document_id))
+            
+            global_child_idx = 0
+            current_time_stamp = datetime.datetime.now()
+            allocated_chunks_models = []
+            
+            for parent in hierarchical_manifest:
+                p_text = sanitize_text_payload(parent["parent_content"])
+                for child in parent["children"]:
+                    c_text = sanitize_text_payload(child["content"])
+                    unified_content_string = f"{c_text} ||| {p_text}"
+                    
+                    db_chunk = KnowledgeChunk(
+                        document_id=document_id,
+                        chunk_index=global_child_idx,
+                        page_number=1,
+                        content=unified_content_string
+                    )
+                    for time_attr in ["created_at", "updated_at"]:
+                        if hasattr(db_chunk, time_attr):
+                            setattr(db_chunk, time_attr, current_time_stamp)
+                            
+                    db.add(db_chunk)
+                    allocated_chunks_models.append(db_chunk)
+                    global_child_idx += 1
+                    
+            for state_attr in ["CHUNKED", "chunked", "PARSED", "parsed"]:
+                if hasattr(DocumentStatus, str(state_attr)):
+                    target_document.status = getattr(DocumentStatus, str(state_attr))
+                    break
+                    
+            await db.commit()
+            print(f"🟢 STAGE 3 SUCCESS: Created {global_child_idx} contextual text data segments.")
+            
+            # --- STAGE 4: VECTOR SPACE RE-INDEXING (ChromaDB) ---
+            vector_store_engine.index_document_chunks(
+                document_id=document_id,
+                filename=filename,
+                db_chunks=allocated_chunks_models
+            )
+            
+            for state_attr in ["EMBEDDED", "embedded", "COMPLETED", "completed"]:
+                if hasattr(DocumentStatus, str(state_attr)):
+                    target_document.status = getattr(DocumentStatus, str(state_attr))
+                    break
+                    
+            await db.commit()
+            print("🟢 STAGE 4 SUCCESS: Mathematical vectors successfully pushed to ChromaDB.")
+            
+            # --- STAGE 5: GRAPH TOPOLOGY SYNC (Neo4j) ---
+            chunks_payload_buffer = [{
+                "chunk_index": c.chunk_index,
+                "page_number": c.page_number,
+                "content": c.content
+            } for c in allocated_chunks_models]
+            
+            await anyio.to_thread.run_sync(
+                graph_store_engine.sync_document_graph_topology,
+                document_id,
+                filename,
+                chunks_payload_buffer
+            )
+            
+            for state_attr in ["COMPLETED", "completed", "AVAILABLE", "available"]:
+                if hasattr(DocumentStatus, str(state_attr)):
+                    target_document.status = getattr(DocumentStatus, str(state_attr))
+                    break
+                    
+            await db.commit()
+            print(f"🏆 BACKGROUND PIPELINE MASTER MATCH: Document {filename} completely ingested successfully!")
+            
+        except Exception as pipeline_err:
+            await db.rollback()
+            for state_attr in ["FAILED", "failed"]:
+                if hasattr(DocumentStatus, str(state_attr)):
+                    target_document.status = getattr(DocumentStatus, str(state_attr))
+                    break
+            else:
+                target_document.status = "FAILED"
+            await db.commit()
+            print(f"❌ BACKGROUND PIPELINE COLLAPSED: Fatal processing rollback for file {filename}: {str(pipeline_err)}")
+        break 
+
+# =====================================================================
+# 📥 HARDENED MULTI-FIELD INGESTION UPLOAD PORTAL
+# =====================================================================
+@router.post("/upload", status_code=status.HTTP_202_ACCEPTED)
+async def upload_multiple_documents(
+    background_tasks: BackgroundTasks,
+    file: Optional[UploadFile] = File(None),              # 🎯 intercepts frontend 'file' keys
+    files: Optional[List[UploadFile]] = File(None),        # 🎯 intercepts standard multi-file lists
     db: AsyncSession = Depends(get_db)
 ):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Invalid format. Only technical PDFs are authorized.")
+    # Consolidate entries into a single processing queue
+    processing_queue: List[UploadFile] = []
+    if file:
+        processing_queue.append(file)
+    if files:
+        processing_queue.extend(files)
 
-    upload_dir = os.path.join(os.getcwd(), "storage", "text_cache")
-    os.makedirs(upload_dir, exist_ok=True)
-    target_file_path = os.path.join(upload_dir, file.filename)
+    if not processing_queue:
+        raise HTTPException(status_code=400, detail="No document payloads discovered inside file fields.")
 
-    try:
-        print(f"⚙️ PIPELINE WORKERS: Launching token isolation loops for file: {file.filename}")
-        extracted_chunks = await process_and_chunk_pdf(target_file_path, new_doc_record.id, db)
-        print(f"🟢 PIPELINE WORKERS: Generated {len(extracted_chunks)} chunks. Pipeline success.")
-        # 1. Read and cache raw bytes locally on disk
-        file_bytes = await file.read()
-        file_size_bytes = len(file_bytes)
+    print(f"📥 UPLOAD GATEWAY: Processing {len(processing_queue)} target file assets.")
+    response_manifest = []
+    tasks_to_schedule = []
+    
+    safe_pending_status = "PENDING"
+    for state_attr in ["PENDING", "pending"]:
+        if hasattr(DocumentStatus, str(state_attr)):
+            safe_pending_status = getattr(DocumentStatus, str(state_attr))
+            break
+
+    for target_file in processing_queue:
+        if not target_file.filename.endswith(".pdf"):
+            raise HTTPException(status_code=400, detail="Invalid format. Only structural PDFs are authorized.")
+
+        target_directory = os.path.join("storage", "documents")
+        os.makedirs(target_directory, exist_ok=True)
+        local_storage_path = os.path.join(target_directory, target_file.filename)
         
-        with open(target_file_path, "wb") as f_out:
-            f_out.write(file_bytes)
-
-        print(f"📦 INGESTION CORE: Cached raw document binary locally at: {target_file_path}")
-
-        # 2. Hardened Document Model Instantiation satisfying NOT NULL constraints
-        new_doc_record = KnowledgeDocument(
-            filename=file.filename,
-            status="PENDING"
-        )
+        file_size_bytes = 0
+        sha256_hasher = hashlib.sha256()
         
-        # 🎯 THE CRITICAL SCHEMA FIX: Inject baseline placeholder fields to bypass strict PostgreSQL NOT NULL constraints
-        if hasattr(new_doc_record, 's3_key'):
-            setattr(new_doc_record, 's3_key', f"local://storage/text_cache/{file.filename}")
-        if hasattr(new_doc_record, 'mime_type'):
-            setattr(new_doc_record, 'mime_type', "application/pdf")
-        if hasattr(new_doc_record, 'file_size'):
-            setattr(new_doc_record, 'file_size', file_size_bytes)
+        try:
+            with open(local_storage_path, "wb") as buffer_drive:
+                while True:
+                    chunk = await target_file.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    file_size_bytes += len(chunk)
+                    sha256_hasher.update(chunk)
+                    buffer_drive.write(chunk)
+                
+                buffer_drive.flush()
+                os.fsync(buffer_drive.fileno())
+        except Exception as stream_err:
+            if os.path.exists(local_storage_path):
+                os.remove(local_storage_path)
+            raise HTTPException(status_code=500, detail=f"Socket streaming buffer crash: {str(stream_err)}")
             
-        # Optional check for alternate filesystem structures
-        if hasattr(new_doc_record, 'file_path'):
-            setattr(new_doc_record, 'file_path', target_file_path)
+        mime_type_string = target_file.content_type or "application/pdf"
+        
+        existing_doc_query = select(KnowledgeDocument).where(KnowledgeDocument.filename == target_file.filename)
+        query_execution = await db.execute(existing_doc_query)
+        target_document = query_execution.scalars().first()
+        
+        if target_document:
+            print(f"🔄 IDEMPOTENCY GUARD: Duplicate caught for {target_file.filename}. Re-queuing active key ID: {target_document.id}")
+            target_document.status = safe_pending_status
+            target_document.file_size = file_size_bytes
+            target_document.mime_type = mime_type_string
+            
+            tasks_to_schedule.append((target_document.id, local_storage_path, target_file.filename))
+            response_manifest.append({"id": target_document.id, "filename": target_file.filename, "status": "PENDING"})
+            continue
+            
+        try:
+            # 🎯 FIX: Explicitly supply a path string to satisfy local PostgreSQL NOT NULL column conditions
+            local_s3_key_placeholder = f"local://storage/documents/{target_file.filename}"
 
-        db.add(new_doc_record)
+            new_document_row = KnowledgeDocument(
+                filename=target_file.filename,
+                s3_key=local_s3_key_placeholder,
+                mime_type=mime_type_string,   
+                file_size=file_size_bytes,   
+                status=safe_pending_status
+            )
+            db.add(new_document_row)
+            await db.flush()  
+            
+            tasks_to_schedule.append((new_document_row.id, local_storage_path, target_file.filename))
+            response_manifest.append({"id": new_document_row.id, "filename": target_file.filename, "status": "PENDING"})
+        except Exception as exc:
+            print(f"❌ DATABASE INSERTION FAULT: {str(exc)}")
+            raise HTTPException(status_code=500, detail=f"Ledger registration failed: {str(exc)}")
+            
+    try:
         await db.commit()
-        await db.refresh(new_doc_record)
-
-        print(f"💾 DATABASE LEDGER: Registered row ID #{new_doc_record.id} for document: {file.filename}")
-
-        # 3. Trigger your live processing, chunking, and embedding creation loops
-        if process_and_chunk_pdf:
-            print(f"⚙️ PIPELINE WORKERS: Launching token isolation loops for file: {file.filename}")
-            extracted_chunks = await process_and_chunk_pdf(target_file_path, new_doc_record.id, db)
-            print(f"🟢 PIPELINE WORKERS: Generated and committed chunks to disk stores.")
-
-        return {
-            "status": "SUCCESS",
-            "document_id": new_doc_record.id,
-            "filename": file.filename,
-            "message": "Document pipeline executed completely."
-        }
-
-    except Exception as exc:
+    except Exception as commit_exc:
         await db.rollback()
-        print(f"❌ INGESTION ENGINE CRASH: {str(exc)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal ingestion pipeline collapse: {str(exc)}"
+        raise HTTPException(status_code=500, detail=f"Database transaction commit failed: {str(commit_exc)}")
+        
+    for doc_id, f_path, f_name in tasks_to_schedule:
+        background_tasks.add_task(orchestrate_background_ingestion, doc_id, f_path, f_name)
+        
+    return {"message": "Bulk transmission accepted. Background processing pipelines triggered.", "queue_manifest": response_manifest}
+
+# =====================================================================
+# 📊 LIVE PROCESSING STATE MONITOR API ROUTE
+# =====================================================================
+@router.get("/status/{document_id}", status_code=status.HTTP_200_OK)
+async def fetch_document_processing_status(document_id: int, db: AsyncSession = Depends(get_db)):
+    query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
+    execution = await db.execute(query)
+    doc = execution.scalars().first()
+    
+    if not doc:
+        raise HTTPException(status_code=404, detail="Requested asset missing from historical registers.")
+        
+    return {
+        "id": doc.id,
+        "filename": doc.filename,
+        "current_pipeline_stage": str(doc.status),
+        "file_size_bytes": doc.file_size,
+        "last_updated": datetime.datetime.now().isoformat()
+    }
+
+# =====================================================================
+# 🛡️ GLOBAL CROSS-DOCUMENT CONFLICT AUDIT ENGINE
+# =====================================================================
+@router.post("/scan-conflicts", status_code=status.HTTP_200_OK)
+async def scan_cross_document_conflicts(db: AsyncSession = Depends(get_db)):
+    print("📡 ANALYTICS GRID: Compiling multi-document chunk payloads for safety review...")
+    try:
+        query = select(KnowledgeChunk, KnowledgeDocument.filename).join(
+            KnowledgeDocument, KnowledgeChunk.document_id == KnowledgeDocument.id
         )
+        query_execution = await db.execute(query)
+        results = query_execution.all()
+        
+        if not results:
+            return {"conflict_detected": False, "severity": "OK", "detected_anomalies": []}
+            
+        payload_buffer = []
+        for chunk_row, filename_string in results:
+            payload_buffer.append({"content": chunk_row.content, "filename": filename_string})
+            
+        analysis_report = industrial_conflict_engine.analyze_context_slices(payload_buffer)
+        return analysis_report
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cross-document anomaly analysis collapsed: {str(exc)}")
