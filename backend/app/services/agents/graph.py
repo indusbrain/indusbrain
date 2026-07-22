@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, END
 from app.services.agents.state import IndustryOSState
 from app.services.agents.supervisor import supervisor_orchestrator
 from app.services.agents.workers import agent_workers
+from app.services.agents.conflict_agent import conflict_agent
 from app.services.agents.compiler import decision_compiler
 
 # 1. Initialize the State Graph with our custom state schema
@@ -12,6 +13,7 @@ workflow.add_node("supervisor", supervisor_orchestrator.classify_intent_node)
 workflow.add_node("knowledge_agent", agent_workers.knowledge_agent_node)
 workflow.add_node("maintenance_agent", agent_workers.maintenance_agent_node)
 workflow.add_node("compliance_agent", agent_workers.compliance_agent_node)
+workflow.add_node("conflict_agent", conflict_agent.detect_conflicts_node)
 workflow.add_node("compiler_node", decision_compiler.compile_response_node)
 
 # 3. Define the starting entry point of the graph execution path
@@ -36,6 +38,7 @@ workflow.add_conditional_edges(
         "knowledge_agent": "knowledge_agent",
         "maintenance_agent": "maintenance_agent",
         "compliance_agent": "compliance_agent",
+        "conflict_agent": "conflict_agent",
         "compiler_node": "compiler_node"
     }
 )
@@ -44,6 +47,7 @@ workflow.add_conditional_edges(
 workflow.add_edge("knowledge_agent", "compiler_node")
 workflow.add_edge("maintenance_agent", "compiler_node")
 workflow.add_edge("compliance_agent", "compiler_node")
+workflow.add_edge("conflict_agent", "compiler_node")
 
 # The compiler node is the final step, ending the execution loop
 workflow.add_edge("compiler_node", END)

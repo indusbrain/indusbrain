@@ -5,18 +5,48 @@ from neo4j import GraphDatabase
 
 class AdvancedIndustrialGraphStore:
     def __init__(self):
-        # 🛡️ THE BULLETPROOF LOCAL BOUNDARY: Uses bolt:// to prevent cluster routing lookups, 
+        # 🛡️ THE BULLETPROOF LOCAL BOUNDARY: Uses bolt:// to prevent cluster routing lookups,
         # combined with 127.0.0.1 to avoid Windows IPv6 name resolution loop locks.
-        self.uri = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687") # ◄── Update this fallback
+        self.uri = os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687")
         self.user = os.getenv("NEO4J_USER", "neo4j")
-        self.password = os.getenv("NEO4J_PASSWORD", "password")
-        
-        print(f"📡 NEO4J CORE: Connecting to node network cluster at {self.uri}...")
-        self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
-        self._initialize_database_constraints()
+        # Default matches docker-compose.yml so a fresh clone works out of the box.
+        self.password = os.getenv("NEO4J_PASSWORD", "secret_graph_pass_2026")
+
+        # Lazy connection. Importing this module must never raise, otherwise the
+        # entire API fails to boot whenever the Neo4j container is not up yet.
+        self._driver = None
+        self._constraints_ready = False
+
+    @property
+    def driver(self):
+        """
+        Returns a live Neo4j driver, or None if the graph database is unreachable.
+        Reconnects automatically on a later call once the container is available.
+        """
+        if self._driver is not None:
+            return self._driver
+        try:
+            print(f"📡 NEO4J CORE: Connecting to node network cluster at {self.uri}...")
+            candidate = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
+            candidate.verify_connectivity()
+            self._driver = candidate
+            if not self._constraints_ready:
+                self._initialize_database_constraints()
+                self._constraints_ready = True
+            print("🟢 NEO4J CORE: Graph cluster online.")
+        except Exception as connection_error:
+            self._driver = None
+            print(f"⚠️ NEO4J OFFLINE: Graph store unreachable ({connection_error}). Retrying on next use.")
+        return self._driver
+
+    @property
+    def is_online(self) -> bool:
+        return self.driver is not None
 
     def close(self):
-        self.driver.close()
+        if self._driver is not None:
+            self._driver.close()
+            self._driver = None
 
     def _initialize_database_constraints(self):
         """
@@ -83,9 +113,14 @@ class AdvancedIndustrialGraphStore:
         Commits structural data points while building semantic relationships
         between chunk fragments, assets, and regulatory codes.
         """
+        active_driver = self.driver
+        if active_driver is None:
+            print(f"⚠️ GRAPH SYNC SKIPPED: Neo4j offline, document {document_id} not mapped into the graph.")
+            return
+
         print(f"⚡ GRAPH STORE PERSISTENCE: Orchestrating topological mappings for ID: {document_id}")
-        
-        with self.driver.session() as session:
+
+        with active_driver.session() as session:
             # 1. Create or merge the parent Document Node entry point
             session.run(
                 """
@@ -148,5 +183,24 @@ class AdvancedIndustrialGraphStore:
                     )
 
         print(f"🟢 GRAPH STORE PERSISTENCE: GraphRAG semantic nodes successfully mapped into cluster.")
+
+    def purge_document_graph(self, document_id: int) -> None:
+        """Detaches and deletes a document's chunk nodes (used when a doc is deleted)."""
+        active_driver = self.driver
+        if active_driver is None:
+            return
+        try:
+            with active_driver.session() as session:
+                session.run(
+                    """
+                    MATCH (d:Document {id: $doc_id})
+                    OPTIONAL MATCH (d)-[:HAS_CHUNK]->(c:Chunk)
+                    DETACH DELETE c, d
+                    """,
+                    doc_id=document_id,
+                )
+            print(f"🧹 GRAPH CLEANUP: Purged graph topology for document {document_id}.")
+        except Exception as purge_error:
+            print(f"⚠️ GRAPH CLEANUP FAILED for document {document_id}: {purge_error}")
 
 graph_store_engine = AdvancedIndustrialGraphStore()

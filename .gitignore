@@ -1,3 +1,15 @@
 /backend/.venv
 __pycache__
 node_modules
+# Environment files — contain credentials, must not be committed
+backend/.env
+.env
+
+# Build output
+frontend/dist
+backend/storage/
+backend/mock_s3_vault/
+backend/sample_corpus/
+
+# Archives accidentally added
+*.zip

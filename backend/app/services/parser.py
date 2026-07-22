@@ -10,33 +10,18 @@ from fastapi import HTTPException, status
 from PIL import Image
 
 # =====================================================================
-# 🛡️ UNIFIED OCR INFRASTRUCTURE INITIALIZATION LAYER (SINGLETON)
+# 🛡️ OCR INFRASTRUCTURE (resolved centrally in app.services.ocr_config)
 # =====================================================================
-OCR_AVAILABLE = False
-tesseract_bin_path = shutil.which("tesseract")
+from app.services.ocr_config import OCR_AVAILABLE, TESSERACT_BINARY
 
-if tesseract_bin_path:
-    pytesseract.pytesseract.tesseract_cmd = tesseract_bin_path
-    print(f"🟢 OCR ENGINE: Tesseract verified on system PATH: {tesseract_bin_path}")
-    OCR_AVAILABLE = True
+if OCR_AVAILABLE:
+    pytesseract.pytesseract.tesseract_cmd = TESSERACT_BINARY
+    print(f"🟢 OCR ENGINE: Tesseract resolved at {TESSERACT_BINARY}")
 else:
-    # Comprehensive fallback path routing for custom drive installations
-    default_fallback_paths = [
-        r"D:\Apps\Tesseract\tesseract.exe",
-        r"D:\Apps\Tesseract\tesseract.EXE",
-        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
-    ]
-    
-    for path in default_fallback_paths:
-        if os.path.exists(path):
-            pytesseract.pytesseract.tesseract_cmd = path
-            print(f"🟢 OCR ENGINE: Local installation path fallback resolved to: {path}")
-            OCR_AVAILABLE = True
-            break
-            
-    if not OCR_AVAILABLE:
-        print("⚠️ OCR MODULE WARN: Tesseract binary missing on host. Scanned PDF assets will bypass OCR loops.")
+    print(
+        "⚠️ OCR ENGINE: Tesseract not found. Scanned/image-only PDFs will be skipped. "
+        "Set TESSERACT_CMD to the binary path to enable OCR."
+    )
 
 # =====================================================================
 # 📄 CORE DOCUMENT ROUTING & PARSING ENGINE

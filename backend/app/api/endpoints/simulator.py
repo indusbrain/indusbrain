@@ -83,7 +83,7 @@ async def execute_decision_simulation_model(payload: dict, db: AsyncSession = De
 
     return {
         "scenario": scenario_text,
-        "target_asset": asset_asset_tag if (asset_tag and asset_tag != "SELECT ASSET") else "GENERAL ASSET",
+        "target_asset": asset_tag if (asset_tag and asset_tag != "SELECT ASSET") else "GENERAL ASSET",
         "metrics": {
             "production_impact_pct": production_impact,
             "risk_multiplier_factor": risk_multiplier,

@@ -1,16 +1,60 @@
+# =============================================================================
+# IndusBrain — backend dependencies
+#
+# Versions are pinned to what is verified working. Install with:
+#     pip install -r requirements.txt
+#
+# NOTE: sentence-transformers pulls in torch (~2.5 GB). On first run it also
+# downloads two models from Hugging Face:
+#   - sentence-transformers/all-MiniLM-L6-v2  (embeddings, ~90 MB)
+#   - BAAI/bge-reranker-base                  (reranking,  ~1.1 GB)
+# =============================================================================
+
+# --- Web framework / ASGI ----------------------------------------------------
 fastapi==0.111.0
 uvicorn==0.30.1
+python-multipart==0.0.9          # required by FastAPI for multipart file upload
 pydantic==2.7.4
-langgraph==0.0.69
-langchain-google-genai==1.0.6
-chromadb==0.5.0
+
+# --- Database: PostgreSQL ----------------------------------------------------
+SQLAlchemy==2.0.51               # async ORM — was MISSING; the app cannot import
+asyncpg==0.31.0                  # async Postgres driver — was MISSING
+greenlet==3.5.3                  # required by SQLAlchemy's async bridge
+
+# --- Database: knowledge graph & vectors -------------------------------------
 neo4j==5.21.0
-python-multipart==0.0.9
-python-dotenv==1.0.1
-numpy==1.26.4
-boto3==1.34.120
-pypdf==4.2.0
-pdfplumber==0.11.0
-sentence-transformers==3.0.1
-pytesseract==0.3.10
+chromadb==0.5.0
+
+# --- Multi-agent orchestration -----------------------------------------------
+langgraph==0.0.69
+langchain-core==0.2.43           # transitive, pinned for reproducibility
+
+# --- Document extraction / OCR -----------------------------------------------
+PyMuPDF==1.28.0                  # imported as `fitz` — was MISSING, so ALL
+                                 # ingestion failed on a clean install
+pdfplumber==0.11.0               # secondary text-extraction fallback
+pytesseract==0.3.10              # OCR wrapper (needs the Tesseract binary)
 Pillow==10.3.0
+
+# --- Embeddings & reranking --------------------------------------------------
+sentence-transformers==3.0.1
+numpy==1.26.4
+
+# --- HTTP / async ------------------------------------------------------------
+httpx==0.28.1                    # Ollama calls + service health probes
+anyio==4.14.1                    # thread offloading for blocking graph writes
+
+# --- Configuration -----------------------------------------------------------
+python-dotenv==1.0.1
+typing-extensions==4.12.2
+
+# --- Object storage (offline mock mode) --------------------------------------
+boto3==1.34.120
+
+# -----------------------------------------------------------------------------
+# Intentionally removed:
+#   langchain-google-genai  — Gemini was never wired up. The LLM gateway talks to
+#                             Ollama only. Declaring it implied a cloud provider
+#                             the product does not use.
+#   pypdf                   — never imported. PyMuPDF and pdfplumber do the work.
+# -----------------------------------------------------------------------------

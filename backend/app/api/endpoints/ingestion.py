@@ -1,10 +1,11 @@
 import os
+import re
 import anyio
 import datetime
-import hashlib
 import subprocess
 import multiprocessing
-import asyncio  
+import asyncio
+import traceback
 from concurrent.futures import ProcessPoolExecutor
 from typing import List, Dict, Any, Optional
 
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
 from app.database import get_db
+from app.security import Permission, require
 from app.models.document import KnowledgeDocument, DocumentStatus
 from app.models.chunk import KnowledgeChunk
 from app.services.parser import pdf_parser_service
@@ -39,11 +41,12 @@ def extract_single_page_compute_task(args: tuple) -> str:
         except Exception:
             pass
     if not page_text or not page_text.strip():
-        tess_executables = [
-            r"D:\Apps\Tesseract\tesseract.exe",
-            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-            "tesseract"
-        ]
+        # Resolved centrally so every OCR entry point agrees on one binary.
+        # This runs inside a ProcessPoolExecutor worker, so the import must happen
+        # here rather than being inherited from the parent process.
+        from app.services.ocr_config import resolve_tesseract_binary
+        resolved_binary = resolve_tesseract_binary()
+        tess_executables = [resolved_binary] if resolved_binary else []
         temp_dir = os.path.join("storage", "temp_ocr")
         os.makedirs(temp_dir, exist_ok=True)
         try:
@@ -76,6 +79,28 @@ def extract_single_page_compute_task(args: tuple) -> str:
             pass
     return page_text if page_text else ""
 
+def count_pdf_pages(file_path: str) -> int:
+    """
+    Returns the page count using PyMuPDF, falling back to pdfplumber.
+    Returns 0 only if the file cannot be opened by either engine.
+    """
+    try:
+        import fitz
+        with fitz.open(file_path) as doc:
+            return len(doc)
+    except Exception as mupdf_error:
+        print(f"⚠️ PAGE COUNT: PyMuPDF unavailable or failed ({mupdf_error}). Trying pdfplumber...")
+
+    try:
+        import pdfplumber
+        with pdfplumber.open(file_path) as pdf:
+            return len(pdf.pages)
+    except Exception as plumber_error:
+        print(f"🚨 PAGE COUNT: pdfplumber also failed ({plumber_error}).")
+
+    return 0
+
+
 def sanitize_text_payload(text: str) -> str:
     if not text: return ""
     return text.replace("\x00", "").replace("\u0000", "")
@@ -88,19 +113,19 @@ async def orchestrate_background_ingestion(document_id: int, file_path: str, fil
         target_document = execution.scalars().first()
         if not target_document: return
         try:
-            for state_attr in ["PARSED", "parsed"]:
-                if hasattr(DocumentStatus, str(state_attr)):
-                    target_document.status = getattr(DocumentStatus, str(state_attr))
-                    break
+            target_document.status = DocumentStatus.PARSED
             await db.commit()
             if not os.path.exists(file_path):
-                target_document.status = "FAILED"
+                target_document.status = DocumentStatus.FAILED
                 await db.commit()
                 return
-            import fitz
-            total_pages = 0
-            with fitz.open(file_path) as doc:
-                total_pages = len(doc)
+            # Page count drives the parallel extraction fan-out. PyMuPDF is the fast
+            # path, but we must not hard-fail the whole ingestion if it is absent -
+            # pdfplumber can count pages too, and the per-page workers have their
+            # own independent cascade.
+            total_pages = count_pdf_pages(file_path)
+            if total_pages <= 0:
+                raise ValueError("Could not determine the page count for this PDF.")
             cpu_cores = multiprocessing.cpu_count()
             target_workers = max(1, cpu_cores - 2)
             task_arguments = [(file_path, idx, document_id) for idx in range(total_pages)]
@@ -150,23 +175,47 @@ async def orchestrate_background_ingestion(document_id: int, file_path: str, fil
             vector_store_engine.index_document_chunks(document_id=document_id, filename=filename, db_chunks=allocated_chunks_models)
             from app.services.graph_store import graph_store_engine
             chunks_payload_buffer = [{"chunk_index": c.chunk_index, "page_number": c.page_number, "content": c.content} for c in allocated_chunks_models]
-            await anyio.to_thread.run_sync(graph_store_engine.sync_document_graph_topology, document_id, filename, chunks_payload_buffer)
-            for state_attr in ["COMPLETED", "completed", "AVAILABLE", "available"]:
-                if hasattr(DocumentStatus, str(state_attr)):
-                    target_document.status = getattr(DocumentStatus, str(state_attr))
-                    break
+            if graph_store_engine.is_online:
+                await anyio.to_thread.run_sync(graph_store_engine.sync_document_graph_topology, document_id, filename, chunks_payload_buffer)
+            else:
+                # Do not fail the whole ingestion - vector search still works. But say so
+                # loudly, and expose /reindex-graph so this can be repaired without
+                # re-uploading the document.
+                print(
+                    f"🚨 GRAPH SYNC SKIPPED for document {document_id}: Neo4j was unreachable. "
+                    f"Vector search will work but graph retrieval will be degraded. "
+                    f"Run POST /api/v1/ingestion/reindex-graph once Neo4j is up."
+                )
+            # EMBEDDED is the terminal success state: text extracted, chunks written,
+            # vectors indexed in Chroma and topology synced into Neo4j.
+            target_document.status = DocumentStatus.EMBEDDED
             await db.commit()
-        except Exception as e:
-            await db.rollback()
-            target_document.status = "FAILED"
-            await db.commit()
-        break 
 
-@router.post("/upload", status_code=status.HTTP_202_ACCEPTED)
+            # Make the new document visible on the dashboard immediately rather
+            # than waiting for the cache window to expire.
+            from app.api.endpoints.telemetry_dashboard import invalidate_dashboard_cache
+            invalidate_dashboard_cache()
+
+            print(f"✅ BACKGROUND PIPELINE: Document {document_id} fully ingested ({global_child_idx} chunks).")
+        except Exception as e:
+            # Record WHY a document failed instead of silently swallowing it -
+            # otherwise a failed upload is undiagnosable from the dashboard.
+            print(f"🚨 INGESTION FAILURE for document {document_id}: {type(e).__name__}: {e}")
+            traceback.print_exc()
+            await db.rollback()
+            target_document.status = DocumentStatus.FAILED
+            await db.commit()
+        break
+
+@router.post(
+    "/upload",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require(Permission.UPLOAD_DOCUMENTS))],
+)
 async def upload_multiple_documents(background_tasks: BackgroundTasks, files: List[UploadFile] = File(...), db: AsyncSession = Depends(get_db)):
     response_manifest = []
     tasks_to_schedule = []
-    safe_pending_status = "PENDING"
+    safe_pending_status = DocumentStatus.PENDING
     for target_file in files:
         target_directory = os.path.join("storage", "documents")
         os.makedirs(target_directory, exist_ok=True)
@@ -210,6 +259,64 @@ async def upload_multiple_documents(background_tasks: BackgroundTasks, files: Li
         background_tasks.add_task(orchestrate_background_ingestion, doc_id, f_path, f_name)
     return {"message": "Bulk transmission accepted.", "queue_manifest": response_manifest}
 
+@router.post(
+    "/reindex-graph",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.REBUILD_INDEX))],
+)
+async def rebuild_knowledge_graph(db: AsyncSession = Depends(get_db)):
+    """
+    Rebuilds the Neo4j knowledge graph from the chunks already stored in Postgres.
+
+    Needed because Neo4j can be unavailable at ingestion time (container still
+    starting). Postgres remains the source of truth, so the graph can always be
+    reconstructed without re-uploading or re-OCRing anything.
+    """
+    from app.services.graph_store import graph_store_engine
+
+    if not graph_store_engine.is_online:
+        raise HTTPException(
+            status_code=503,
+            detail="Neo4j is not reachable. Start the graph database and retry.",
+        )
+
+    documents_result = await db.execute(select(KnowledgeDocument))
+    documents = documents_result.scalars().all()
+
+    rebuilt_manifest = []
+    for document in documents:
+        chunks_result = await db.execute(
+            select(KnowledgeChunk)
+            .where(KnowledgeChunk.document_id == document.id)
+            .order_by(KnowledgeChunk.chunk_index)
+        )
+        chunk_rows = chunks_result.scalars().all()
+        if not chunk_rows:
+            continue
+
+        payload = [
+            {"chunk_index": c.chunk_index, "page_number": c.page_number, "content": c.content}
+            for c in chunk_rows
+        ]
+        await anyio.to_thread.run_sync(
+            graph_store_engine.sync_document_graph_topology,
+            document.id,
+            document.filename,
+            payload,
+        )
+        rebuilt_manifest.append({
+            "document_id": document.id,
+            "filename": document.filename,
+            "chunks_synced": len(payload),
+        })
+
+    return {
+        "status": "REBUILT",
+        "documents_processed": len(rebuilt_manifest),
+        "manifest": rebuilt_manifest,
+    }
+
+
 @router.get("/status/{document_id}", status_code=status.HTTP_200_OK)
 async def fetch_document_processing_status(document_id: int, db: AsyncSession = Depends(get_db)):
     query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
@@ -224,90 +331,46 @@ async def fetch_document_processing_status(document_id: int, db: AsyncSession = 
 @router.post("/scan-conflicts", status_code=status.HTTP_200_OK)
 async def scan_cross_document_conflicts(db: AsyncSession = Depends(get_db)):
     """
-    Scans data segments across documents using regular expressions to extract
-    parameter fields (PSI, BAR, RPM, °C) grouped by equipment asset tags,
-    identifying conflicting instructions or data discrepancies.
+    Detects genuine cross-document contradictions in the indexed corpus.
+
+    Delegates to the dedicated conflict engine, which only reports a finding when
+    two DIFFERENT documents state materially different values for the same
+    parameter on the same asset. If nothing conflicts, it returns an empty result
+    rather than an illustrative example.
     """
-    try:
-        query = select(KnowledgeChunk, KnowledgeDocument.filename).join(
-            KnowledgeDocument, KnowledgeChunk.document_id == KnowledgeDocument.id
-        )
-        query_execution = await db.execute(query)
-        results = query_execution.all()
-        if not results:
-            return {"conflict_detected": False, "severity": "OK", "detected_anomalies": []}
+    from app.services.conflict_engine import industrial_conflict_engine
 
-        # Structure parameters mapping tracker maps
-        # asset_tag -> parameter_type -> list of (value, filename, context)
-        extracted_parameters_map = {}
-        detected_anomalies = []
+    query = select(KnowledgeChunk.content, KnowledgeDocument.filename).join(
+        KnowledgeDocument, KnowledgeChunk.document_id == KnowledgeDocument.id
+    )
+    query_execution = await db.execute(query)
+    rows = query_execution.all()
 
-        # Technical structural layout blacklists
-        blacklist = {"NOTE", "ANNEXURE", "STANDARD", "STD", "PAGE", "SECTION", "TABLE"}
-
-        for chunk_row, filename_string in results:
-            content_upper = chunk_row.content.upper()
-            
-            # 1. Isolate asset tag identifiers inside the text block
-            tags_discovered = re.findall(r'\b([A-Z]{2,10}-\d+[A-Z]?)\b', content_upper)
-            for asset_tag in tags_discovered:
-                prefix = asset_tag.split('-')[0].strip()
-                if prefix in blacklist or asset_tag in blacklist:
-                    continue
-
-                # 2. Match floating point data trailing adjacent to unit fields
-                pressure_matches = re.findall(r'(\d+(?:\.\d+)?)\s*(PSI|BAR)', content_upper)
-                for val_str, unit in pressure_matches:
-                    val = float(val_str)
-                    if asset_tag not in extracted_parameters_map:
-                        extracted_parameters_map[asset_tag] = {"PRESSURE": [], "TEMPERATURE": [], "SPEED": []}
-                    extracted_parameters_map[asset_tag]["PRESSURE"].append((val, unit, filename_string, chunk_row.content[:160]))
-
-                temp_matches = re.findall(r'(\d+(?:\.\d+)?)\s*(CELSIUS|RPM|GPM)', content_upper)
-                for val_str, unit in temp_matches:
-                    val = float(val_str)
-                    if asset_tag not in extracted_parameters_map:
-                        extracted_parameters_map[asset_tag] = {"PRESSURE": [], "TEMPERATURE": [], "SPEED": []}
-                    param_key = "SPEED" if unit in ["RPM", "GPM"] else "TEMPERATURE"
-                    extracted_parameters_map[asset_tag][param_key].append((val, unit, filename_string, chunk_row.content[:160]))
-
-        # 3. Evaluate parameter groups to catch metric contradictions across files
-        for asset, parameter_types in extracted_parameters_map.items():
-            for p_type, readings in parameter_types.items():
-                if len(readings) < 2: continue
-                
-                # Check if readings for the same asset differ across separate files
-                base_val, base_unit, base_file, base_ctx = readings[0]
-                for comp_val, comp_unit, comp_file, comp_ctx in readings[1:]:
-                    if base_file != comp_file and base_val != comp_val and base_unit == comp_unit:
-                        detected_anomalies.append({
-                            "asset_tag": asset,
-                            "parameter": p_type,
-                            "unit": base_unit,
-                            "severity": "CRITICAL",
-                            "conflict_statement": f"Operational parameter mismatch detected for asset {asset}. File '{base_file}' declares {base_val} {base_unit} while File '{comp_file}' updates threshold to {comp_val} {comp_unit}.",
-                            "doc_a": base_file,
-                            "val_a": base_val,
-                            "doc_b": comp_file,
-                            "val_b": comp_val
-                        })
-
-        # Inject a realistic engineering mismatch fallback trace matrix if database layers are blank during boots
-        if not detected_anomalies and len(results) > 0:
-            detected_anomalies.append({
-                "asset_tag": "BHP-122",
-                "parameter": "PRESSURE",
-                "unit": "PSI",
-                "severity": "CRITICAL",
-                "conflict_statement": "Operational discrepancy detected for BHP-122. File 'IOM_3196i-FRAME.pdf' sets structural ceiling tolerance to 250 PSI while File '1742541199_e2b8de065ca3061addb4.pdf' extends ceiling parameters to 380 PSI.",
-                "doc_a": "IOM_3196i-FRAME.pdf", "val_a": 250.0,
-                "doc_b": "1742541199_e2b8de065ca3061addb4.pdf", "val_b": 380.0
-            })
-
+    if not rows:
         return {
-            "conflict_detected": len(detected_anomalies) > 0,
-            "severity": "CRITICAL" if detected_anomalies else "OK",
-            "detected_anomalies": detected_anomalies
+            "conflict_detected": False,
+            "severity": "OK",
+            "detected_anomalies": [],
+            "chunks_scanned": 0,
+            "empty_reason": "No documents have been indexed yet.",
         }
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+
+    # Chunks are stored as "child ||| parent"; scan the parent block, which holds
+    # the fuller context and therefore the complete parameter statements.
+    scan_payload = []
+    for content, filename in rows:
+        text = content or ""
+        if " ||| " in text:
+            text = text.split(" ||| ", 1)[1]
+        scan_payload.append({"content": text, "filename": filename})
+
+    result = industrial_conflict_engine.analyze_context_slices(scan_payload)
+
+    if not result["detected_anomalies"]:
+        result["empty_reason"] = (
+            f"Scanned {result['chunks_scanned']} passages across "
+            f"{len({r[1] for r in rows})} documents. No contradictory parameter "
+            f"values were found between documents."
+        )
+
+    return result

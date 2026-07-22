@@ -1,3 +1,4 @@
+import re
 import math
 from typing import List, Dict, Any
 
@@ -19,6 +20,20 @@ class IndustrialContextRerankerEngine:
         except Exception:
             print("🟢 RERANKING CORE: Local Alphanumeric Self-Attention Matrix activated successfully.")
 
+    @staticmethod
+    def _build_candidate_key(chunk: Dict[str, Any]) -> str:
+        """
+        Stable identity for a candidate chunk across both retrieval pathways.
+        Falls back to a content fingerprint, because graph-only hits can arrive
+        without a document_id and would otherwise all collide under one key.
+        """
+        doc_id = chunk.get("document_id")
+        chunk_idx = chunk.get("chunk_index")
+        if doc_id is not None and chunk_idx is not None:
+            return f"doc_{doc_id}_idx_{chunk_idx}"
+        fingerprint = (chunk.get("matched_excerpt") or chunk.get("content", ""))[:64]
+        return f"frag_{hash(fingerprint)}"
+
     def compute_reciprocal_rank_fusion(
         self, 
         vector_chunks: List[Dict[str, Any]], 
@@ -34,7 +49,7 @@ class IndustrialContextRerankerEngine:
         # Pathway A: Process Vector Rank order placements
         for rank_idx, chunk in enumerate(vector_chunks):
             # Formulate clean structural mapping identifiers
-            unique_key = f"doc_{chunk.get('document_id')}_idx_{chunk.get('chunk_index')}"
+            unique_key = self._build_candidate_key(chunk)
             chunk_lookup_registry[unique_key] = chunk
             
             if unique_key not in fused_scores:
@@ -43,7 +58,7 @@ class IndustrialContextRerankerEngine:
 
         # Pathway B: Process Graph Rank order placements
         for rank_idx, chunk in enumerate(graph_chunks):
-            unique_key = f"doc_{chunk.get('document_id')}_idx_{chunk.get('chunk_index')}"
+            unique_key = self._build_candidate_key(chunk)
             
             if unique_key not in chunk_lookup_registry:
                 chunk_lookup_registry[unique_key] = chunk
@@ -108,23 +123,36 @@ class IndustrialContextRerankerEngine:
         # Step 1: Blend the streams together using our RRF rank calculations
         fused_working_set = self.compute_reciprocal_rank_fusion(vector_stream, graph_stream)
 
-        # Step 2: Apply the Cross-Encoder semantic relevance sweep
-        for item in fused_working_set:
-            text_content = item.get("content", "")
-            
-            if self.cross_encoder_model:
-                try:
-                    # Run neural transformer model matrix calculations
-                    relevance_probability = self.cross_encoder_model.predict([query_string, text_content])
-                    item["confidence_score"] = float(relevance_probability)
-                except Exception:
-                    item["confidence_score"] = self._compute_local_attention_coefficient(query_string, text_content)
-            else:
-                item["confidence_score"] = self._compute_local_attention_coefficient(query_string, text_content)
+        # Step 2: Apply the Cross-Encoder semantic relevance sweep.
+        # Score against the CHILD excerpt that actually matched where available - it is
+        # the precise passage. Scoring the whole parent block dilutes the signal.
+        scoring_texts = [
+            (item.get("matched_excerpt") or item.get("content", "")) for item in fused_working_set
+        ]
+
+        relevance_scores: List[float] = []
+        if self.cross_encoder_model and scoring_texts:
+            try:
+                # ONE batched forward pass for all candidates instead of a Python loop
+                # calling the transformer once per chunk.
+                pairs = [(query_string, text) for text in scoring_texts]
+                raw_scores = self.cross_encoder_model.predict(pairs)
+                relevance_scores = [float(score) for score in raw_scores]
+            except Exception as rerank_error:
+                print(f"⚠️ RERANKER: Neural pass failed ({rerank_error}). Using lexical fallback.")
+                relevance_scores = []
+
+        if len(relevance_scores) != len(fused_working_set):
+            relevance_scores = [
+                self._compute_local_attention_coefficient(query_string, text) for text in scoring_texts
+            ]
+
+        for item, score in zip(fused_working_set, relevance_scores):
+            item["confidence_score"] = score
 
         # Re-sort descending based on the final attention confidence coefficients
         fused_working_set.sort(key=lambda x: x["confidence_score"], reverse=True)
-        
+
         # Return only the top N highest-quality results
         return fused_working_set[:top_n]
 

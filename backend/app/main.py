@@ -1,5 +1,19 @@
+import sys
+
+# ---------------------------------------------------------------------------
+# Windows consoles default to the legacy cp1252 codepage, which cannot encode
+# the emoji characters used throughout this project's log statements. Without
+# this guard a single print() raises UnicodeEncodeError and takes down startup.
+# Must run before any module that logs at import time is loaded.
+# ---------------------------------------------------------------------------
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
 import os
-import socket
 import logging
 import json
 import traceback
@@ -84,3 +98,35 @@ async def database_table_migration_handshake():
 @app.get("/")
 async def read_root():
     return {"platform": "Industrial Knowledge Intelligence Platform (IKIP)", "status": "Operational"}
+
+
+@app.get("/api/v1/auth/roles")
+async def list_roles():
+    """
+    Roles and their permissions, so the UI can build navigation from the server's
+    definition rather than duplicating the permission table client-side.
+
+    `authentication_implemented: false` is returned deliberately. Authorization is
+    enforced server-side, but identity is not verified — the client asserts its
+    role. Callers must not treat this as a security boundary against a malicious
+    user, only as role separation for legitimate ones.
+    """
+    from app.security import ROLE_DESCRIPTIONS, Role, permissions_for
+
+    return {
+        "authentication_implemented": False,
+        "notice": (
+            "Roles control what each user can do and are enforced by the API. "
+            "Identity itself is not verified in this build, so this is role "
+            "separation, not access security."
+        ),
+        "roles": [
+            {
+                "id": role.value,
+                "name": role.value.capitalize(),
+                "description": ROLE_DESCRIPTIONS[role],
+                "permissions": permissions_for(role),
+            }
+            for role in Role
+        ],
+    }

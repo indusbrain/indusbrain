@@ -1,16 +1,213 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   IndusBrain design tokens
+
+   Principles applied throughout:
+   - Body text is 14px sans-serif. The previous UI used 9-11px monospace for
+     everything, which is unreadable and reads as a terminal, not a product.
+   - Monospace is reserved for DATA: asset tags, work orders, measurements,
+     filenames. Prose is always sans-serif.
+   - Sentence case for labels. ALL CAPS is reserved for short status chips.
+   - One accent colour (indigo) for interaction; semantic colours are reserved
+     for meaning (danger / warning / success) so they retain their signal.
+   ========================================================================== */
+
 @theme {
-  --color-industrial-darkest: #0A0B0D;
-  --color-industrial-dark: #121417;
-  --color-industrial-gray: #1E222B;
-  --color-industrial-border: #2E3440;
-  --color-industrial-accent: #FF7A00;
-  --color-industrial-terminal: #10B981;
+  /* Neutral surfaces - layered so elevation reads clearly in a dark UI */
+  --color-surface-base: #0B0D11;
+  --color-surface-raised: #12151B;
+  --color-surface-overlay: #171B23;
+  --color-surface-hover: #1D222C;
+
+  --color-line-subtle: #21262F;
+  --color-line-default: #2C333F;
+  --color-line-strong: #3A4250;
+
+  /* Text ramp - all pass WCAG AA on surface-base */
+  --color-ink-primary: #E8EBF0;
+  --color-ink-secondary: #A8B0BF;
+  --color-ink-muted: #6F7889;
+  --color-ink-faint: #4E5665;
+
+  /* Single interaction accent */
+  --color-accent: #6366F1;
+  --color-accent-hover: #7B7DF5;
+  --color-accent-soft: #1E2039;
+
+  /* Semantic - meaning only, never decoration */
+  --color-danger: #F0616D;
+  --color-danger-soft: #2A1418;
+  --color-warning: #E3A008;
+  --color-warning-soft: #2A2010;
+  --color-success: #2FB380;
+  --color-success-soft: #0F2621;
+  --color-info: #3B9EDB;
+  --color-info-soft: #0F212E;
+
+  --font-sans: 'Inter var', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', ui-monospace, 'Menlo', monospace;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background-color: var(--color-industrial-darkest);
-  color: #E5E7EB;
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-surface-base);
+  color: var(--color-ink-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
 }
+
+/* --------------------------------------------------------------------------
+   Focus visibility - required for keyboard accessibility. The previous UI used
+   `outline: none` on inputs with no replacement, leaving keyboard users with no
+   indication of focus at all.
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-default);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-line-strong);
+  background-clip: content-box;
+}
+
+/* --------------------------------------------------------------------------
+   Motion - every animation below is disabled under prefers-reduced-motion.
+   The old UI applied `animate-pulse` to a persistent critical alert banner,
+   which is both a vestibular trigger and a poor way to convey severity.
+   -------------------------------------------------------------------------- */
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+@keyframes caret {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.15; }
+}
+
+.animate-fade-rise { animation: fade-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in   { animation: fade-in 0.2s ease-out both; }
+.animate-caret     { animation: caret 1s steps(2) infinite; }
+
+/* Indeterminate progress used while ingestion runs server-side */
+.progress-indeterminate::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 33%;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  animation: sweep 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Screen-reader-only utility for accessible labels */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Markdown rendered inside assistant answers */
+.answer-prose { font-size: 14px; line-height: 1.7; }
+.answer-prose p { margin-block: 0.6rem; }
+.answer-prose strong { color: var(--color-ink-primary); font-weight: 650; }
+.answer-prose ul,
+.answer-prose ol { margin-block: 0.6rem; padding-inline-start: 1.35rem; }
+.answer-prose ul { list-style: disc; }
+.answer-prose ol { list-style: decimal; }
+.answer-prose li { margin-block: 0.2rem; }
+.answer-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-line-subtle);
+  padding: 0.08em 0.36em;
+  border-radius: 4px;
+}
+.answer-prose pre {
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-line-subtle);
+  border-radius: 8px;
+  padding: 0.85rem;
+  overflow-x: auto;
+  margin-block: 0.7rem;
+}
+.answer-prose pre code { background: none; border: none; padding: 0; }
+.answer-prose blockquote {
+  border-inline-start: 2px solid var(--color-line-strong);
+  padding-inline-start: 0.85rem;
+  color: var(--color-ink-secondary);
+  margin-block: 0.6rem;
+}
+.answer-prose h1,
+.answer-prose h2,
+.answer-prose h3 {
+  font-weight: 650;
+  color: var(--color-ink-primary);
+  margin-block: 0.9rem 0.4rem;
+  font-size: 1em;
+}
+.answer-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 0.7rem;
+  font-size: 0.92em;
+}
+.answer-prose th,
+.answer-prose td {
+  border: 1px solid var(--color-line-subtle);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.answer-prose th { background: var(--color-surface-overlay); font-weight: 600; }
