@@ -4,7 +4,8 @@ import { api, ApiError } from './lib/api';
 import type { DashboardPayload } from './lib/types';
 import { AppShell } from './components/AppShell';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { RoleProvider } from './lib/RoleContext';
+import { AuthProvider, useAuth } from './lib/AuthContext';
+import { LoginPage } from './pages/LoginPage';
 import { RequirePermission } from './components/RequirePermission';
 import { OverviewPage } from './pages/OverviewPage';
 import { AskPage } from './pages/AskPage';
@@ -17,6 +18,7 @@ import { DocumentsPage } from './pages/DocumentsPage';
 const POLL_INTERVAL_MS = 15_000;
 
 function AppRoutes() {
+  const { requiresLogin, loading: authLoading } = useAuth();
   const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
   const [loading, setLoading] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -44,6 +46,10 @@ function AppRoutes() {
   }, []);
 
   useEffect(() => {
+    // Only poll once signed in. Without this guard every unauthenticated visit
+    // fired a dashboard request that could only ever return 401.
+    if (requiresLogin) return;
+
     // Kick the initial fetch off the synchronous effect body. Calling it directly
     // sets the loading flag during mount, forcing an immediate second render.
     // The skeleton UI already covers this window (dashboard is null until data
@@ -66,9 +72,22 @@ function AppRoutes() {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [loadDashboard]);
+  }, [loadDashboard, requiresLogin]);
 
   const refresh = useCallback(() => loadDashboard(true), [loadDashboard]);
+
+  // Wait for the stored session to be validated before deciding what to show,
+  // otherwise a signed-in user briefly sees the login screen on every refresh.
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--color-surface-base)]">
+        <div className="h-6 w-6 animate-caret rounded-full bg-[var(--color-accent)]" />
+      </div>
+    );
+  }
+
+  // Everything behind this point requires a real, server-validated session.
+  if (requiresLogin) return <LoginPage />;
 
   return (
     <BrowserRouter>
@@ -83,7 +102,7 @@ function AppRoutes() {
               path="/ask"
               element={
                 <ErrorBoundary label="chat">
-                  <AskPage assets={dashboard?.assets ?? []} onDataChanged={refresh} />
+                  <AskPage dashboard={dashboard} onDataChanged={refresh} />
                 </ErrorBoundary>
               }
             />
@@ -100,7 +119,7 @@ function AppRoutes() {
             <Route
               path="/documents"
               element={
-                <RequirePermission permission="upload_documents" area="Document management">
+                <RequirePermission permission="view_documents" area="Documents">
                   <DocumentsPage dashboard={dashboard} onDataChanged={refresh} />
                 </RequirePermission>
               }
@@ -118,9 +137,9 @@ function AppRoutes() {
 // the API client before any page issues its first request.
 function App() {
   return (
-    <RoleProvider>
+    <AuthProvider>
       <AppRoutes />
-    </RoleProvider>
+    </AuthProvider>
   );
 }
 

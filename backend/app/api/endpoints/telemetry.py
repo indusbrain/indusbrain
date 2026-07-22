@@ -15,7 +15,11 @@ from app.api.endpoints.telemetry_dashboard import (
 router = APIRouter(prefix="/telemetry", tags=["System Telemetry Subsystem"])
 
 
-@router.get("/dashboard", status_code=status.HTTP_200_OK)
+@router.get(
+    "/dashboard",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.VIEW_DASHBOARD))],
+)
 async def fetch_live_dashboard_telemetry(
     refresh: bool = False, db: AsyncSession = Depends(get_db)
 ):

@@ -3,7 +3,9 @@ import { api, ApiError } from '../lib/api';
 import type { DashboardPayload } from '../lib/types';
 import { PageBody, PageHeader } from '../components/AppShell';
 import { Badge, Button, Card, CardHeader, cx, EmptyState, ErrorNotice, Skeleton } from '../components/ui/primitives';
-import { IconCheck, IconClose, IconDocs, IconRefresh, IconTrash, IconUpload } from '../components/ui/icons';
+import { IconCheck, IconClose, IconDocs, IconRefresh, IconSearch, IconShield, IconTrash, IconUpload } from '../components/ui/icons';
+import { DocumentViewer } from '../components/DocumentViewer';
+import { useAuth } from '../lib/AuthContext';
 
 type TrackedStage = 'UPLOADING' | 'PENDING' | 'PARSED' | 'EMBEDDED' | 'FAILED';
 
@@ -40,7 +42,22 @@ export const DocumentsPage: React.FC<{
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [viewingId, setViewingId] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ---------------------------------------------------------------------------
+  // ROLE-DEPENDENT ACTIONS
+  //
+  // One page for both roles, not two pages. Engineers need to read source
+  // material to verify a citation, so the library and viewer are always shown;
+  // only the corpus-mutating controls are gated.
+  //
+  // These come from the SERVER's permission table, so the UI can never offer a
+  // control the API would reject.
+  // ---------------------------------------------------------------------------
+  const { can } = useAuth();
+  const canUpload = can('upload_documents');
+  const canDelete = can('delete_documents');
 
   const addFiles = (incoming: FileList | File[]) => {
     const pdfs = Array.from(incoming).filter((file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
@@ -162,7 +179,11 @@ export const DocumentsPage: React.FC<{
     <PageBody>
       <PageHeader
         title="Documents"
-        description="Upload and manage the source documents that IndusBrain reasons over."
+        description={
+          canUpload
+            ? 'Upload and manage the source documents that IndusBrain reasons over.'
+            : 'Browse and read the source documents that IndusBrain reasons over.'
+        }
         actions={
           <Button variant="secondary" size="sm" onClick={onDataChanged}>
             <IconRefresh size={14} />
@@ -177,6 +198,20 @@ export const DocumentsPage: React.FC<{
         </div>
       )}
 
+      {/* Read-only notice for engineers, so the missing controls are explained
+          rather than silently absent. */}
+      {!canUpload && (
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-4 py-3">
+          <IconShield size={16} className="mt-0.5 shrink-0 text-[var(--color-ink-muted)]" />
+          <p className="text-[13px] leading-relaxed text-[var(--color-ink-secondary)]">
+            You have read access to every indexed document. Adding, replacing and
+            removing documents is handled by a knowledge manager, so the corpus stays
+            consistent for everyone relying on it.
+          </p>
+        </div>
+      )}
+
+      {canUpload && (
       <div className="grid min-w-0 gap-5 lg:grid-cols-5">
         {/* Upload */}
         <Card className="lg:col-span-2">
@@ -324,9 +359,10 @@ export const DocumentsPage: React.FC<{
           </div>
         </Card>
       </div>
+      )}
 
-      {/* Library */}
-      <Card className="mt-5">
+      {/* Library — visible to every role */}
+      <Card className={canUpload ? 'mt-5' : ''}>
         <CardHeader
           title="Document library"
           description={dashboard ? `${dashboard.inventory.length} documents indexed` : 'Loading…'}
@@ -339,7 +375,7 @@ export const DocumentsPage: React.FC<{
           <EmptyState
             icon={<IconDocs size={28} />}
             title="No documents in the library"
-            description="Upload your first document to begin building the knowledge base."
+            description={canUpload ? "Upload your first document to begin building the knowledge base." : "No documents have been indexed yet. A knowledge manager needs to upload them."}
           />
         ) : (
           <div className="overflow-x-auto">
@@ -361,8 +397,14 @@ export const DocumentsPage: React.FC<{
                     key={doc.id}
                     className="border-b border-[var(--color-line-subtle)] last:border-0 hover:bg-[var(--color-surface-overlay)]"
                   >
-                    <td className="max-w-[360px] truncate px-5 py-3 font-[family-name:var(--font-mono)] text-[12.5px] text-[var(--color-ink-primary)]">
-                      {doc.filename}
+                    <td className="max-w-[360px] px-5 py-3">
+                      <button
+                        onClick={() => setViewingId(doc.id)}
+                        title={`Open ${doc.filename}`}
+                        className="block max-w-full truncate text-left font-[family-name:var(--font-mono)] text-[12.5px] text-[var(--color-ink-primary)] hover:text-[var(--color-accent-hover)] hover:underline"
+                      >
+                        {doc.filename}
+                      </button>
                     </td>
                     <td className="px-5 py-3">
                       <Badge tone={DOC_STATUS_TONE[doc.status] ?? 'neutral'}>
@@ -376,6 +418,11 @@ export const DocumentsPage: React.FC<{
                       {(doc.file_size / 1024).toFixed(0)} KB
                     </td>
                     <td className="px-5 py-3 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => setViewingId(doc.id)}>
+                        <IconSearch size={14} />
+                        View
+                      </Button>
+                      {canDelete && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -386,6 +433,7 @@ export const DocumentsPage: React.FC<{
                         <IconTrash size={14} />
                         {deletingId === doc.id ? 'Deleting…' : 'Delete'}
                       </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -394,6 +442,9 @@ export const DocumentsPage: React.FC<{
           </div>
         )}
       </Card>
+      {viewingId !== null && (
+        <DocumentViewer documentId={viewingId} onClose={() => setViewingId(null)} />
+      )}
     </PageBody>
   );
 };

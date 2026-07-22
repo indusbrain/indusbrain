@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import type { DashboardPayload, PermissionId, RoleId } from '../lib/types';
-import { useRole } from '../lib/RoleContext';
+import { useAuth } from '../lib/AuthContext';
 import { cx, StatusDot } from './ui/primitives';
+import { SHOW_INFRASTRUCTURE_DETAILS } from '../lib/uiConfig';
 import {
   IconAlert,
   IconChart,
@@ -23,60 +24,111 @@ interface NavEntry {
 }
 
 /**
- * Role switcher.
+ * Signed-in user panel.
  *
- * Labelled as role simulation, not sign-in. The backend enforces permissions,
- * but it does not verify identity — presenting this as authentication would
- * imply a security guarantee the system does not provide.
+ * This replaced a role switcher that let anyone pick their own permissions. The
+ * role shown here is the one stored against the account in the database; it
+ * cannot be changed from the client.
  */
-const RoleSwitcher: React.FC = () => {
-  const { role, setRole, roles, authNotice } = useRole();
-  const activeDefinition = roles.find((r) => r.id === role);
+const UserPanel: React.FC = () => {
+  const { mode, user, role, setRole, roles, logout } = useAuth();
+  const [busy, setBusy] = useState(false);
+
+  // DEMO MODE: pick a role directly. Permissions are still enforced by the API
+  // for whichever role is selected, but identity is not verified.
+  if (mode === 'demo' || !user) {
+    const activeDefinition = roles.find((r) => r.id === role);
+    return (
+      <div className="border-t border-[var(--color-line-subtle)] px-4 py-3.5">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[11px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+            Viewing as
+          </p>
+          <span
+            title="Demo mode: roles are enforced by the API, but sign-in is disabled."
+            className="cursor-help text-[10px] text-[var(--color-warning)]"
+          >
+            demo
+          </span>
+        </div>
+
+        <div
+          className="flex rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] p-0.5"
+          role="radiogroup"
+          aria-label="Active role"
+        >
+          {(['engineer', 'manager'] as RoleId[]).map((candidate) => (
+            <button
+              key={candidate}
+              role="radio"
+              aria-checked={role === candidate}
+              onClick={() => setRole(candidate)}
+              className={cx(
+                'flex-1 rounded-md px-2 py-1.5 text-[12px] capitalize transition-colors',
+                role === candidate
+                  ? 'bg-[var(--color-accent)] font-medium text-white'
+                  : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]',
+              )}
+            >
+              {candidate}
+            </button>
+          ))}
+        </div>
+
+        {activeDefinition && (
+          <p className="mt-2 text-[11.5px] leading-snug text-[var(--color-ink-faint)]">
+            {activeDefinition.description}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const initials = user.full_name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 
   return (
     <div className="border-t border-[var(--color-line-subtle)] px-4 py-3.5">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-[11px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-          Active role
-        </p>
-        {authNotice && (
-          <span
-            title={authNotice}
-            className="cursor-help text-[10px] text-[var(--color-warning)]"
-          >
-            demo mode
-          </span>
-        )}
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[12px] font-semibold text-[var(--color-accent-hover)]">
+          {initials || '?'}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] font-medium text-[var(--color-ink-primary)]" title={user.full_name}>
+            {user.full_name}
+          </p>
+          <p className="truncate text-[11.5px] text-[var(--color-ink-muted)]" title={user.email}>
+            {user.email}
+          </p>
+        </div>
       </div>
 
-      <div
-        className="flex rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] p-0.5"
-        role="radiogroup"
-        aria-label="Active role"
-      >
-        {(['engineer', 'manager'] as RoleId[]).map((candidate) => (
-          <button
-            key={candidate}
-            role="radio"
-            aria-checked={role === candidate}
-            onClick={() => setRole(candidate)}
-            className={cx(
-              'flex-1 rounded-md px-2 py-1.5 text-[12px] capitalize transition-colors',
-              role === candidate
-                ? 'bg-[var(--color-accent)] font-medium text-white'
-                : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]',
-            )}
-          >
-            {candidate}
-          </button>
-        ))}
+      <div className="mt-2.5 flex items-center gap-2">
+        <span
+          className={cx(
+            'rounded-md border px-1.5 py-0.5 text-[11px] font-medium capitalize',
+            user.role === 'manager'
+              ? 'border-[color-mix(in_srgb,var(--color-accent)_35%,transparent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-hover)]'
+              : 'border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] text-[var(--color-ink-secondary)]',
+          )}
+          title={user.role_description}
+        >
+          {user.role}
+        </span>
+        <button
+          onClick={async () => {
+            setBusy(true);
+            await logout();
+          }}
+          disabled={busy}
+          className="ml-auto rounded-md px-2 py-1 text-[12px] text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-ink-primary)] disabled:opacity-50"
+        >
+          {busy ? 'Signing out…' : 'Sign out'}
+        </button>
       </div>
-
-      {activeDefinition && (
-        <p className="mt-2 text-[11.5px] leading-snug text-[var(--color-ink-faint)]">
-          {activeDefinition.description}
-        </p>
-      )}
     </div>
   );
 };
@@ -87,7 +139,7 @@ export const AppShell: React.FC<{
   children: React.ReactNode;
 }> = ({ dashboard, connectionError, children }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const { can } = useRole();
+  const { can } = useAuth();
 
   // The drawer is closed by the nav links themselves (see closeMobileNav below)
   // rather than by an effect watching the pathname. Setting state synchronously
@@ -103,13 +155,13 @@ export const AppShell: React.FC<{
     { to: '/conflicts', label: 'Conflicts', icon: IconAlert, badge: openConflicts },
   ];
 
-  // Documents is the only corpus-mutating area, so it is gated on the upload
-  // permission. Everything else is available to both roles: an engineer
-  // diagnosing a fault must be able to see conflicts and coverage gaps.
+  // Documents is visible to BOTH roles - engineers need to read source material.
+  // The page itself gates the mutating ACTIONS (upload, delete) on permission,
+  // rather than hiding the whole area from engineers.
   const secondaryNav: NavEntry[] = [
     { to: '/analytics', label: 'Analytics', icon: IconChart },
     { to: '/simulator', label: 'Impact Simulator', icon: IconFlask },
-    { to: '/documents', label: 'Documents', icon: IconDocs, permission: 'upload_documents' },
+    { to: '/documents', label: 'Documents', icon: IconDocs, permission: 'view_documents' },
   ];
 
   const services = dashboard
@@ -202,41 +254,56 @@ export const AppShell: React.FC<{
         {renderNavGroup('Insight', secondaryNav)}
       </div>
 
-      <RoleSwitcher />
+      <UserPanel />
 
-      {/* System health — the actual state of the four backing services */}
-      <div className="border-t border-[var(--color-line-subtle)] px-4 py-3.5">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-[11px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-            System
-          </p>
-          {offlineCount > 0 && (
-            <span className="text-[11px] font-medium text-[var(--color-danger)]">
-              {offlineCount} offline
-            </span>
-          )}
+      {/* Service health.
+          Named infrastructure is hidden for the demo (see uiConfig). What is NOT
+          hidden is the consequence: if a backing service is down, features are
+          silently degraded, and the operator still needs to know that — just in
+          product terms rather than database names. */}
+      {SHOW_INFRASTRUCTURE_DETAILS ? (
+        <div className="border-t border-[var(--color-line-subtle)] px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+              System
+            </p>
+            {offlineCount > 0 && (
+              <span className="text-[11px] font-medium text-[var(--color-danger)]">
+                {offlineCount} offline
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+            {services.length === 0 ? (
+              <p className="col-span-2 text-[12px] text-[var(--color-ink-faint)]">Connecting…</p>
+            ) : (
+              services.map((service) => (
+                <div key={service.name} className="flex items-center gap-1.5">
+                  <StatusDot
+                    online={service.status !== 'OFFLINE'}
+                    degraded={service.status === 'NO_MODELS'}
+                  />
+                  <span
+                    className="truncate text-[12px] text-[var(--color-ink-muted)]"
+                    title={`${service.name}: ${service.status}`}
+                  >
+                    {service.name}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-          {services.length === 0 ? (
-            <p className="col-span-2 text-[12px] text-[var(--color-ink-faint)]">Connecting…</p>
-          ) : (
-            services.map((service) => (
-              <div key={service.name} className="flex items-center gap-1.5">
-                <StatusDot
-                  online={service.status !== 'OFFLINE'}
-                  degraded={service.status === 'NO_MODELS'}
-                />
-                <span
-                  className="truncate text-[12px] text-[var(--color-ink-muted)]"
-                  title={`${service.name}: ${service.status}`}
-                >
-                  {service.name}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      ) : (
+        offlineCount > 0 && (
+          <div className="flex items-start gap-2 border-t border-[var(--color-line-subtle)] px-4 py-3">
+            <StatusDot online={false} />
+            <p className="text-[12px] leading-snug text-[var(--color-ink-muted)]">
+              Some features are temporarily limited. Search results may be incomplete.
+            </p>
+          </div>
+        )
+      )}
     </>
   );
 

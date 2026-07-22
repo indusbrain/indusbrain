@@ -15,6 +15,7 @@ import {
   StatusDot,
 } from '../components/ui/primitives';
 import { IconChart, IconRefresh, IconUpload } from '../components/ui/icons';
+import { SHOW_INFRASTRUCTURE_DETAILS } from '../lib/uiConfig';
 
 /**
  * Analytics — the "Knowledge DNA" view.
@@ -249,7 +250,10 @@ export const AnalyticsPage: React.FC<{
 
         {/* Pipeline + infrastructure */}
         <Card>
-          <CardHeader title="Pipeline and services" description="Ingestion outcomes and backing systems" />
+          <CardHeader
+            title={SHOW_INFRASTRUCTURE_DETAILS ? "Pipeline and services" : "Indexing and capabilities"}
+            description={SHOW_INFRASTRUCTURE_DETAILS ? "Ingestion outcomes and backing systems" : "How your documents were processed and what search can currently do"}
+          />
           <div className="space-y-5 p-5">
             <div>
               <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
@@ -278,50 +282,86 @@ export const AnalyticsPage: React.FC<{
               </div>
             </div>
 
-            <div className="border-t border-[var(--color-line-subtle)] pt-4">
-              <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-                Backing services
-              </p>
-              <ul className="space-y-2">
-                {[
-                  ['PostgreSQL', infrastructure.postgresql, 'Document and chunk ledger'],
-                  ['Neo4j', infrastructure.neo4j, 'Asset knowledge graph'],
-                  ['ChromaDB', infrastructure.chromadb, 'Vector index'],
-                  ['Ollama', infrastructure.ollama_qwen, 'Local language model'],
-                ].map(([name, status, purpose]) => (
-                  <li key={name as string} className="flex items-center gap-2.5">
-                    <StatusDot online={status !== 'OFFLINE'} degraded={status === 'NO_MODELS'} />
-                    <span className="w-[92px] shrink-0 text-[13px] text-[var(--color-ink-primary)]">
-                      {name}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--color-ink-muted)]">
-                      {purpose}
-                    </span>
-                    <span
-                      className={cx(
-                        'text-[12px] font-medium',
-                        status === 'OFFLINE'
-                          ? 'text-[var(--color-danger)]'
-                          : status === 'NO_MODELS'
-                            ? 'text-[var(--color-warning)]'
-                            : 'text-[var(--color-success)]',
-                      )}
-                    >
-                      {String(status).toLowerCase().replace('_', ' ')}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {infrastructure.ollama_models.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {infrastructure.ollama_models.map((model) => (
-                    <Badge key={model} tone="neutral" mono>
-                      {model}
-                    </Badge>
+            {/* Named infrastructure is hidden for the demo (see lib/uiConfig).
+                What replaces it is the same information expressed as CAPABILITIES,
+                which is what a plant engineer actually needs to know. */}
+            {SHOW_INFRASTRUCTURE_DETAILS ? (
+              <div className="border-t border-[var(--color-line-subtle)] pt-4">
+                <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+                  Backing services
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    ['PostgreSQL', infrastructure.postgresql, 'Document and chunk ledger'],
+                    ['Neo4j', infrastructure.neo4j, 'Asset knowledge graph'],
+                    ['ChromaDB', infrastructure.chromadb, 'Vector index'],
+                    ['Ollama', infrastructure.ollama_qwen, 'Local language model'],
+                  ].map(([name, status, purpose]) => (
+                    <li key={name as string} className="flex items-center gap-2.5">
+                      <StatusDot online={status !== 'OFFLINE'} degraded={status === 'NO_MODELS'} />
+                      <span className="w-[92px] shrink-0 text-[13px] text-[var(--color-ink-primary)]">
+                        {name}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--color-ink-muted)]">
+                        {purpose}
+                      </span>
+                      <span
+                        className={cx(
+                          'text-[12px] font-medium',
+                          status === 'OFFLINE'
+                            ? 'text-[var(--color-danger)]'
+                            : status === 'NO_MODELS'
+                              ? 'text-[var(--color-warning)]'
+                              : 'text-[var(--color-success)]',
+                        )}
+                      >
+                        {String(status).toLowerCase().replace('_', ' ')}
+                      </span>
+                    </li>
                   ))}
-                </div>
-              )}
-            </div>
+                </ul>
+                {infrastructure.ollama_models.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {infrastructure.ollama_models.map((model) => (
+                      <Badge key={model} tone="neutral" mono>
+                        {model}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="border-t border-[var(--color-line-subtle)] pt-4">
+                <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+                  Search capabilities
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    ['Document search', infrastructure.chromadb !== 'OFFLINE', 'Finds passages by meaning, not just keywords'],
+                    ['Asset relationships', infrastructure.neo4j !== 'OFFLINE', 'Links equipment across every document'],
+                    ['AI reasoning', infrastructure.ollama_qwen === 'ONLINE', 'Summarises evidence and flags contradictions'],
+                  ].map(([label, available, purpose]) => (
+                    <li key={label as string} className="flex items-center gap-2.5">
+                      <StatusDot online={Boolean(available)} />
+                      <span className="w-[132px] shrink-0 text-[13px] text-[var(--color-ink-primary)]">
+                        {label}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--color-ink-muted)]">
+                        {purpose}
+                      </span>
+                      <span
+                        className={cx(
+                          'shrink-0 text-[12px] font-medium',
+                          available ? 'text-[var(--color-success)]' : 'text-[var(--color-warning)]',
+                        )}
+                      >
+                        {available ? 'available' : 'limited'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </Card>
       </div>

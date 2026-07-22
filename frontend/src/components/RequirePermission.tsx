@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useRole } from '../lib/RoleContext';
+import { useAuth } from '../lib/AuthContext';
 import type { PermissionId } from '../lib/types';
 import { Button, Card, EmptyState } from './ui/primitives';
 import { IconShield } from './ui/icons';
@@ -18,7 +18,7 @@ export const RequirePermission: React.FC<{
   children: React.ReactNode;
   area: string;
 }> = ({ permission, children, area }) => {
-  const { can, role, loading, setRole } = useRole();
+  const { can, user, loading } = useAuth();
 
   if (loading) return null;
   if (can(permission)) return <>{children}</>;
@@ -29,16 +29,11 @@ export const RequirePermission: React.FC<{
         <EmptyState
           icon={<IconShield size={30} />}
           title={`${area} requires the manager role`}
-          description={`You are signed in as ${role}. This area changes the shared document corpus, so it is limited to the manager role. Switching role below changes what the API will allow.`}
+          description={`You are signed in as ${user?.full_name ?? 'an engineer'} (${user?.role ?? 'engineer'}). This area changes the shared document corpus, so it is restricted to managers. Ask a manager to upgrade your account if you need access.`}
           action={
-            <div className="flex flex-wrap justify-center gap-2">
-              <Button variant="primary" onClick={() => setRole('manager')}>
-                Switch to manager
-              </Button>
-              <Link to="/">
-                <Button variant="secondary">Back to overview</Button>
-              </Link>
-            </div>
+            <Link to="/">
+              <Button variant="primary">Back to overview</Button>
+            </Link>
           }
         />
       </Card>

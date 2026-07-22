@@ -13,3 +13,12 @@ backend/sample_corpus/
 
 # Archives accidentally added
 *.zip
+
+# Runtime logs
+backend/logs/
+frontend/logs-vite.txt
+*.log
+
+# Generated demo corpus (regenerate with scripts/generate_refinery_corpus.py)
+backend/refinery_corpus/
+backend/sample_corpus/

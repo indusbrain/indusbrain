@@ -1,21 +1,77 @@
 import React, { useState } from 'react';
+import Markdown from 'markdown-to-jsx';
 import { api, ApiError } from '../lib/api';
-import type { DashboardPayload, SimulationResult } from '../lib/types';
+import type { DashboardPayload, EvidenceStatement, SimulationAssessment } from '../lib/types';
 import { PageBody, PageHeader } from '../components/AppShell';
 import { Badge, Button, Card, CardHeader, cx, EmptyState, ErrorNotice } from '../components/ui/primitives';
-import { IconAlert, IconFlask, IconShield } from '../components/ui/icons';
+import { IconAlert, IconClock, IconFlask, IconShield } from '../components/ui/icons';
 
 const PRESET_SCENARIOS = [
   'Delay the scheduled maintenance outage by one week',
-  'Increase operating pressure above the rated limit',
-  'Reduce inspection frequency to cut costs',
+  'Increase discharge pressure to 380 PSI without resetting the relief valve',
+  'Reduce the inspection frequency to cut costs',
   'Skip the scheduled calibration this quarter',
 ];
+
+const EvidenceList: React.FC<{
+  title: string;
+  items: EvidenceStatement[];
+  tone: 'neutral' | 'warning' | 'danger';
+  icon: React.ReactNode;
+  emptyText: string;
+}> = ({ title, items, tone, icon, emptyText }) => (
+  <div>
+    <div className="mb-2 flex items-center gap-2">
+      <span
+        className={cx(
+          tone === 'danger' && 'text-[var(--color-danger)]',
+          tone === 'warning' && 'text-[var(--color-warning)]',
+          tone === 'neutral' && 'text-[var(--color-ink-muted)]',
+        )}
+      >
+        {icon}
+      </span>
+      <p className="text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+        {title}
+      </p>
+      {items.length > 0 && <Badge tone={tone === 'neutral' ? 'neutral' : tone}>{items.length}</Badge>}
+    </div>
+    {items.length === 0 ? (
+      <p className="text-[12.5px] text-[var(--color-ink-faint)]">{emptyText}</p>
+    ) : (
+      <ul className="space-y-2">
+        {items.map((item, index) => (
+          <li
+            key={index}
+            className={cx(
+              'rounded-lg border px-3 py-2.5',
+              tone === 'danger'
+                ? 'border-[color-mix(in_srgb,var(--color-danger)_26%,transparent)] bg-[var(--color-danger-soft)]'
+                : tone === 'warning'
+                  ? 'border-[color-mix(in_srgb,var(--color-warning)_26%,transparent)] bg-[var(--color-warning-soft)]'
+                  : 'border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)]',
+            )}
+          >
+            <p className="text-[12.5px] leading-relaxed text-[var(--color-ink-secondary)]">
+              {item.statement}
+            </p>
+            <p
+              className="mt-1 truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-ink-faint)]"
+              title={item.source}
+            >
+              {item.source}
+            </p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
 
 export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = ({ dashboard }) => {
   const [scenario, setScenario] = useState(PRESET_SCENARIOS[0]);
   const [assetTag, setAssetTag] = useState('SELECT ASSET');
-  const [result, setResult] = useState<SimulationResult | null>(null);
+  const [result, setResult] = useState<SimulationAssessment | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,10 +79,11 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
     if (!scenario.trim()) return;
     setRunning(true);
     setError(null);
+    setResult(null);
     try {
       setResult(await api.simulate(scenario, assetTag));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'The simulation failed.');
+      setError(err instanceof ApiError ? err.message : 'The assessment failed.');
     } finally {
       setRunning(false);
     }
@@ -37,25 +94,26 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
   return (
     <PageBody>
       <PageHeader
-        title="Impact Simulator"
-        description="Model the operational consequences of a maintenance or operating decision before you commit to it."
+        title="Impact Assessment"
+        description="Assess a proposed operational decision against what your documents actually say."
       />
 
-      {/* This tool is rule-based, and says so. Presenting heuristics as predictive
-          modelling would be the same category of dishonesty we removed elsewhere. */}
+      {/* States plainly what this tool does and does not do. It previously emitted
+          invented figures such as "+8.5% production impact"; those are gone. */}
       <div className="mb-5 flex items-start gap-3 rounded-xl border border-[color-mix(in_srgb,var(--color-info)_26%,transparent)] bg-[var(--color-info-soft)] px-4 py-3">
         <IconShield size={16} className="mt-0.5 shrink-0 text-[var(--color-info)]" />
         <p className="text-[13px] leading-relaxed text-[var(--color-ink-secondary)]">
-          <span className="font-medium text-[var(--color-info)]">How this works:</span> the simulator
-          applies engineering heuristics to the wording of your scenario. It is a structured
-          what-if aid for discussion — not a physics model or a prediction derived from your
-          documents. Always validate against the equipment manual and your plant's safety case.
+          <span className="font-medium text-[var(--color-info)]">Evidence-based:</span> this
+          assessment is built only from limits, warnings and open actions found in your indexed
+          documents, each traceable to its source. It does not estimate percentages, risk
+          multipliers or failure rates — if your documentation does not quantify an impact, it says
+          so rather than supplying a number.
         </p>
       </div>
 
       <div className="grid min-w-0 gap-5 lg:grid-cols-5">
         <Card className="lg:col-span-2">
-          <CardHeader title="Scenario" description="Describe the decision to evaluate" />
+          <CardHeader title="Proposed decision" description="Describe the change to assess" />
           <div className="space-y-4 p-5">
             <div>
               <label htmlFor="sim-asset" className="mb-1.5 block text-[13px] text-[var(--color-ink-secondary)]">
@@ -74,16 +132,11 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
                   </option>
                 ))}
               </select>
-              {assets.length === 0 && (
-                <p className="mt-1.5 text-[12px] text-[var(--color-ink-faint)]">
-                  No assets indexed yet — the simulation will run against a generic asset.
-                </p>
-              )}
             </div>
 
             <div>
               <label htmlFor="sim-scenario" className="mb-1.5 block text-[13px] text-[var(--color-ink-secondary)]">
-                Scenario description
+                What are you considering?
               </label>
               <textarea
                 id="sim-scenario"
@@ -97,7 +150,7 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
 
             <div>
               <p className="mb-2 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-                Common scenarios
+                Common decisions
               </p>
               <div className="space-y-1.5">
                 {PRESET_SCENARIOS.map((preset) => (
@@ -124,106 +177,106 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
               disabled={running || !scenario.trim()}
             >
               <IconFlask size={15} />
-              {running ? 'Running…' : 'Run simulation'}
+              {running ? 'Assessing…' : 'Assess impact'}
             </Button>
           </div>
         </Card>
 
-        <div className="space-y-5 lg:col-span-3">
-          {error && <ErrorNotice title="Simulation failed" detail={error} onRetry={runSimulation} />}
+        <div className="min-w-0 space-y-5 lg:col-span-3">
+          {error && <ErrorNotice title="Assessment failed" detail={error} onRetry={runSimulation} />}
 
-          {!result && !error ? (
+          {!result && !error && (
             <Card className="h-full">
               <EmptyState
                 icon={<IconFlask size={30} />}
-                title="No simulation run yet"
-                description="Choose an asset and describe a scenario to see modelled production, risk, compliance and reliability impacts."
+                title={running ? 'Searching your documents…' : 'No assessment yet'}
+                description={
+                  running
+                    ? 'Retrieving the limits, warnings and maintenance records relevant to this decision.'
+                    : 'Describe a proposed change to see what your documents say about it.'
+                }
               />
             </Card>
-          ) : result ? (
+          )}
+
+          {/* Honest refusal — no metrics, an explicit reason, and what to do next */}
+          {result && !result.has_sufficient_evidence && (
+            <Card>
+              <div className="p-6">
+                <div className="flex items-start gap-3">
+                  <IconAlert size={20} className="mt-0.5 shrink-0 text-[var(--color-warning)]" />
+                  <div>
+                    <h2 className="text-[15px] font-semibold text-[var(--color-ink-primary)]">
+                      {result.refusal_reason}
+                    </h2>
+                    {result.guidance && (
+                      <p className="mt-1.5 text-[13.5px] leading-relaxed text-[var(--color-ink-secondary)]">
+                        {result.guidance}
+                      </p>
+                    )}
+                    <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 text-[12px] text-[var(--color-ink-faint)]">
+                      No engineering figures are shown because none could be derived from your
+                      documents. This tool will not estimate an impact it cannot evidence.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {result && result.has_sufficient_evidence && (
             <>
               <Card>
                 <CardHeader
-                  title="Modelled impact"
+                  title="Assessment"
                   description={result.target_asset}
-                  actions={<Badge tone="accent" mono>{result.target_asset}</Badge>}
+                  actions={
+                    <Badge tone="success">
+                      evidence {((result.evidence_strength ?? 0) * 100).toFixed(0)}%
+                    </Badge>
+                  }
                 />
-                <div className="grid gap-4 p-5 sm:grid-cols-2">
-                  {[
-                    {
-                      label: 'Production output',
-                      value: `${result.metrics.production_impact_pct >= 0 ? '+' : ''}${result.metrics.production_impact_pct}%`,
-                      tone: result.metrics.production_impact_pct >= 0 ? 'success' : 'danger',
-                      bar: Math.min(100, Math.abs(result.metrics.production_impact_pct) * 5),
-                      hint: 'Short-term change in throughput',
-                    },
-                    {
-                      label: 'Failure risk multiplier',
-                      value: `${result.metrics.risk_multiplier_factor}×`,
-                      tone: result.metrics.risk_multiplier_factor > 2 ? 'danger' : 'warning',
-                      bar: Math.min(100, (result.metrics.risk_multiplier_factor / 4) * 100),
-                      hint: 'Relative increase in likelihood of failure',
-                    },
-                    {
-                      label: 'Compliance exposure',
-                      value: `${result.metrics.compliance_vulnerability_index}/100`,
-                      tone: result.metrics.compliance_vulnerability_index > 70 ? 'danger' : 'warning',
-                      bar: result.metrics.compliance_vulnerability_index,
-                      hint: 'Regulatory risk introduced by this decision',
-                    },
-                    {
-                      label: 'Reliability degradation',
-                      value: `${result.metrics.reliability_degradation_pct}%`,
-                      tone: result.metrics.reliability_degradation_pct > 40 ? 'danger' : 'warning',
-                      bar: result.metrics.reliability_degradation_pct,
-                      hint: 'Accelerated component wear',
-                    },
-                  ].map((metric) => (
-                    <div
-                      key={metric.label}
-                      className="rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] p-4"
-                    >
-                      <p className="text-[12.5px] text-[var(--color-ink-muted)]">{metric.label}</p>
-                      <p
-                        className={cx(
-                          'mt-1 text-[24px] leading-none font-semibold tabular-nums',
-                          metric.tone === 'success' && 'text-[var(--color-success)]',
-                          metric.tone === 'warning' && 'text-[var(--color-warning)]',
-                          metric.tone === 'danger' && 'text-[var(--color-danger)]',
-                        )}
-                      >
-                        {metric.value}
-                      </p>
-                      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-base)]">
-                        <div
-                          className={cx(
-                            'h-full rounded-full transition-[width] duration-700',
-                            metric.tone === 'success' && 'bg-[var(--color-success)]',
-                            metric.tone === 'warning' && 'bg-[var(--color-warning)]',
-                            metric.tone === 'danger' && 'bg-[var(--color-danger)]',
-                          )}
-                          style={{ width: `${metric.bar}%` }}
-                        />
-                      </div>
-                      <p className="mt-1.5 text-[11.5px] text-[var(--color-ink-faint)]">{metric.hint}</p>
-                    </div>
-                  ))}
+                <div className="p-5">
+                  <div className="answer-prose text-[var(--color-ink-secondary)]">
+                    <Markdown options={{ forceBlock: true }}>{result.assessment ?? ''}</Markdown>
+                  </div>
+                  <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-faint)]">
+                    {result.engine}
+                  </p>
                 </div>
               </Card>
 
               <Card>
-                <CardHeader title="Engineering assessment" icon={<IconAlert size={16} />} />
-                <div className="p-5">
-                  <p className="text-[13.5px] leading-relaxed text-[var(--color-ink-secondary)]">
-                    {result.mitigation_directive}
-                  </p>
-                  <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 text-[12px] text-[var(--color-ink-faint)]">
-                    Scenario evaluated: “{result.scenario}”
-                  </p>
+                <CardHeader
+                  title="Supporting evidence"
+                  description="Quoted directly from your indexed documents"
+                />
+                <div className="space-y-5 p-5">
+                  <EvidenceList
+                    title="Open actions affecting this decision"
+                    items={result.open_actions}
+                    tone="danger"
+                    icon={<IconClock size={15} />}
+                    emptyText="No incomplete work was recorded against this asset."
+                  />
+                  <EvidenceList
+                    title="Safety warnings"
+                    items={result.safety_warnings}
+                    tone="warning"
+                    icon={<IconAlert size={15} />}
+                    emptyText="No warnings were found in the retrieved passages."
+                  />
+                  <EvidenceList
+                    title="Applicable limits"
+                    items={result.applicable_limits}
+                    tone="neutral"
+                    icon={<IconShield size={15} />}
+                    emptyText="No numeric limits were found in the retrieved passages."
+                  />
                 </div>
               </Card>
             </>
-          ) : null}
+          )}
         </div>
       </div>
     </PageBody>

@@ -88,15 +88,13 @@ class AdvancedIndustrialGraphStore:
         across spaces, dashes, and varied casing arrangements.
         """
         # Formatted to catch variations like: PUMP-101, pump 102, VALVE203, sys-45
-        asset_pattern = re.compile(r"\b(PUMP|VALVE|SYS|COMP|PSV|BRG|ENG)[-_\s]*(\d{2,4})\b", re.IGNORECASE)
         standard_pattern = re.compile(r"\b(OSHA[-_\s]*\d{4}|ASME[-_\s]*[A-Z0-9]+|ISO[-_\s]*\d{4})\b", re.IGNORECASE)
 
         # Reconstruct structured text identifiers
-        assets = []
-        for match in asset_pattern.findall(text):
-            prefix = match[0].upper()
-            numeric_suffix = match[1]
-            assets.append(f"{prefix}-{numeric_suffix}") # Re-unify to standard format: PUMP-101
+        # Shared definition, so the graph recognises exactly the same tags the
+        # dashboard and retrieval layers do.
+        from app.services.asset_tags import extract_asset_tags
+        assets = extract_asset_tags(text)
 
         standards = []
         for match in standard_pattern.findall(text):
@@ -199,8 +197,55 @@ class AdvancedIndustrialGraphStore:
                     """,
                     doc_id=document_id,
                 )
-            print(f"🧹 GRAPH CLEANUP: Purged graph topology for document {document_id}.")
+
+                # Asset and Standard nodes are MERGEd, so they are SHARED between
+                # documents and survive the delete above. Once the last document
+                # referencing an asset is gone, that asset node is an orphan: it
+                # still appears in the graph and can still be walked to, even
+                # though no indexed document mentions it any more.
+                #
+                # Remove entities that no longer have any chunk pointing at them.
+                orphan_result = session.run(
+                    """
+                    MATCH (e)
+                    WHERE (e:Asset OR e:Standard) AND NOT (e)<-[]-(:Chunk)
+                    DETACH DELETE e
+                    RETURN count(e) AS removed
+                    """
+                ).single()
+                orphans_removed = orphan_result["removed"] if orphan_result else 0
+
+            print(
+                f"🧹 GRAPH CLEANUP: Purged document {document_id}"
+                + (f" and {orphans_removed} orphaned entity node(s)." if orphans_removed else ".")
+            )
         except Exception as purge_error:
             print(f"⚠️ GRAPH CLEANUP FAILED for document {document_id}: {purge_error}")
+
+    def purge_orphaned_entities(self) -> int:
+        """
+        Removes Asset/Standard nodes no longer referenced by any chunk.
+
+        Exposed separately so an existing database can be cleaned of orphans left
+        behind by deletions that happened before orphan handling existed.
+        """
+        active_driver = self.driver
+        if active_driver is None:
+            return 0
+        try:
+            with active_driver.session() as session:
+                result = session.run(
+                    """
+                    MATCH (e)
+                    WHERE (e:Asset OR e:Standard) AND NOT (e)<-[]-(:Chunk)
+                    DETACH DELETE e
+                    RETURN count(e) AS removed
+                    """
+                ).single()
+                return result["removed"] if result else 0
+        except Exception as purge_error:
+            print(f"⚠️ ORPHAN CLEANUP FAILED: {purge_error}")
+            return 0
+
 
 graph_store_engine = AdvancedIndustrialGraphStore()

@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Markdown from 'markdown-to-jsx';
 import { api, ApiError } from '../lib/api';
-import type { AssetRecord, QueryResponse } from '../lib/types';
+import type { DashboardPayload, QueryResponse } from '../lib/types';
 import { PageBody, PageHeader } from '../components/AppShell';
 import { EvidencePanel, ConfidenceReadout } from '../components/EvidencePanel';
-import { Badge, Button, Card, cx, ErrorNotice } from '../components/ui/primitives';
-import { IconChevron, IconClose, IconSend, IconSpark, IconTrash } from '../components/ui/icons';
+import { ConversationSidebar } from '../components/ConversationSidebar';
+import { ThinkingIndicator, type PipelineStage } from '../components/ThinkingIndicator';
+import { ChatLanding } from '../components/ChatLanding';
+import { Button, Card, cx, ErrorNotice } from '../components/ui/primitives';
+import { IconChevron, IconClose, IconSend, IconTrash } from '../components/ui/icons';
 
 interface ChatMessage {
   id: string;
@@ -26,25 +30,40 @@ function loadSessionId(): string {
   return created;
 }
 
-const STARTER_PROMPTS = [
-  'What is the maximum discharge pressure for PUMP-101?',
-  'Explain the maintenance history of PUMP-101.',
-  'Are there conflicting pressure values in the documents?',
-  'Which SOP should be followed before startup?',
-];
-
-export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => void }> = ({
-  assets,
-  onDataChanged,
-}) => {
+export const AskPage: React.FC<{
+  dashboard: DashboardPayload | null;
+  onDataChanged: () => void;
+}> = ({ dashboard, onDataChanged }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [engineMode, setEngineMode] = useState<'LOCAL' | 'FALLBACK'>('LOCAL');
   const [useStreaming, setUseStreaming] = useState(true);
   const [busy, setBusy] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
+  const [stage, setStage] = useState<PipelineStage>('supervisor');
+  const [elapsed, setElapsed] = useState(0);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [sessionId, setSessionId] = useState<string>(loadSessionId);
+  const [historyKey, setHistoryKey] = useState(0);
+  const [showHistory, setShowHistory] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Switch to an existing thread: its stored messages (and their evidence) load
+  // via the history effect below.
+  const openConversation = (nextSessionId: string) => {
+    window.localStorage.setItem(SESSION_STORAGE_KEY, nextSessionId);
+    setSessionId(nextSessionId);
+    setMessages([]);
+    setExpanded(new Set());
+  };
+
+  const startNewConversation = () => {
+    const fresh = crypto.randomUUID();
+    window.localStorage.setItem(SESSION_STORAGE_KEY, fresh);
+    setSessionId(fresh);
+    setMessages([]);
+    setExpanded(new Set());
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -62,6 +81,12 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
             id: `stored-${message.id}`,
             role: message.sender,
             text: message.content,
+            // Rehydrate the stored audit payload so restored answers keep their
+            // sources. Without this, reloading the page silently stripped every
+            // citation from earlier answers.
+            payload: message.evidence
+              ? ({ ...message.evidence, session_id: history.session_id } as QueryResponse)
+              : undefined,
           })),
         );
       })
@@ -78,6 +103,16 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
 
   useEffect(scrollToBottom, [messages, statusText, scrollToBottom]);
 
+  // Elapsed counter while a request is in flight. Local inference can take over a
+  // minute, and seeing the seconds tick up is what tells the user the app is
+  // working rather than hung.
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, [busy]);
+
   const toggleExpanded = (id: string) => {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -90,9 +125,13 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
     });
   };
 
-  const askQuestion = async (question: string) => {
+  const askQuestion = async (question: string, sessionOverride?: string) => {
     const trimmed = question.trim();
     if (!trimmed || busy) return;
+
+    // A directed question (e.g. from the Conflicts page) opens its own thread, so
+    // the analysis is not buried at the bottom of an unrelated conversation.
+    const targetSession = sessionOverride ?? sessionId;
 
     // crypto.randomUUID() rather than Date.now(): two messages created in the
     // same millisecond would otherwise collide on their React key.
@@ -107,7 +146,9 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
     ]);
     setInput('');
     setBusy(true);
-    setStatusText('Searching indexed documents…');
+    setStatusText('Classifying the question…');
+    setStage('supervisor');
+    setElapsed(0);
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -122,16 +163,20 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
         await api.streamQuery(
           trimmed,
           engineMode,
-          sessionId,
+          targetSession,
           {
             onSession: (id) => {
               setSessionId(id);
               window.localStorage.setItem(SESSION_STORAGE_KEY, id);
             },
-            onStatus: (message) => setStatusText(message),
+            onStatus: (message, stageId) => {
+              setStatusText(message);
+              if (stageId) setStage(stageId as PipelineStage);
+            },
             onMetadata: (payload) => {
               finish((m) => ({ ...m, payload }));
               setStatusText('Composing answer…');
+              setStage('reasoning');
             },
             onToken: (text) => {
               accumulated += text;
@@ -144,12 +189,15 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
         );
         finish((m) => ({ ...m, streaming: false }));
       } else {
-        const payload = await api.submitQuery(trimmed, engineMode, sessionId);
+        const payload = await api.submitQuery(trimmed, engineMode, targetSession);
         setSessionId(payload.session_id);
         window.localStorage.setItem(SESSION_STORAGE_KEY, payload.session_id);
         finish((m) => ({ ...m, text: payload.response, payload, streaming: false }));
       }
       onDataChanged();
+      // Refresh the thread list so a new conversation appears immediately and an
+      // existing one moves to the top with its updated preview.
+      setHistoryKey((key) => key + 1);
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : 'Something went wrong sending your question.';
@@ -160,6 +208,46 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
       abortRef.current = null;
     }
   };
+
+  // ---------------------------------------------------------------------------
+  // DIRECTED QUESTIONS
+  //
+  // Other pages link here with ?q=<question> — for example "Ask IndusBrain about
+  // this conflict". Those links previously navigated but the question was
+  // silently dropped, because nothing read the parameter.
+  //
+  // The question now opens its own thread and sends automatically, so the user
+  // never copies anything by hand. The parameter is cleared afterwards so a
+  // refresh does not re-ask it.
+  // ---------------------------------------------------------------------------
+  const autoSentRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const directedQuestion = searchParams.get('q');
+    if (!directedQuestion || autoSentRef.current === directedQuestion) return;
+
+    autoSentRef.current = directedQuestion;
+
+    const freshSession = crypto.randomUUID();
+    window.localStorage.setItem(SESSION_STORAGE_KEY, freshSession);
+    setSessionId(freshSession);
+    setMessages([]);
+    setExpanded(new Set());
+
+    // Send immediately, passing the new session explicitly so it does not depend
+    // on the setSessionId above having been applied yet.
+    //
+    // NOT wrapped in a timeout with a cleanup: clearing the URL parameter below
+    // re-runs this effect, and the cleanup would then cancel our own pending
+    // send. The ref guard above is what prevents duplicate sends.
+    void askQuestion(directedQuestion, freshSession);
+
+    // Clear the parameter so refreshing the page does not re-ask the question.
+    setSearchParams({}, { replace: true });
+    // askQuestion is intentionally omitted: it is recreated every render, and
+    // including it would re-fire this effect continuously.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, setSearchParams]);
 
   const stopGeneration = () => {
     abortRef.current?.abort();
@@ -187,7 +275,6 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
     }
   };
 
-  const assetSuggestions = assets.slice(0, 6);
 
   return (
     <PageBody>
@@ -233,8 +320,25 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
             >
               {useStreaming ? 'Streaming on' : 'Streaming off'}
             </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowHistory((v) => !v)}
+              className="hidden lg:inline-flex"
+              title="Show or hide the conversation list"
+            >
+              {showHistory ? 'Hide history' : 'Show history'}
+            </Button>
             {messages.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearConversation} title="Clear this conversation">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  await clearConversation();
+                  setHistoryKey((key) => key + 1);
+                }}
+                title="Delete this conversation and start a new one"
+              >
                 <IconTrash size={14} />
                 Clear
               </Button>
@@ -243,51 +347,26 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
         }
       />
 
-      <Card className="flex h-[calc(100vh-232px)] min-h-[520px] flex-col overflow-hidden">
+      <div className="flex h-[calc(100vh-232px)] min-h-[520px] gap-4">
+        {/* Conversation history */}
+        {showHistory && (
+          <Card className="hidden w-[260px] shrink-0 overflow-hidden lg:block">
+            <ConversationSidebar
+              activeSessionId={sessionId}
+              onSelect={openConversation}
+              onNewChat={startNewConversation}
+              refreshKey={historyKey}
+            />
+          </Card>
+        )}
+
+      <Card className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Conversation */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
           {messages.length === 0 ? (
-            <div className="mx-auto flex max-w-lg flex-col items-center py-10 text-center">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-accent-soft)]">
-                <IconSpark size={20} className="text-[var(--color-accent-hover)]" />
-              </div>
-              <h2 className="text-[16px] font-semibold text-[var(--color-ink-primary)]">
-                Ask about your equipment
-              </h2>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-[var(--color-ink-muted)]">
-                I only answer from documents you have indexed. If the answer is not in them, I will
-                say so rather than guess.
-              </p>
-
-              <div className="mt-6 w-full space-y-2">
-                {STARTER_PROMPTS.map((prompt) => (
-                  <button
-                    key={prompt}
-                    onClick={() => askQuestion(prompt)}
-                    className="w-full rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-3.5 py-2.5 text-left text-[13px] text-[var(--color-ink-secondary)] transition-colors hover:border-[var(--color-line-strong)] hover:text-[var(--color-ink-primary)]"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-
-              {assetSuggestions.length > 0 && (
-                <div className="mt-6 w-full">
-                  <p className="mb-2 text-[12px] text-[var(--color-ink-faint)]">
-                    Assets found in your documents
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-1.5">
-                    {assetSuggestions.map((asset) => (
-                      <button key={asset.tag} onClick={() => setInput(`Tell me about ${asset.tag}`)}>
-                        <Badge tone="accent" mono>
-                          {asset.tag}
-                        </Badge>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            // Entirely corpus-driven: empty state when nothing is indexed,
+            // generated starters when documents exist. See ChatLanding.
+            <ChatLanding dashboard={dashboard} onAsk={(question) => askQuestion(question)} />
           ) : (
             <div className="space-y-5">
               {messages.map((message) =>
@@ -310,10 +389,11 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
                           )}
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[13px] text-[var(--color-ink-muted)]">
-                          <span className="animate-caret inline-block h-3.5 w-1.5 rounded-sm bg-[var(--color-accent)]" />
-                          {statusText ?? 'Thinking…'}
-                        </div>
+                        <ThinkingIndicator
+                          stage={stage}
+                          message={statusText ?? 'Thinking…'}
+                          elapsedSeconds={elapsed}
+                        />
                       )}
                     </div>
 
@@ -418,6 +498,7 @@ export const AskPage: React.FC<{ assets: AssetRecord[]; onDataChanged: () => voi
           </p>
         </div>
       </Card>
+      </div>
     </PageBody>
   );
 };

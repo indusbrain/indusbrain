@@ -84,7 +84,7 @@ const AssetRow: React.FC<{ asset: AssetRecord }> = ({ asset }) => {
             </ul>
           </div>
 
-          <Link to={`/ask?q=${encodeURIComponent(`Tell me about ${asset.tag}`)}`}>
+          <Link to={`/ask?q=${encodeURIComponent(`What do the documents say about ${asset.tag}? Include its specifications, maintenance history and any safety requirements.`)}`}>
             <Button variant="secondary" size="sm">
               Ask about {asset.tag}
             </Button>

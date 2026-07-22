@@ -3,10 +3,9 @@ import re
 import anyio
 import datetime
 import subprocess
-import multiprocessing
 import asyncio
 import traceback
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Any, Optional
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, BackgroundTasks
@@ -21,6 +20,22 @@ from app.services.parser import pdf_parser_service
 from app.services.chunker import cognitive_chunker
 
 router = APIRouter(prefix="/ingestion", tags=["Knowledge Ingestion Grid"])
+
+# ---------------------------------------------------------------------------
+# Ingestion concurrency limits
+#
+# Two independent limits, because a batch upload multiplies them together:
+#   PAGE_WORKER_LIMIT     - threads extracting pages WITHIN one document
+#   DOCUMENT_CONCURRENCY  - documents being ingested AT THE SAME TIME
+#
+# Without the second limit, uploading N files started N full pipelines at once,
+# each competing for memory with the embedding and reranking models already
+# resident in the parent process.
+# ---------------------------------------------------------------------------
+PAGE_WORKER_LIMIT = int(os.getenv("INGEST_PAGE_WORKERS", "8"))
+DOCUMENT_CONCURRENCY = int(os.getenv("INGEST_DOCUMENT_CONCURRENCY", "2"))
+
+_document_ingestion_semaphore = asyncio.Semaphore(DOCUMENT_CONCURRENCY)
 
 def extract_single_page_compute_task(args: tuple) -> str:
     file_path, page_idx, document_id = args
@@ -106,6 +121,12 @@ def sanitize_text_payload(text: str) -> str:
     return text.replace("\x00", "").replace("\u0000", "")
 
 async def orchestrate_background_ingestion(document_id: int, file_path: str, filename: str):
+    """Ingests one document. Bounded so a batch upload cannot swamp the process."""
+    async with _document_ingestion_semaphore:
+        await _ingest_single_document(document_id, file_path, filename)
+
+
+async def _ingest_single_document(document_id: int, file_path: str, filename: str):
     print(f"📡 BACKGROUND PIPELINE: Initializing core task processing array for ID: {document_id}")
     async for db in get_db():
         query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
@@ -126,11 +147,23 @@ async def orchestrate_background_ingestion(document_id: int, file_path: str, fil
             total_pages = count_pdf_pages(file_path)
             if total_pages <= 0:
                 raise ValueError("Could not determine the page count for this PDF.")
-            cpu_cores = multiprocessing.cpu_count()
-            target_workers = max(1, cpu_cores - 2)
+            # PAGE EXTRACTION FAN-OUT
+            #
+            # This previously used a ProcessPoolExecutor sized at (cpu_count - 2)
+            # PER DOCUMENT. On a 16-core machine that is 14 processes per file, so
+            # a 3-file batch spawned 42 processes - and on Windows each one uses
+            # `spawn`, re-importing the entire application. That exhausted memory
+            # and file handles, which is why uploads intermittently FAILED, and it
+            # is also how orphaned workers ended up holding the server's socket.
+            #
+            # Threads are the right tool here: PyMuPDF releases the GIL during page
+            # rendering and text extraction, and the OCR fallback shells out to a
+            # subprocess. We get the parallelism without duplicating the process.
             task_arguments = [(file_path, idx, document_id) for idx in range(total_pages)]
-            with ProcessPoolExecutor(max_workers=target_workers) as pool:
-                native_loop = asyncio.get_running_loop() 
+            worker_count = min(PAGE_WORKER_LIMIT, max(1, total_pages))
+
+            with ThreadPoolExecutor(max_workers=worker_count, thread_name_prefix="pdf-page") as pool:
+                native_loop = asyncio.get_running_loop()
                 asyncio_tasks = [
                     native_loop.run_in_executor(pool, extract_single_page_compute_task, arg)
                     for arg in task_arguments
@@ -259,6 +292,163 @@ async def upload_multiple_documents(background_tasks: BackgroundTasks, files: Li
         background_tasks.add_task(orchestrate_background_ingestion, doc_id, f_path, f_name)
     return {"message": "Bulk transmission accepted.", "queue_manifest": response_manifest}
 
+@router.get(
+    "/document/{document_id}/file",
+    dependencies=[Depends(require(Permission.VIEW_DOCUMENTS))],
+)
+async def serve_document_file(
+    document_id: int, download: bool = False, db: AsyncSession = Depends(get_db)
+):
+    """
+    Streams the original PDF so it can be read inside IndusBrain.
+
+    `inline` lets the browser render it in an embedded viewer; `?download=true`
+    switches to `attachment` to save it instead. Serving from the stored path
+    rather than a client-supplied one prevents path traversal.
+    """
+    from fastapi.responses import FileResponse
+
+    result = await db.execute(select(KnowledgeDocument).where(KnowledgeDocument.id == document_id))
+    document = result.scalars().first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    # Resolve from the stored filename only, then confirm the result is still
+    # inside the documents directory.
+    documents_root = os.path.abspath(os.path.join("storage", "documents"))
+    file_path = os.path.abspath(os.path.join(documents_root, os.path.basename(document.filename)))
+    if not file_path.startswith(documents_root + os.sep):
+        raise HTTPException(status_code=400, detail="Invalid document path.")
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"The source file for '{document.filename}' is no longer on disk.",
+        )
+
+    disposition = "attachment" if download else "inline"
+    return FileResponse(
+        file_path,
+        media_type=document.mime_type or "application/pdf",
+        headers={
+            "Content-Disposition": f'{disposition}; filename="{os.path.basename(document.filename)}"'
+        },
+    )
+
+
+@router.get(
+    "/document/{document_id}/detail",
+    dependencies=[Depends(require(Permission.VIEW_DOCUMENTS))],
+)
+async def document_detail(document_id: int, db: AsyncSession = Depends(get_db)):
+    """
+    Metadata plus the extracted passages for one document, so its content can be
+    inspected inside the app without opening the PDF.
+    """
+    result = await db.execute(select(KnowledgeDocument).where(KnowledgeDocument.id == document_id))
+    document = result.scalars().first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    chunk_result = await db.execute(
+        select(KnowledgeChunk)
+        .where(KnowledgeChunk.document_id == document_id)
+        .order_by(KnowledgeChunk.chunk_index)
+    )
+    chunks = chunk_result.scalars().all()
+
+    file_path = os.path.join("storage", "documents", os.path.basename(document.filename))
+
+    passages = []
+    for chunk in chunks:
+        raw = chunk.content or ""
+        # Chunks are stored as "child ||| parent"; show the child, which is the
+        # precise passage that gets matched during retrieval.
+        child = raw.split(" ||| ", 1)[0] if " ||| " in raw else raw
+        passages.append({
+            "chunk_index": chunk.chunk_index,
+            "page_number": chunk.page_number,
+            "text": child.strip(),
+        })
+
+    return {
+        "id": document.id,
+        "filename": document.filename,
+        "status": str(document.status).split(".")[-1].upper(),
+        "mime_type": document.mime_type,
+        "file_size": document.file_size,
+        "created_at": document.created_at.isoformat() if document.created_at else None,
+        "updated_at": document.updated_at.isoformat() if document.updated_at else None,
+        "chunk_count": len(passages),
+        "file_available": os.path.exists(file_path),
+        "passages": passages,
+    }
+
+
+@router.post(
+    "/retry/{document_id}",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require(Permission.UPLOAD_DOCUMENTS))],
+)
+async def retry_failed_ingestion(
+    document_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)
+):
+    """
+    Re-runs ingestion for a document that previously failed.
+
+    The uploaded file is kept on disk, so a retry never requires the user to
+    locate and re-upload the original.
+    """
+    result = await db.execute(select(KnowledgeDocument).where(KnowledgeDocument.id == document_id))
+    document = result.scalars().first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    file_path = os.path.join("storage", "documents", document.filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"The source file for '{document.filename}' is no longer on disk, "
+                "so it cannot be reprocessed. Please upload it again."
+            ),
+        )
+
+    document.status = DocumentStatus.PENDING
+    await db.commit()
+
+    background_tasks.add_task(orchestrate_background_ingestion, document.id, file_path, document.filename)
+    return {"status": "RETRY_QUEUED", "document_id": document.id, "filename": document.filename}
+
+
+@router.post(
+    "/retry-all-failed",
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require(Permission.UPLOAD_DOCUMENTS))],
+)
+async def retry_all_failed(background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Queues every FAILED document for reprocessing."""
+    result = await db.execute(
+        select(KnowledgeDocument).where(KnowledgeDocument.status == DocumentStatus.FAILED)
+    )
+    failed_documents = result.scalars().all()
+
+    queued, skipped = [], []
+    for document in failed_documents:
+        file_path = os.path.join("storage", "documents", document.filename)
+        if not os.path.exists(file_path):
+            skipped.append({"id": document.id, "filename": document.filename, "reason": "source file missing"})
+            continue
+        document.status = DocumentStatus.PENDING
+        background_tasks.add_task(
+            orchestrate_background_ingestion, document.id, file_path, document.filename
+        )
+        queued.append({"id": document.id, "filename": document.filename})
+
+    await db.commit()
+    return {"status": "RETRY_QUEUED", "queued": queued, "skipped": skipped}
+
+
 @router.post(
     "/reindex-graph",
     status_code=status.HTTP_200_OK,
@@ -317,7 +507,11 @@ async def rebuild_knowledge_graph(db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/status/{document_id}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/status/{document_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.VIEW_DOCUMENTS))],
+)
 async def fetch_document_processing_status(document_id: int, db: AsyncSession = Depends(get_db)):
     query = select(KnowledgeDocument).where(KnowledgeDocument.id == document_id)
     execution = await db.execute(query)
@@ -328,7 +522,11 @@ async def fetch_document_processing_status(document_id: int, db: AsyncSession = 
 # =====================================================================
 # 🎯 THE FIX: UPGRADED AUTONOMOUS KNOWLEDGE CONFLICT DETECTION ENGINE
 # =====================================================================
-@router.post("/scan-conflicts", status_code=status.HTTP_200_OK)
+@router.post(
+    "/scan-conflicts",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.SCAN_CONFLICTS))],
+)
 async def scan_cross_document_conflicts(db: AsyncSession = Depends(get_db)):
     """
     Detects genuine cross-document contradictions in the indexed corpus.

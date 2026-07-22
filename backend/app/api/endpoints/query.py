@@ -11,8 +11,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db, async_session_local
+from app.security import Permission, require
 from app.models.chat_history import ChatMessage
 from app.services.agents.graph import compiled_agent_workflow
+from app.api.endpoints.conversations import owner_key_dependency
 
 router = APIRouter(prefix="/query", tags=["Industrial AI Agent Core"])
 
@@ -59,6 +61,53 @@ CASUAL_GREETINGS = {
     "hi", "hello", "hey", "good morning", "good afternoon", "good evening",
     "how are you", "how's it going", "yo", "sup",
 }
+
+
+# ---------------------------------------------------------------------------
+# QUERY VALIDITY GATE
+#
+# A cross-encoder scores a one-character query like "A" highly against almost any
+# passage, because there is nothing in the query for it to contradict. That
+# produced 71% "HIGH confidence" answers with four citations for a single letter.
+#
+# The relevance floor cannot fix this - the scores really are high. The query
+# itself has to be rejected as unanswerable before retrieval runs at all.
+# ---------------------------------------------------------------------------
+STOPWORDS = {
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "am", "do", "does",
+    "did", "of", "to", "in", "on", "at", "by", "for", "with", "and", "or", "but",
+    "if", "it", "its", "this", "that", "these", "those", "as", "so", "then",
+    "there", "here", "i", "you", "he", "she", "we", "they", "me", "him", "her",
+    "us", "them", "my", "your", "our", "their", "s", "t",
+}
+
+MIN_QUERY_LENGTH = 3
+
+
+def describe_query_problem(query_text: str) -> Optional[str]:
+    """
+    Returns why a query cannot be answered, or None if it is worth attempting.
+
+    Deliberately permissive about SHORT but meaningful queries: a bare asset tag
+    like "PUMP-101" is a legitimate question and must still work.
+    """
+    cleaned = query_text.strip()
+
+    if len(cleaned) < MIN_QUERY_LENGTH:
+        return "That's too short for me to search on. Ask a question, or name an asset tag."
+
+    # Tokens that actually carry meaning: not punctuation, not a stopword.
+    tokens = re.findall(r"[A-Za-z0-9][A-Za-z0-9\-_/]*", cleaned.lower())
+    meaningful = [t for t in tokens if len(t) >= 2 and t not in STOPWORDS]
+
+    if not meaningful:
+        return (
+            "I couldn't find anything to search for in that. "
+            "Try naming an asset, a procedure, or a specification — "
+            "for example 'What is the discharge pressure limit for PUMP-101?'"
+        )
+
+    return None
 
 
 def check_casual_intent_intercept(query_text: str) -> Optional[str]:
@@ -114,17 +163,12 @@ DATE_PATTERNS = [
 
 # Restricted to real equipment classes so part numbers (JC-5620, SKF-7310) and
 # document references (ERN-2024, SOP-014) are not reported as plant assets.
-ASSET_TAG_PATTERN = re.compile(
-    r"\b((?:PUMP|VALVE|PSV|COMP|MTR|BRG|HX|TK|FAN|BLR|ENG|SYS)-\d{2,4}[A-Z]?)\b"
-)
+from app.services.asset_tags import ASSET_TAG_PATTERN, ASSET_HEADER_PATTERN  # noqa: E402
 
 WORK_ORDER_PATTERN = re.compile(r"\b(WO-\d{4}-\d{3,4})\b", re.IGNORECASE)
 
 # An explicit "Asset: PUMP-101" header is the authoritative owner of a log entry.
-ASSET_HEADER_PATTERN = re.compile(
-    r"Asset:\s*((?:PUMP|VALVE|PSV|COMP|MTR|BRG|HX|TK|FAN|BLR|ENG|SYS)-\d{2,4}[A-Z]?)",
-    re.IGNORECASE,
-)
+
 
 MAINTENANCE_EVENT_TERMS = (
     "REPLACED", "REPAIRED", "SERVICED", "OVERHAUL", "FAILED", "FAILURE",
@@ -212,7 +256,11 @@ def extract_organizational_memory(retrieved_chunks: List[Dict[str, Any]]) -> Dic
             else:
                 inline = ASSET_TAG_PATTERN.search(upper_sentence)
                 nearby = last_match(ASSET_TAG_PATTERN, context_window.upper())
-                asset_tag = inline.group(1) if inline else (nearby if nearby else None)
+                # group(0), not group(1): the shared ASSET_TAG_PATTERN uses
+                # non-capturing groups, so the whole match IS the tag. Asking for
+                # group(1) raised "IndexError: no such group" and turned every
+                # maintenance-history question into a 500.
+                asset_tag = inline.group(0) if inline else (nearby if nearby else None)
 
             work_order = last_match(WORK_ORDER_PATTERN, context_window)
 
@@ -254,16 +302,90 @@ def extract_organizational_memory(retrieved_chunks: List[Dict[str, Any]]) -> Dic
     }
 
 
-async def persist_chat_turn(session_id: str, sender: str, content: str) -> None:
-    """Writes a conversation turn to Postgres. Failures must never break the reply."""
+def build_evidence_record(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extracts the auditable parts of a response for storage alongside the answer,
+    so citations and the decision trace survive a page reload.
+    """
+    return {
+        "confidence_score": payload.get("confidence_score", 0.0),
+        "confidence_band": payload.get("confidence_band", "NO_EVIDENCE"),
+        "confidence_explanation": payload.get("confidence_explanation", ""),
+        "engine": payload.get("engine", ""),
+        "grounded": payload.get("grounded", False),
+        "notice": payload.get("notice"),
+        "citations": payload.get("citations", []),
+        "confidence_metadata": payload.get("confidence_metadata", {}),
+        "organizational_memory": payload.get("organizational_memory", {}),
+        "decision_replay_path": payload.get("decision_replay_path", []),
+        "reasoning_path": payload.get("reasoning_path", []),
+        "current_agent": payload.get("current_agent", ""),
+    }
+
+
+async def persist_chat_turn(
+    session_id: str,
+    sender: str,
+    content: str,
+    owner_key: str = "",
+    is_first_turn: bool = False,
+    evidence: Optional[Dict[str, Any]] = None,
+) -> None:
+    """
+    Writes a conversation turn to Postgres, creating or updating the parent
+    thread so the conversation appears in the history list.
+
+    Failures must never break the reply the operator is waiting for.
+    """
     try:
         async with async_session_local() as history_session:
+            from app.api.endpoints.conversations import ensure_conversation, touch_conversation
+
+            # Always ensure the thread exists on an operator turn. Gating this on
+            # "first turn" meant a browser that had a stored session id — i.e.
+            # every returning user — never got a Conversation row, so nothing
+            # appeared in the history list.
+            # ensure_conversation is idempotent: it returns the existing row.
+            if owner_key and sender == "operator":
+                await ensure_conversation(history_session, session_id, owner_key, content)
+
             history_session.add(
-                ChatMessage(session_id=session_id, sender=sender, content=content)
+                ChatMessage(
+                    session_id=session_id,
+                    sender=sender,
+                    content=content,
+                    evidence=evidence,
+                )
             )
             await history_session.commit()
+
+            if sender == "agent":
+                await touch_conversation(history_session, session_id, content)
     except Exception as history_error:
         print(f"⚠️ CHAT HISTORY: could not persist '{sender}' turn: {history_error}")
+
+
+async def load_conversation_context(session_id: str, max_turns: int = 6) -> List[Dict[str, str]]:
+    """
+    Loads recent turns so the assistant has continuity within a thread.
+
+    Only the last few turns are used: the retrieved passages are what the answer
+    must be grounded in, and a long history would crowd them out of the context
+    window.
+    """
+    try:
+        async with async_session_local() as history_session:
+            result = await history_session.execute(
+                select(ChatMessage)
+                .where(ChatMessage.session_id == session_id)
+                .order_by(ChatMessage.id.desc())
+                .limit(max_turns)
+            )
+            recent = list(reversed(result.scalars().all()))
+            return [{"sender": m.sender, "content": m.content} for m in recent]
+    except Exception as context_error:
+        print(f"⚠️ CHAT CONTEXT: could not load history: {context_error}")
+        return []
 
 
 async def run_agent_workflow(query_text: str, routing_mode: str) -> Dict[str, Any]:
@@ -329,6 +451,53 @@ def assemble_response_payload(
     }
 
 
+def unanswerable_payload(reason: str, session_id: str) -> Dict[str, Any]:
+    """
+    Response for a query that cannot be searched on at all.
+
+    Carries zero confidence and zero citations, because no retrieval was run.
+    """
+    return {
+        "response": reason,
+        "confidence_score": 0.0,
+        "confidence_band": "NO_EVIDENCE",
+        "confidence_explanation": "No search was performed, so there is no evidence to score.",
+        "reasoning_path": ["query_rejected"],
+        "current_agent": "input_guard",
+        "session_id": session_id,
+        "engine": "Input validation (no retrieval, no inference)",
+        "grounded": False,
+        "notice": None,
+        "citations": [],
+        "confidence_metadata": {
+            "score": 0.0,
+            "band": "NO_EVIDENCE",
+            "explanation": "No search was performed.",
+            "sources": [],
+            "top_relevance": 0.0,
+            "mean_relevance": 0.0,
+            "graph_verified": False,
+            "distinct_sources": 0,
+            "candidates_considered": 0,
+            "vector_candidates": 0,
+            "graph_candidates": 0,
+        },
+        "organizational_memory": {
+            "repair_history_found": False,
+            "past_actions": [],
+            "empty_reason": "No search was performed for this input.",
+        },
+        "decision_replay_path": [{
+            "step": 1,
+            "node": "input_guard",
+            "title": "Input Validation",
+            "status": "REFUSED",
+            "detail": reason,
+            "metrics": {},
+        }],
+    }
+
+
 def casual_response_payload(reply_text: str, session_id: str) -> Dict[str, Any]:
     """Response for small talk: explicitly zero-evidence, with nothing fabricated."""
     return {
@@ -375,8 +544,17 @@ def casual_response_payload(reply_text: str, session_id: str) -> Dict[str, Any]:
 # =====================================================================
 # PORTAL A: UNARY REST SUBMIT GATEWAY
 # =====================================================================
-@router.post("/submit", response_model=QueryResponsePayload, status_code=status.HTTP_200_OK)
-async def submit_operator_query(payload: QueryRequestPayload, db: AsyncSession = Depends(get_db)):
+@router.post(
+    "/submit",
+    response_model=QueryResponsePayload,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.ASK_QUESTIONS))],
+)
+async def submit_operator_query(
+    payload: QueryRequestPayload,
+    db: AsyncSession = Depends(get_db),
+    owner_key: str = Depends(owner_key_dependency),
+):
     if not payload.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
 
@@ -385,11 +563,28 @@ async def submit_operator_query(payload: QueryRequestPayload, db: AsyncSession =
     if target_mode in ("INTERNAL", "FALLBACK"):
         target_mode = "FALLBACK"
 
-    await persist_chat_turn(active_session_id, "operator", payload.query.strip())
+    is_new_thread = not payload.session_id.strip()
+    await persist_chat_turn(
+        active_session_id, "operator", payload.query.strip(),
+        owner_key=owner_key, is_first_turn=is_new_thread,
+    )
+
+    # Reject unanswerable input BEFORE retrieval. Without this a one-character
+    # query scored 71% "HIGH confidence" with four citations.
+    query_problem = describe_query_problem(payload.query)
+    if query_problem:
+        await persist_chat_turn(
+            active_session_id, "agent", query_problem,
+            evidence=build_evidence_record(unanswerable_payload(query_problem, active_session_id)),
+        )
+        return QueryResponsePayload(**unanswerable_payload(query_problem, active_session_id))
 
     casual_reply = check_casual_intent_intercept(payload.query)
     if casual_reply:
-        await persist_chat_turn(active_session_id, "agent", casual_reply)
+        await persist_chat_turn(
+            active_session_id, "agent", casual_reply,
+            evidence=build_evidence_record(casual_response_payload(casual_reply, active_session_id)),
+        )
         return QueryResponsePayload(**casual_response_payload(casual_reply, active_session_id))
 
     try:
@@ -402,7 +597,10 @@ async def submit_operator_query(payload: QueryRequestPayload, db: AsyncSession =
         )
 
     response_payload = assemble_response_payload(final_state, active_session_id)
-    await persist_chat_turn(active_session_id, "agent", response_payload["response"])
+    await persist_chat_turn(
+        active_session_id, "agent", response_payload["response"],
+        evidence=build_evidence_record(response_payload),
+    )
     return QueryResponsePayload(**response_payload)
 
 
@@ -419,8 +617,15 @@ def sse_event(event_name: str, data: Any) -> str:
     return f"event: {event_name}\ndata: {json.dumps(data, default=str)}\n\n"
 
 
-@router.post("/stream", status_code=status.HTTP_200_OK)
-async def stream_operator_query_loop(payload: QueryRequestPayload):
+@router.post(
+    "/stream",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.ASK_QUESTIONS))],
+)
+async def stream_operator_query_loop(
+    payload: QueryRequestPayload,
+    owner_key: str = Depends(owner_key_dependency),
+):
     user_input_raw = payload.query.strip()
     if not user_input_raw:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
@@ -434,7 +639,23 @@ async def stream_operator_query_loop(payload: QueryRequestPayload):
         try:
             yield sse_event("session", {"session_id": active_session_id})
 
-            await persist_chat_turn(active_session_id, "operator", user_input_raw)
+            await persist_chat_turn(
+                active_session_id, "operator", user_input_raw,
+                owner_key=owner_key, is_first_turn=not payload.session_id.strip(),
+            )
+
+            # Same input guard as /submit: reject unanswerable queries before
+            # any retrieval runs, so they cannot score confidence or cite sources.
+            query_problem = describe_query_problem(user_input_raw)
+            if query_problem:
+                yield sse_event("metadata", unanswerable_payload(query_problem, active_session_id))
+                yield sse_event("token", {"text": query_problem})
+                yield sse_event("done", {"session_id": active_session_id})
+                await persist_chat_turn(
+            active_session_id, "agent", query_problem,
+            evidence=build_evidence_record(unanswerable_payload(query_problem, active_session_id)),
+        )
+                return
 
             casual_reply = check_casual_intent_intercept(user_input_raw)
             if casual_reply:
@@ -444,13 +665,91 @@ async def stream_operator_query_loop(payload: QueryRequestPayload):
                     yield sse_event("token", {"text": line + "\n"})
                     await asyncio.sleep(0.01)
                 yield sse_event("done", {"session_id": active_session_id})
-                await persist_chat_turn(active_session_id, "agent", casual_reply)
+                await persist_chat_turn(
+            active_session_id, "agent", casual_reply,
+            evidence=build_evidence_record(casual_response_payload(casual_reply, active_session_id)),
+        )
                 return
 
-            yield sse_event("status", {"stage": "retrieving", "message": "Searching indexed documents..."})
+            # PROGRESS REPORTING
+            #
+            # The pipeline can take 40-90s on CPU inference, and previously the UI
+            # showed one static line for the whole wait, so it looked frozen.
+            #
+            # The graph runs as a single awaited call, so we cannot interleave
+            # status events with its internal steps. Instead a background task
+            # advances the stage labels on a timeline matched to the real pipeline,
+            # and it is CANCELLED the moment the graph returns — so it can never
+            # claim a stage the run has already passed, and never outlives it.
+            stage_queue: asyncio.Queue = asyncio.Queue()
 
-            # Real pipeline run - no seeded placeholder documents.
-            final_state = await run_agent_workflow(user_input_raw, target_mode)
+            # Ask the REAL supervisor which specialist this question routes to, so
+            # the progress panel names the agent that is actually about to run
+            # rather than guessing. Classification is pure regex over the query -
+            # it costs nothing and is deterministic, so running it here and again
+            # inside the graph gives the same answer.
+            from app.services.agents.supervisor import supervisor_orchestrator
+            from app.services.agents.workers import AGENT_PROFILES
+
+            AGENT_DISPLAY = {
+                "conflict_agent": "Conflict Agent",
+                "compiler_node": "Response Compiler",
+            }
+
+            try:
+                routed_to = supervisor_orchestrator.classify_intent_node(
+                    {"query": user_input_raw}
+                )["current_agent"]
+            except Exception:
+                routed_to = "knowledge_agent"
+
+            selected_agent_label = AGENT_DISPLAY.get(routed_to) or (
+                AGENT_PROFILES.get(routed_to, {}).get("label", "specialist agent")
+            )
+
+            async def report_progress():
+                # Retrieval and generation timings only. The supervisor and agent
+                # stages are emitted immediately below, BEFORE the workflow starts,
+                # because their outcome is already known — putting them on a timer
+                # meant a fast retrieval-only run finished before they ever fired.
+                timeline = [
+                    (0.0, "retrieving", "Searching indexed documents…"),
+                    (1.2, "graph", "Walking the knowledge graph…"),
+                    (2.4, "ranking", "Ranking passages by relevance…"),
+                    (3.8, "reasoning", "Reading the retrieved passages…"),
+                    (8.0, "reasoning", "Composing a grounded answer…"),
+                    (26.0, "reasoning", "Still working — local model inference is slow on CPU…"),
+                ]
+                previous = 0.0
+                for delay, stage, message in timeline:
+                    await asyncio.sleep(delay - previous)
+                    previous = delay
+                    await stage_queue.put({"stage": stage, "message": message})
+
+            # Emit the routing decision straight away so the operator always sees
+            # which specialist was selected, however fast the run completes.
+            yield sse_event("status", {"stage": "supervisor", "message": "Classifying the question…"})
+            yield sse_event(
+                "status",
+                {"stage": "agent", "message": f"Running the {selected_agent_label}…"},
+            )
+
+            progress_task = asyncio.create_task(report_progress())
+            workflow_task = asyncio.create_task(run_agent_workflow(user_input_raw, target_mode))
+
+            # Forward stage updates until the workflow finishes.
+            while not workflow_task.done():
+                queue_get = asyncio.create_task(stage_queue.get())
+                done, _ = await asyncio.wait(
+                    {queue_get, workflow_task}, return_when=asyncio.FIRST_COMPLETED
+                )
+                if queue_get in done:
+                    yield sse_event("status", queue_get.result())
+                else:
+                    queue_get.cancel()
+
+            progress_task.cancel()
+            final_state = await workflow_task
             response_payload = assemble_response_payload(final_state, active_session_id)
 
             # Send the full audit payload first so the UI can render citations,
@@ -463,7 +762,10 @@ async def stream_operator_query_loop(payload: QueryRequestPayload):
                 await asyncio.sleep(0.012)
 
             yield sse_event("done", {"session_id": active_session_id})
-            await persist_chat_turn(active_session_id, "agent", answer_text)
+            await persist_chat_turn(
+                active_session_id, "agent", answer_text,
+                evidence=build_evidence_record(response_payload),
+            )
 
         except Exception as stream_error:
             print(f"🚨 STREAM FAILURE: {type(stream_error).__name__}: {stream_error}")
@@ -482,7 +784,11 @@ async def stream_operator_query_loop(payload: QueryRequestPayload):
 # =====================================================================
 # CONVERSATION HISTORY
 # =====================================================================
-@router.get("/history/{session_id}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/history/{session_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require(Permission.ASK_QUESTIONS))],
+)
 async def fetch_session_history(session_id: str, db: AsyncSession = Depends(get_db)):
     """Returns the stored turns for a conversation, oldest first."""
     result = await db.execute(
@@ -499,6 +805,7 @@ async def fetch_session_history(session_id: str, db: AsyncSession = Depends(get_
                 "id": m.id,
                 "sender": m.sender,
                 "content": m.content,
+                "evidence": m.evidence,
                 "created_at": m.created_at.isoformat() if m.created_at else None,
             }
             for m in messages

@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Any, Dict, List
 
 from app.services.retrieval_hub import industrial_retrieval_hub
@@ -8,7 +9,55 @@ from app.services.llm_provider import llm_gateway
 # Minimum cross-encoder relevance for a passage to count as evidence.
 # Tuned against the BAAI/bge-reranker-base score distribution: genuine matches
 # score ~0.9+, loosely-related passages ~0.1-0.4, and unrelated text ~1e-5.
+# Kept at 0.01. Lowering it to admit the COMP-350 case also let unrelated
+# questions ("tell me a joke") scrape through at ~0.007, which is exactly the
+# fabrication this floor exists to prevent. The correct mechanism for genuine
+# low-scoring matches is the exemption below, not a weaker threshold.
 RELEVANCE_FLOOR = float(os.getenv("RELEVANCE_FLOOR", "0.01"))
+
+# Equipment tags named in the question. An exact identifier match is a FACT, not a
+# similarity estimate, so it is trusted over the cross-encoder's opinion.
+from app.services.asset_tags import ASSET_TAG_PATTERN as QUERY_ASSET_PATTERN  # noqa: E402
+
+
+def passage_is_exempt_from_floor(chunk: Dict[str, Any], queried_tags: set) -> bool:
+    """
+    Decides whether a passage counts as evidence even though the cross-encoder
+    scored it below the floor.
+
+    WHY THIS EXISTS
+    ---------------
+    Asking "what do the documents say about COMP-350?" retrieved the exact
+    maintenance record for COMP-350 - found independently by BOTH the vector
+    index and the knowledge graph - and the floor then discarded it, because the
+    cross-encoder scored it 0.004. The score was low only because the question
+    asked for three things (specifications, history, safety) and that passage
+    covers one of them. The passage was unambiguously about the right asset.
+
+    A single global threshold cannot tell "weakly worded but correct" apart from
+    "completely unrelated". Two signals can:
+
+      1. GRAPH CORROBORATION - the knowledge graph reached this passage by
+         walking from the asset entity named in the question. That is an exact
+         structural match, arrived at independently of the embedding.
+
+      2. EXPLICIT TAG MATCH - the question names COMP-350 and the passage
+         contains COMP-350.
+
+    Either one makes the passage genuinely relevant. Passages with neither still
+    face the floor, so off-domain questions ("what is quantum computing?") still
+    retrieve nothing and the system still refuses honestly.
+    """
+    origin = str(chunk.get("origin_source", ""))
+    if "GRAPH" in origin:  # graph-only or graph+vector corroborated
+        return True
+
+    if queried_tags:
+        body = ((chunk.get("content") or "") + " " + (chunk.get("matched_excerpt") or "")).upper()
+        if any(tag in body for tag in queried_tags):
+            return True
+
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -246,15 +295,33 @@ class IndustrialAgentWorkersEngine:
         # quantum computing?" would retrieve pump passages and present them as
         # supporting evidence. Anything the cross-encoder scores below the floor is
         # not evidence, and is discarded so the pipeline refuses honestly.
+        # Filter PER PASSAGE rather than discarding the whole set when the best
+        # score is low. A passage survives if it clears the floor, OR if the graph
+        # corroborated it, OR if it contains an asset tag the question named.
+        queried_tags = {tag.upper() for tag in QUERY_ASSET_PATTERN.findall(raw_query)}
+
+        refined_context_chunks: List[Dict[str, Any]] = []
+        exempted = 0
+        for chunk in scored_chunks:
+            score = float(chunk.get("confidence_score", 0.0))
+            if score >= RELEVANCE_FLOOR:
+                refined_context_chunks.append(chunk)
+            elif passage_is_exempt_from_floor(chunk, queried_tags):
+                chunk["floor_exempt"] = True
+                refined_context_chunks.append(chunk)
+                exempted += 1
+
         best_score = max((float(c.get("confidence_score", 0.0)) for c in scored_chunks), default=0.0)
-        if best_score < RELEVANCE_FLOOR:
+        if not refined_context_chunks:
             print(
-                f"🚧 RELEVANCE FLOOR: best score {best_score:.5f} < {RELEVANCE_FLOOR}. "
-                f"Discarding {len(scored_chunks)} weak passage(s) - answering as 'not found'."
+                f"🚧 RELEVANCE FLOOR: best score {best_score:.5f} < {RELEVANCE_FLOOR}, "
+                f"no graph corroboration and no tag match - answering as 'not found'."
             )
-            refined_context_chunks: List[Dict[str, Any]] = []
-        else:
-            refined_context_chunks = scored_chunks
+        elif exempted:
+            print(
+                f"🔗 FLOOR EXEMPTION: kept {exempted} passage(s) below {RELEVANCE_FLOOR} "
+                f"on graph corroboration / explicit asset-tag match."
+            )
 
         # 4. DOMAIN SPECIALISATION.
         # Order the surviving evidence toward this agent's domain, then generate

@@ -34,10 +34,8 @@ class SupervisorOrchestrator:
 
         # Any equipment tag (PUMP-101, VALVE-220 ...) makes a query industrial even
         # when it contains none of the keywords above.
-        self.asset_tag_pattern = re.compile(
-            r"\b(?:PUMP|VALVE|PSV|COMP|MTR|BRG|HX|TK|FAN|BLR|ENG|SYS)-\d{2,4}[A-Z]?\b",
-            re.IGNORECASE
-        )
+        from app.services.asset_tags import ASSET_TAG_PATTERN
+        self.asset_tag_pattern = ASSET_TAG_PATTERN
 
         # Questions ABOUT the corpus rather than answerable FROM one passage.
         # No single passage says "these documents contradict each other", so these

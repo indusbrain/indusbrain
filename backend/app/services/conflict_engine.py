@@ -22,12 +22,9 @@ class IndustrialConflictEngine:
             r"(PSI|BAR|RPM|GPM|KW|HZ|MM/S|MM|CELSIUS|°C|DEGC|VOLT|V)\b",
             re.IGNORECASE,
         )
-
-        # Equipment tags, e.g. PUMP-101, VALVE-220, PSV-330, COMP-350.
-        self.asset_pattern = re.compile(
-            r"\b(PUMP|VALVE|PSV|COMP|MTR|SYS|BRG|ENG|HX|TK|FAN|BLR)[-_\s]*(\d{2,4})\b",
-            re.IGNORECASE,
-        )
+        # Equipment tags - shared definition, see app/services/asset_tags.py
+        from app.services.asset_tags import ASSET_TAG_PATTERN
+        self.asset_pattern = ASSET_TAG_PATTERN
 
         # Normalises unit spellings so "°C", "DEGC" and "CELSIUS" compare equal.
         self.unit_aliases = {
@@ -57,10 +54,8 @@ class IndustrialConflictEngine:
         return self.unit_aliases.get(raw_unit.upper(), raw_unit.upper())
 
     def _extract_assets(self, text: str) -> List[str]:
-        return sorted({
-            f"{prefix.upper()}-{number}"
-            for prefix, number in self.asset_pattern.findall(text)
-        })
+        from app.services.asset_tags import extract_asset_tags
+        return sorted(extract_asset_tags(text))
 
     def _sentence_for(self, text: str, position: int) -> str:
         """Returns the sentence containing a match, so findings quote real context."""

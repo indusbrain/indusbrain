@@ -23,24 +23,8 @@ from app.services.conflict_engine import industrial_conflict_engine
 # Asset tags look like PUMP-101 / VALVE-220. The prefix list is restricted to real
 # equipment classes so document reference numbers (ERN-2024, SOP-014, ISO-9001)
 # are not misread as physical plant assets.
-EQUIPMENT_TAG_PATTERN = re.compile(
-    r"\b(PUMP|VALVE|PSV|COMP|MTR|BRG|HX|TK|FAN|BLR|ENG|SYS)-(\d{2,4}[A-Z]?)\b"
-)
+from app.services.asset_tags import categorise, extract_asset_tags  # noqa: E402
 
-EQUIPMENT_CATEGORIES = {
-    "PUMP": "Rotating - pump",
-    "COMP": "Rotating - compressor",
-    "FAN": "Rotating - fan",
-    "MTR": "Electrical - motor",
-    "VALVE": "Flow control - valve",
-    "PSV": "Safety - relief valve",
-    "HX": "Static - heat exchanger",
-    "TK": "Static - tank",
-    "BLR": "Static - boiler",
-    "BRG": "Component - bearing",
-    "ENG": "Rotating - engine",
-    "SYS": "System",
-}
 
 # Evidence categories used for coverage scoring
 COVERAGE_TERMS = {
@@ -85,6 +69,100 @@ async def _probe_ollama(host: str) -> Dict[str, Any]:
 def _strip_parent(content: str) -> str:
     """Chunks are stored as 'child ||| parent'; the parent holds fuller context."""
     return content.split(" ||| ", 1)[1] if " ||| " in content else content
+
+
+def build_chat_suggestions(
+    assets: List[Dict[str, Any]],
+    conflicts: List[Dict[str, Any]],
+    inventory: List[Dict[str, Any]],
+    knowledge_gaps: List[Dict[str, Any]],
+) -> List[Dict[str, str]]:
+    """
+    Builds starter questions from the CURRENT corpus.
+
+    Every suggestion names something that actually exists right now - a real asset
+    tag, a real contradiction, a real document. Hardcoded prompts were referring
+    to PUMP-101 long after every document mentioning it had been deleted, which
+    invited the user to ask a question the system could no longer answer.
+
+    Because these are derived from live data, they change automatically whenever
+    documents are uploaded, replaced or removed.
+    """
+    suggestions: List[Dict[str, str]] = []
+
+    # 1. Unresolved contradictions are the most valuable thing to ask about.
+    for conflict in conflicts[:1]:
+        suggestions.append({
+            "question": (
+                f"Which {conflict['parameter'].lower()} limit currently applies to "
+                f"{conflict['asset_tag']}, and what preconditions govern it?"
+            ),
+            "reason": "conflict",
+            "label": f"Contradiction found on {conflict['asset_tag']}",
+        })
+
+    # 2. The most-referenced equipment, ordered by how much evidence exists.
+    ranked_assets = sorted(assets, key=lambda a: a["mentions"], reverse=True)
+
+    for asset in ranked_assets[:2]:
+        if any(asset["tag"] in s["question"] for s in suggestions):
+            continue
+        if asset["coverage"].get("maintenance"):
+            question = f"What maintenance and failure history exists for {asset['tag']}?"
+        elif asset["coverage"].get("safety"):
+            question = f"What safety requirements apply to {asset['tag']}?"
+        else:
+            question = f"What do the documents say about {asset['tag']}?"
+        suggestions.append({
+            "question": question,
+            "reason": "asset",
+            "label": f"{asset['tag']} · {asset['document_count']} document(s)",
+        })
+
+    # 3. A procedure question, anchored to a real procedural document.
+    procedure_doc = next(
+        (
+            d for d in inventory
+            if d["status"] == "EMBEDDED"
+            and any(k in d["filename"].upper() for k in ("SOP", "PROCEDURE", "STARTUP", "SHUTDOWN", "MANUAL"))
+        ),
+        None,
+    )
+    if procedure_doc:
+        suggestions.append({
+            "question": f"What procedure does {procedure_doc['filename']} describe, and what are its key steps?",
+            "reason": "document",
+            "label": procedure_doc["filename"],
+        })
+
+    # 4. A documentation gap - useful because the honest answer is "not covered".
+    for gap in knowledge_gaps[:1]:
+        if not any(gap["asset"] in s["question"] for s in suggestions):
+            suggestions.append({
+                "question": f"Is there any {gap['category']} documentation for {gap['asset']}?",
+                "reason": "gap",
+                "label": f"Known gap: {gap['asset']} has no {gap['category']} evidence",
+            })
+
+    # 5. Fall back to whatever equipment exists, so a corpus with documents always
+    #    offers something concrete to ask.
+    if not suggestions and ranked_assets:
+        suggestions.append({
+            "question": f"What do the documents say about {ranked_assets[0]['tag']}?",
+            "reason": "asset",
+            "label": ranked_assets[0]["tag"],
+        })
+
+    # 6. Corpus with documents but no recognised equipment tags.
+    if not suggestions and inventory:
+        newest = inventory[0]["filename"]
+        suggestions.append({
+            "question": f"Summarise the key requirements described in {newest}.",
+            "reason": "document",
+            "label": newest,
+        })
+
+    return suggestions[:4]
 
 
 async def build_dashboard_payload(db: AsyncSession) -> Dict[str, Any]:
@@ -158,11 +236,10 @@ async def build_dashboard_payload(db: AsyncSession) -> Dict[str, Any]:
             if any(term in upper_text for term in terms):
                 category_hits[category] += 1
 
-        for prefix, number in EQUIPMENT_TAG_PATTERN.findall(upper_text):
-            tag = f"{prefix}-{number}"
+        for tag in extract_asset_tags(upper_text):
             record = asset_evidence.setdefault(tag, {
                 "tag": tag,
-                "category": EQUIPMENT_CATEGORIES.get(prefix, "Unclassified"),
+                "category": categorise(tag),
                 "documents": set(),
                 "mentions": 0,
                 "evidence": {key: False for key in COVERAGE_TERMS},
@@ -263,6 +340,21 @@ async def build_dashboard_payload(db: AsyncSession) -> Dict[str, Any]:
         },
         "inventory": inventory,
         "assets": assets,
+        # Starter questions derived from the live corpus (see build_chat_suggestions).
+        "chat_suggestions": build_chat_suggestions(assets, conflicts, inventory, knowledge_gaps),
+        # Compact context for the chat landing page, so it reflects what is
+        # currently indexed rather than a fixed script.
+        "chat_context": {
+            "recent_documents": [
+                {"id": d["id"], "filename": d["filename"], "chunk_count": d["chunk_count"]}
+                for d in inventory[:4]
+            ],
+            "top_assets": [
+                {"tag": a["tag"], "category": a["category"], "mentions": a["mentions"]}
+                for a in sorted(assets, key=lambda x: x["mentions"], reverse=True)[:8]
+            ],
+            "open_conflicts": len(conflicts),
+        },
         "conflicts": conflicts,
         "knowledge_gaps": knowledge_gaps,
         "empty_states": {

@@ -4,7 +4,30 @@ import { api, ApiError } from '../lib/api';
 import type { ConflictFinding, DashboardPayload } from '../lib/types';
 import { PageBody, PageHeader } from '../components/AppShell';
 import { Badge, Button, Card, EmptyState, ErrorNotice, Skeleton } from '../components/ui/primitives';
-import { IconAlert, IconCheck, IconRefresh, IconShield } from '../components/ui/icons';
+import { IconAlert, IconChat, IconCheck, IconRefresh, IconShield } from '../components/ui/icons';
+
+/**
+ * Builds the question sent to the chat when an engineer asks about a conflict.
+ *
+ * It carries every fact the assistant needs — asset tag, parameter, both values
+ * with units, and both source filenames — so the engineer never copies anything
+ * by hand.
+ *
+ * Deliberately worded WITHOUT the words "conflict" or "contradiction". Those
+ * route the supervisor to the deterministic conflict engine, which would simply
+ * restate the list the user is already looking at. Phrasing it as a question
+ * about the limit routes it to the retrieval agents instead, which is what
+ * surfaces the governing preconditions and any outstanding work.
+ */
+function buildConflictQuestion(finding: ConflictFinding): string {
+  return (
+    `${finding.asset_tag}: ${finding.parameter.toLowerCase()} is recorded as ` +
+    `${finding.low_value} ${finding.unit} in "${finding.low_source}" but ` +
+    `${finding.high_value} ${finding.unit} in "${finding.high_source}". ` +
+    `Which limit currently applies, what preconditions govern the higher value, ` +
+    `and is any required work still outstanding for this asset?`
+  );
+}
 
 const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
   <Card className="overflow-hidden">
@@ -79,13 +102,16 @@ const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
       </div>
 
       <div className="mt-4">
-        <Link
-          to={`/ask?q=${encodeURIComponent(`What is the ${finding.parameter.toLowerCase()} for ${finding.asset_tag}?`)}`}
-        >
-          <Button variant="secondary" size="sm">
-            Ask IndusBrain about this
+        <Link to={`/ask?q=${encodeURIComponent(buildConflictQuestion(finding))}`}>
+          <Button variant="primary" size="sm">
+            <IconChat size={14} />
+            Ask IndusBrain about this conflict
           </Button>
         </Link>
+        <p className="mt-1.5 text-[11.5px] text-[var(--color-ink-faint)]">
+          Opens a new conversation with the asset, both values and both source documents
+          already included.
+        </p>
       </div>
     </div>
   </Card>

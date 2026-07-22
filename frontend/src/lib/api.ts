@@ -8,14 +8,19 @@
  */
 
 import type {
+  AuthResponse,
+  BootstrapState,
   ChatHistory,
   ConflictScanResult,
+  ConversationSummary,
   DashboardPayload,
+  DocumentDetail,
   IngestionStatus,
   QueryResponse,
   RolesResponse,
-  SimulationResult,
+  SimulationAssessment,
   UploadResponse,
+  UserProfile,
 } from './types';
 
 // Vite exposes env vars on import.meta.env, not process.env.
@@ -23,25 +28,40 @@ const API_ROOT = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').repla
 const API_BASE = `${API_ROOT}/api/v1`;
 
 // ---------------------------------------------------------------------------
-// Active role
+// Session token
 //
-// Every request carries the selected role so the backend can authorise it. The
-// server is the authority: if the UI ever shows a control it should not, the API
-// still returns 403.
+// Sent as a Bearer token on every request. The server resolves the user (and
+// therefore the role) from it. This replaced a client-supplied role header,
+// which any caller could set to "manager".
 // ---------------------------------------------------------------------------
+let authToken: string | null = null;
 let activeRole = 'engineer';
 
 export function setActiveRole(role: string): void {
   activeRole = role;
 }
 
-export function getActiveRole(): string {
-  return activeRole;
+export function setAuthToken(token: string | null): void {
+  authToken = token;
 }
 
-function withRole(init?: RequestInit): RequestInit {
+// Stable per-browser id so demo-mode conversations belong to this client only.
+function clientId(): string {
+  let id = window.localStorage.getItem('indusbrain.client');
+  if (!id) {
+    id = crypto.randomUUID();
+    window.localStorage.setItem('indusbrain.client', id);
+  }
+  return id;
+}
+
+function withAuth(init?: RequestInit): RequestInit {
   const headers = new Headers(init?.headers ?? {});
+  if (authToken) headers.set('Authorization', `Bearer ${authToken}`);
+  // Demo mode selects the role from this header; secure mode ignores it and
+  // uses the token instead, so sending both is always safe.
   headers.set('X-IndusBrain-Role', activeRole);
+  headers.set('X-IndusBrain-Client', clientId());
   return { ...init, headers };
 }
 
@@ -66,7 +86,7 @@ async function request<T>(path: string, init?: RequestInit, timeoutMs = 300_000)
 
   try {
     const response = await fetch(`${API_BASE}${path}`, {
-      ...withRole(init),
+      ...withAuth(init),
       signal: controller.signal,
     });
 
@@ -104,6 +124,23 @@ function jsonBody(payload: unknown): RequestInit {
 export const api = {
   apiRoot: API_ROOT,
 
+  // --- Authentication ---
+  bootstrap: () => request<BootstrapState>('/auth/bootstrap', undefined, 20_000),
+
+  login: (email: string, password: string) =>
+    request<AuthResponse>('/auth/login', jsonBody({ email, password }), 30_000),
+
+  register: (email: string, fullName: string, password: string) =>
+    request<AuthResponse>(
+      '/auth/register',
+      jsonBody({ email, full_name: fullName, password }),
+      30_000,
+    ),
+
+  logout: () => request<{ status: string }>('/auth/logout', { method: 'POST' }, 20_000),
+
+  me: () => request<UserProfile>('/auth/me', undefined, 20_000),
+
   roles: () => request<RolesResponse>('/auth/roles', undefined, 20_000),
 
   dashboard: (refresh = false) =>
@@ -129,6 +166,26 @@ export const api = {
   history: (sessionId: string) =>
     request<ChatHistory>(`/query/history/${encodeURIComponent(sessionId)}`),
 
+  // --- Conversation history ---
+  conversations: (search = '') =>
+    request<ConversationSummary[]>(
+      `/conversations${search ? `?search=${encodeURIComponent(search)}` : ''}`,
+      undefined,
+      30_000,
+    ),
+
+  renameConversation: (sessionId: string, title: string) =>
+    request<ConversationSummary>(`/conversations/${encodeURIComponent(sessionId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    }),
+
+  deleteConversation: (sessionId: string) =>
+    request<{ status: string }>(`/conversations/${encodeURIComponent(sessionId)}`, {
+      method: 'DELETE',
+    }),
+
   purgeSession: (sessionId: string) =>
     request<{ status: string; messages_deleted: number }>(
       `/telemetry/session/${encodeURIComponent(sessionId)}`,
@@ -136,7 +193,16 @@ export const api = {
     ),
 
   simulate: (scenario: string, assetTag: string) =>
-    request<SimulationResult>('/simulator/simulate', jsonBody({ scenario, asset_tag: assetTag })),
+    request<SimulationAssessment>('/simulator/simulate', jsonBody({ scenario, asset_tag: assetTag })),
+
+  documentDetail: (documentId: number) =>
+    request<DocumentDetail>(`/ingestion/document/${documentId}/detail`, undefined, 60_000),
+
+  // Plain URL for <object> embeds and download links. Custom headers cannot be
+  // attached to those, so this endpoint is reachable by any role permitted to
+  // view documents.
+  documentFileUrl: (documentId: number, download = false) =>
+    `${API_BASE}/ingestion/document/${documentId}/file${download ? '?download=true' : ''}`,
 
   ingestionStatus: (documentId: number) =>
     request<IngestionStatus>(`/ingestion/status/${documentId}`, undefined, 30_000),
@@ -166,7 +232,7 @@ export const api = {
     sessionId: string,
     handlers: {
       onSession?: (sessionId: string) => void;
-      onStatus?: (message: string) => void;
+      onStatus?: (message: string, stage?: string) => void;
       onMetadata?: (payload: QueryResponse) => void;
       onToken?: (text: string) => void;
       onDone?: () => void;
@@ -181,6 +247,8 @@ export const api = {
         headers: {
           'Content-Type': 'application/json',
           'X-IndusBrain-Role': activeRole,
+          'X-IndusBrain-Client': clientId(),
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify({ query, routing_mode: routingMode, session_id: sessionId }),
         signal,
@@ -229,7 +297,7 @@ export const api = {
             handlers.onSession?.(payload.session_id);
             break;
           case 'status':
-            handlers.onStatus?.(payload.message);
+            handlers.onStatus?.(payload.message, payload.stage);
             break;
           case 'metadata':
             handlers.onMetadata?.(payload as QueryResponse);

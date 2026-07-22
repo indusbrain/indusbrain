@@ -32,9 +32,11 @@ from app.database import engine, Base
 from app.models.document import KnowledgeDocument
 from app.models.chunk import KnowledgeChunk
 from app.models.chat_history import ChatMessage
+from app.models.user import User, UserSession
+from app.models.conversation import Conversation
 
 # Ingest all endpoint routers including our new predictive simulation module
-from app.api.endpoints import ingestion, query, telemetry, simulator
+from app.api.endpoints import auth, conversations, ingestion, query, telemetry, simulator
 
 from app.exceptions import (
     IndustrialBaseException, 
@@ -81,6 +83,8 @@ app.add_middleware(
 )
 
 # Register endpoint namespaces cleanly under /api/v1 namespace bounds
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(conversations.router, prefix="/api/v1")
 app.include_router(ingestion.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
 app.include_router(telemetry.router, prefix="/api/v1")
@@ -92,41 +96,25 @@ app.add_exception_handler(AssetNotFoundException, industrial_exception_handler)
 
 @app.on_event("startup")
 async def database_table_migration_handshake():
+    from sqlalchemy import text
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        # create_all() creates missing TABLES but never adds a column to a table
+        # that already exists. These additive statements bring older databases up
+        # to date without requiring a migration tool or a manual reset.
+        additive_migrations = [
+            "ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS evidence JSONB",
+        ]
+        for statement in additive_migrations:
+            try:
+                await conn.execute(text(statement))
+            except Exception as migration_error:
+                logger.warning(f"Schema migration skipped ({statement}): {migration_error}")
 
 @app.get("/")
 async def read_root():
     return {"platform": "Industrial Knowledge Intelligence Platform (IKIP)", "status": "Operational"}
 
 
-@app.get("/api/v1/auth/roles")
-async def list_roles():
-    """
-    Roles and their permissions, so the UI can build navigation from the server's
-    definition rather than duplicating the permission table client-side.
-
-    `authentication_implemented: false` is returned deliberately. Authorization is
-    enforced server-side, but identity is not verified — the client asserts its
-    role. Callers must not treat this as a security boundary against a malicious
-    user, only as role separation for legitimate ones.
-    """
-    from app.security import ROLE_DESCRIPTIONS, Role, permissions_for
-
-    return {
-        "authentication_implemented": False,
-        "notice": (
-            "Roles control what each user can do and are enforced by the API. "
-            "Identity itself is not verified in this build, so this is role "
-            "separation, not access security."
-        ),
-        "roles": [
-            {
-                "id": role.value,
-                "name": role.value.capitalize(),
-                "description": ROLE_DESCRIPTIONS[role],
-                "permissions": permissions_for(role),
-            }
-            for role in Role
-        ],
-    }

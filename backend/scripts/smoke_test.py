@@ -9,9 +9,17 @@ Usage:  python smoke_test.py [base_url]
 """
 
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
+
+# Pull the asset-tag prefixes from the single source of truth the application uses,
+# so this test cannot drift out of step with what the platform considers an asset.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app.services.asset_tags import DESCRIPTIVE_PREFIXES, ISA_PREFIXES  # noqa: E402
+
+VALID_ASSET_PREFIXES = {p.upper() for p in (*DESCRIPTIVE_PREFIXES, *ISA_PREFIXES)}
 
 BASE = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000").rstrip("/")
 API = f"{BASE}/api/v1"
@@ -31,10 +39,15 @@ def check(name: str, condition: bool, detail: str = "") -> None:
         print(f"  FAIL  {name}  {detail}")
 
 
+AUTH_TOKEN = None
+
+
 def request(method: str, path: str, payload=None, timeout=420):
     url = f"{API}{path}"
     data = json.dumps(payload).encode() if payload is not None else None
     headers = {"Content-Type": "application/json"} if data else {}
+    if AUTH_TOKEN:
+        headers["Authorization"] = f"Bearer {AUTH_TOKEN}"
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
@@ -47,6 +60,56 @@ def request(method: str, path: str, payload=None, timeout=420):
         return http_error.code, http_error.read().decode("utf-8", "replace")
 
 
+# ---------------------------------------------------------------------------
+# Sign in. Every endpoint below now requires a real session, so the suite
+# authenticates as a manager (the widest permission set) before testing.
+# ---------------------------------------------------------------------------
+print("\n=== 0. Authentication ===")
+
+_, _bootstrap = request("GET", "/auth/bootstrap")
+_auth_mode = _bootstrap.get("auth_mode", "demo") if isinstance(_bootstrap, dict) else "demo"
+print(f"  (auth mode: {_auth_mode})")
+
+# In SECURE mode unauthenticated access must be refused. In DEMO mode it is
+# intentionally open, so asserting 401 there would be testing the wrong contract.
+_anon_status, _ = request("GET", "/telemetry/dashboard")
+if _auth_mode == "secure":
+    check("unauthenticated access refused", _anon_status == 401, str(_anon_status))
+else:
+    check("demo mode allows anonymous read", _anon_status == 200, str(_anon_status))
+
+# Role permissions are enforced in BOTH modes.
+_engineer_upload, _ = request(
+    "POST", "/ingestion/upload", None
+)
+check(
+    "role permissions enforced regardless of mode",
+    _engineer_upload in (403, 422),  # 422 = no file attached, i.e. it got past auth as manager
+    str(_engineer_upload),
+)
+
+if isinstance(_bootstrap, dict) and not _bootstrap.get("has_users"):
+    _, _auth = request(
+        "POST", "/auth/register",
+        {"email": "smoke@plant.com", "full_name": "Smoke Test", "password": "smoketest2026"},
+    )
+else:
+    _, _auth = request(
+        "POST", "/auth/login",
+        {"email": "manager@plant.com", "password": "indus2026pass"},
+    )
+
+if isinstance(_auth, dict) and _auth.get("access_token"):
+    AUTH_TOKEN = _auth["access_token"]
+    check("signed in", True)
+    check(
+        "manager permissions granted",
+        "upload_documents" in _auth["user"]["permissions"],
+        _auth["user"]["role"],
+    )
+else:
+    check("signed in", False, str(_auth)[:140])
+
 print("\n=== 1. Health ===")
 try:
     with urllib.request.urlopen(f"{BASE}/", timeout=30) as response:
@@ -57,6 +120,19 @@ check("root responds", root_status == 200, str(root_status))
 
 print("\n=== 2. Telemetry dashboard ===")
 status, dash = request("GET", "/telemetry/dashboard")
+
+# ---------------------------------------------------------------------------
+# Pick the probe asset FROM THE LIVE CORPUS rather than hardcoding one.
+#
+# This test previously asked about PUMP-101 regardless of what was indexed, so
+# swapping the demo dataset made it fail for a reason that had nothing to do with
+# the code under test - the same "stale hardcoded reference" problem the product
+# itself had in its chat suggestions.
+# ---------------------------------------------------------------------------
+PROBE_ASSET = "PUMP-101"
+if isinstance(dash, dict) and dash.get("assets"):
+    PROBE_ASSET = max(dash["assets"], key=lambda a: a["mentions"])["tag"]
+print(f"  (probe asset resolved from corpus: {PROBE_ASSET})")
 check("dashboard 200", status == 200, str(status))
 if isinstance(dash, dict):
     metrics = dash.get("metrics", {})
@@ -95,15 +171,25 @@ if isinstance(conflicts, dict):
 
 print("\n=== 4. Simulator ===")
 status, sim = request("POST", "/simulator/simulate",
-                      {"scenario": "Delay maintenance by one week", "asset_tag": "PUMP-101"})
+                      {"scenario": "Delay maintenance by one week", "asset_tag": PROBE_ASSET})
 check("simulate 200 (was HTTP 500)", status == 200, str(status))
 if isinstance(sim, dict):
-    check("returns target_asset", sim.get("target_asset") == "PUMP-101", str(sim.get("target_asset")))
-    check("returns metrics", "metrics" in sim)
+    check("returns target_asset", sim.get("target_asset") == PROBE_ASSET, str(sim.get("target_asset")))
+    # The simulator no longer emits invented percentages, so there is deliberately
+    # no `metrics` block. It must report whether it had evidence instead.
+    check("reports evidence sufficiency", "has_sufficient_evidence" in sim)
+    check("no fabricated engineering metrics", "production_impact_pct" not in json.dumps(sim))
+
+# Gibberish must be refused rather than scored.
+_, junk = request("POST", "/simulator/simulate", {"scenario": "adas", "asset_tag": PROBE_ASSET})
+if isinstance(junk, dict):
+    check("refuses nonsense input", junk.get("has_sufficient_evidence") is False,
+          str(junk.get("refusal_reason")))
+    check("refusal states a reason", bool(junk.get("refusal_reason")))
 
 print("\n=== 5. Query - grounded question ===")
 status, answer = request("POST", "/query/submit",
-                         {"query": "What is the maximum discharge pressure for PUMP-101?",
+                         {"query": f"What is the maximum discharge pressure for {PROBE_ASSET}?",
                           "routing_mode": "FALLBACK"})
 check("submit 200", status == 200, str(status))
 if isinstance(answer, dict):
@@ -141,7 +227,7 @@ if isinstance(empty, dict):
 
 print("\n=== 7. Organizational memory - real records only ===")
 status, history = request("POST", "/query/submit",
-                          {"query": "What is the repair history for PUMP-101?",
+                          {"query": f"What is the repair history for {PROBE_ASSET}?",
                            "routing_mode": "FALLBACK"})
 if isinstance(history, dict):
     actions = history.get("organizational_memory", {}).get("past_actions", [])
@@ -152,10 +238,13 @@ if isinstance(history, dict):
                 ("14 months ago", "8 months ago", "previous quarter") for a in actions),
     )
     check("every event names its source document", all(a.get("source") for a in actions))
+    # Import the prefixes rather than restating them. This assertion used to carry
+    # its own copy of the descriptive list, so it failed the moment ISA process tags
+    # (P-101A, E-1501, K-2101) became valid assets - a stale test, not a real defect.
     check(
         "asset tags are equipment, not part numbers",
-        all(a["asset"] is None or a["asset"].split("-")[0] in
-            ("PUMP", "VALVE", "PSV", "COMP", "MTR", "BRG", "HX", "TK", "FAN", "BLR", "ENG", "SYS")
+        all(a["asset"] is None or
+            a["asset"].split("-")[0].upper() in VALID_ASSET_PREFIXES
             for a in actions),
         str([a.get("asset") for a in actions]),
     )
@@ -173,9 +262,12 @@ print("\n=== 9. SSE streaming ===")
 try:
     req = urllib.request.Request(
         f"{API}/query/stream",
-        data=json.dumps({"query": "What is the maximum discharge pressure for PUMP-101?",
+        data=json.dumps({"query": f"What is the maximum discharge pressure for {PROBE_ASSET}?",
                          "routing_mode": "FALLBACK"}).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {AUTH_TOKEN}",
+        },
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=420) as response:

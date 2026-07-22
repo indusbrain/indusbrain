@@ -103,6 +103,8 @@ export interface DashboardPayload {
   assets: AssetRecord[];
   conflicts: ConflictFinding[];
   knowledge_gaps: KnowledgeGap[];
+  chat_suggestions: ChatSuggestion[];
+  chat_context: ChatContext;
   empty_states: {
     no_documents: boolean;
     no_assets: boolean;
@@ -231,6 +233,8 @@ export interface ChatHistoryMessage {
   id: number;
   sender: 'operator' | 'agent';
   content: string;
+  // Stored audit payload, so citations and the decision trace survive a reload.
+  evidence: Partial<QueryResponse> | null;
   created_at: string | null;
 }
 
@@ -253,8 +257,11 @@ export type PermissionId =
   | 'ask_questions'
   | 'run_simulation'
   | 'scan_conflicts'
+  | 'view_documents'
+  | 'download_documents'
   | 'upload_documents'
   | 'delete_documents'
+  | 'replace_documents'
   | 'rebuild_index';
 
 export interface RoleDefinition {
@@ -268,4 +275,105 @@ export interface RolesResponse {
   authentication_implemented: boolean;
   notice: string;
   roles: RoleDefinition[];
+}
+
+// ---------------------------------------------------------------------------
+// Impact simulator (evidence-based)
+// ---------------------------------------------------------------------------
+export interface EvidenceStatement {
+  statement: string;
+  source: string;
+}
+
+export interface SimulationAssessment {
+  scenario: string;
+  target_asset: string;
+  has_sufficient_evidence: boolean;
+  refusal_reason: string | null;
+  guidance: string | null;
+  assessment: string | null;
+  applicable_limits: EvidenceStatement[];
+  safety_warnings: EvidenceStatement[];
+  open_actions: EvidenceStatement[];
+  citations: Citation[];
+  engine: string;
+  evidence_strength?: number;
+}
+
+// ---------------------------------------------------------------------------
+// Authentication
+// ---------------------------------------------------------------------------
+export interface UserProfile {
+  id: number;
+  email: string;
+  full_name: string;
+  role: RoleId;
+  role_description: string;
+  permissions: PermissionId[];
+  created_at: string | null;
+  last_login_at: string | null;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_at: string;
+  user: UserProfile;
+}
+
+export interface BootstrapState {
+  auth_mode: 'demo' | 'secure';
+  requires_login: boolean;
+  has_users: boolean;
+  user_count: number;
+}
+
+// ---------------------------------------------------------------------------
+// Conversation history
+// ---------------------------------------------------------------------------
+export interface ConversationSummary {
+  id: number;
+  session_id: string;
+  title: string;
+  message_count: number;
+  last_preview: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Document viewer
+// ---------------------------------------------------------------------------
+export interface DocumentPassage {
+  chunk_index: number;
+  page_number: number;
+  text: string;
+}
+
+export interface DocumentDetail {
+  id: number;
+  filename: string;
+  status: DocumentStatus;
+  mime_type: string;
+  file_size: number;
+  created_at: string | null;
+  updated_at: string | null;
+  chunk_count: number;
+  file_available: boolean;
+  passages: DocumentPassage[];
+}
+
+// ---------------------------------------------------------------------------
+// Dynamic chat starters (derived from the live corpus)
+// ---------------------------------------------------------------------------
+export interface ChatSuggestion {
+  question: string;
+  reason: 'conflict' | 'asset' | 'document' | 'gap';
+  label: string;
+}
+
+export interface ChatContext {
+  recent_documents: Array<{ id: number; filename: string; chunk_count: number }>;
+  top_assets: Array<{ tag: string; category: string; mentions: number }>;
+  open_conflicts: number;
 }
