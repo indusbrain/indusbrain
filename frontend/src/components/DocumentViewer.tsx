@@ -67,7 +67,7 @@ export const DocumentViewer: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       <button
-        className="absolute inset-0 bg-black/70"
+        className="absolute inset-0 bg-[#15171B]/60"
         onClick={onClose}
         aria-label="Close document viewer"
       />
@@ -76,7 +76,7 @@ export const DocumentViewer: React.FC<{
         role="dialog"
         aria-modal="true"
         aria-label={detail?.filename ?? 'Document'}
-        className="animate-fade-rise relative flex h-full max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-[var(--color-line-default)] bg-[var(--color-surface-raised)] shadow-2xl"
+        className="animate-fade-rise relative flex h-full max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden glass-strong rounded-[var(--radius-sheet)]"
       >
         {/* Header */}
         <div className="flex items-start gap-3 border-b border-[var(--color-line-subtle)] px-5 py-3.5">
@@ -94,7 +94,7 @@ export const DocumentViewer: React.FC<{
                   {detail.chunk_count} passages · {(detail.file_size / 1024).toFixed(0)} KB
                 </span>
                 {detail.created_at && (
-                  <span className="text-[12px] text-[var(--color-ink-faint)]">
+                  <span className="text-[12px] text-[var(--color-ink-muted)]">
                     indexed {new Date(detail.created_at).toLocaleDateString()}
                   </span>
                 )}
@@ -118,7 +118,7 @@ export const DocumentViewer: React.FC<{
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-[var(--color-line-subtle)] px-3 py-1.5" role="tablist">
+        <div className="flex gap-1 border-b border-[var(--color-line-subtle)] px-3" role="tablist">
           {(
             [
               ['file', 'Document'],
@@ -131,10 +131,10 @@ export const DocumentViewer: React.FC<{
               aria-selected={tab === id}
               onClick={() => setTab(id)}
               className={cx(
-                'rounded-md px-3 py-1.5 text-[13px] transition-colors',
+                '-mb-px border-b-2 px-3 py-2 text-[13px] transition-colors',
                 tab === id
-                  ? 'bg-[var(--color-surface-overlay)] font-medium text-[var(--color-ink-primary)]'
-                  : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]',
+                  ? 'border-[var(--color-accent)] font-medium text-[var(--color-ink-primary)]'
+                  : 'border-transparent text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]',
               )}
             >
               {label}
@@ -190,7 +190,7 @@ export const DocumentViewer: React.FC<{
                 <div className="relative">
                   <IconSearch
                     size={14}
-                    className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[var(--color-ink-faint)]"
+                    className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[var(--color-ink-muted)]"
                   />
                   <label htmlFor="passage-search" className="sr-only">
                     Search passages
@@ -200,10 +200,10 @@ export const DocumentViewer: React.FC<{
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search inside this document…"
-                    className="w-full rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-base)] py-1.5 pr-3 pl-8 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)]"
+                    className="btn-glass w-full rounded-[var(--radius-control)] py-1.5 pr-3 pl-8 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)]"
                   />
                 </div>
-                <p className="mt-2 text-[11.5px] text-[var(--color-ink-faint)]">
+                <p className="mt-2 text-[11.5px] text-[var(--color-ink-muted)]">
                   This is the text exactly as IndusBrain indexed it — what retrieval actually
                   searches.
                 </p>
@@ -215,17 +215,17 @@ export const DocumentViewer: React.FC<{
                     {search ? 'No passages match that search.' : 'No passages were extracted.'}
                   </p>
                 ) : (
-                  <ol className="space-y-2">
+                  <ol>
                     {matchingPassages.map((passage) => (
                       <li
                         key={passage.chunk_index}
-                        className="rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] p-3"
+                        className="border-b border-[var(--color-line-subtle)] py-3 last:border-0"
                       >
                         <div className="mb-1.5 flex items-center gap-2">
                           <Badge tone="neutral" mono>
                             #{passage.chunk_index}
                           </Badge>
-                          <span className="text-[11.5px] text-[var(--color-ink-faint)]">
+                          <span className="text-[11.5px] text-[var(--color-ink-muted)]">
                             page {passage.page_number}
                           </span>
                         </div>

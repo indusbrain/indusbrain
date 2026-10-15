@@ -108,7 +108,7 @@ export const ConversationSidebar: React.FC<{
         <div className="relative">
           <IconSearch
             size={14}
-            className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[var(--color-ink-faint)]"
+            className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[var(--color-ink-muted)]"
           />
           <label htmlFor="conversation-search" className="sr-only">
             Search conversations
@@ -118,13 +118,13 @@ export const ConversationSidebar: React.FC<{
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search conversations…"
-            className="w-full rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-base)] py-1.5 pr-7 pl-8 text-[12.5px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)]"
+            className="btn-glass w-full rounded-[var(--radius-control)] py-1.5 pr-7 pl-8 text-[12.5px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)]"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
               aria-label="Clear search"
-              className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--color-ink-faint)] hover:text-[var(--color-ink-primary)]"
+              className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]"
             >
               <IconClose size={12} />
             </button>
@@ -134,7 +134,7 @@ export const ConversationSidebar: React.FC<{
 
       <div className="flex-1 overflow-y-auto p-2">
         {loading && conversations.length === 0 ? (
-          <p className="px-2 py-4 text-[12.5px] text-[var(--color-ink-faint)]">Loading…</p>
+          <p className="px-2 py-4 text-[12.5px] text-[var(--color-ink-muted)]">Loading…</p>
         ) : conversations.length === 0 ? (
           <EmptyState
             compact
@@ -148,7 +148,7 @@ export const ConversationSidebar: React.FC<{
         ) : (
           grouped.map(([bucket, items]) => (
             <div key={bucket} className="mb-3">
-              <p className="mb-1 px-2 text-[11px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+              <p className="eyebrow mb-1 px-2">
                 {bucket}
               </p>
               <ul className="space-y-0.5">
@@ -168,7 +168,7 @@ export const ConversationSidebar: React.FC<{
                           setDraftTitle(conversation.title);
                         }}
                         className={cx(
-                          'group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-2 transition-colors',
+                          'group flex cursor-pointer items-start gap-2 rounded-[var(--radius-control)] px-2 py-2 transition-colors',
                           isActive
                             ? 'bg-[var(--color-accent-soft)]'
                             : 'hover:bg-[var(--color-surface-overlay)]',
@@ -186,7 +186,7 @@ export const ConversationSidebar: React.FC<{
                                 if (e.key === 'Escape') setRenaming(null);
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-full rounded border border-[var(--color-accent)] bg-[var(--color-surface-base)] px-1.5 py-0.5 text-[12.5px] text-[var(--color-ink-primary)]"
+                              className="btn-glass w-full rounded border-[var(--color-accent)] px-1.5 py-0.5 text-[12.5px] text-[var(--color-ink-primary)]"
                             />
                           ) : (
                             <p
@@ -202,7 +202,7 @@ export const ConversationSidebar: React.FC<{
                             </p>
                           )}
                           {conversation.last_preview && renaming !== conversation.session_id && (
-                            <p className="mt-0.5 truncate text-[11.5px] text-[var(--color-ink-faint)]">
+                            <p className="mt-0.5 truncate text-[11.5px] text-[var(--color-ink-muted)]">
                               {conversation.last_preview}
                             </p>
                           )}
@@ -211,7 +211,7 @@ export const ConversationSidebar: React.FC<{
                         <button
                           onClick={(event) => remove(conversation.session_id, event)}
                           aria-label={`Delete ${conversation.title}`}
-                          className="shrink-0 rounded p-1 text-[var(--color-ink-faint)] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[var(--color-danger)] focus:opacity-100"
+                          className="shrink-0 rounded p-1 text-[var(--color-ink-muted)] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[var(--color-danger)] focus:opacity-100"
                         >
                           <IconTrash size={13} />
                         </button>

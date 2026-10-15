@@ -180,3 +180,73 @@ export const IconSpark: React.FC<IconProps> = ({ size = 16, className, strokeWid
     <path d="M18.5 16.5 19 18l1.5.5-1.5.5-.5 1.5-.5-1.5L16.5 18l1.5-.5Z" {...stroke(strokeWidth)} />
   </svg>
 );
+
+/* Theme switch: a sun drawn as a valve handwheel, and a crescent. */
+export const IconSun: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <circle cx="12" cy="12" r="4" {...stroke(strokeWidth)} />
+    <path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+export const IconMoon: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* "Open this sheet" affordance on bento tiles. */
+export const IconArrowUpRight: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.8 }) => (
+  <svg {...base(size, className)}>
+    <path d="M7 17 17 7M9 7h8v8" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Composing an answer: a pen drawing on a sheet (replaces the generic AI sparkle). */
+export const IconCompose: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <path d="M4 20h16" {...stroke(strokeWidth)} />
+    <path d="M14.5 4.5 18 8l-8.5 8.5H6V13Z" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Sidebar toggle: a window with a left rail. */
+export const IconSidebar: React.FC<IconProps> = ({ size = 17, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="3.5" {...stroke(strokeWidth)} />
+    <path d="M9.5 4.5v15" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Lock, for the sign-in form. */
+export const IconLock: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" {...stroke(strokeWidth)} />
+    <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Wrench, for the Employee role. */
+export const IconWrench: React.FC<IconProps> = ({ size = 18, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <path d="M14.5 6.2a4 4 0 0 0 4.9 4.9L20 11.7 12.2 19.5a2.1 2.1 0 0 1-3-3L17 8.7" {...stroke(strokeWidth)} />
+    <path d="M14.5 6.2 17.7 3l1.8 1.8-3.2 3.2" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Manager: people. */
+export const IconUsers: React.FC<IconProps> = ({ size = 18, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <circle cx="9" cy="8.5" r="3.2" {...stroke(strokeWidth)} />
+    <path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5" {...stroke(strokeWidth)} />
+    <path d="M15.5 5.6a3 3 0 0 1 0 5.8M17.5 14.3c1.7.6 2.7 2.2 3 4.7" {...stroke(strokeWidth)} />
+  </svg>
+);
+
+/* Sign out: an arrow leaving a door. */
+export const IconSignOut: React.FC<IconProps> = ({ size = 16, className, strokeWidth = 1.7 }) => (
+  <svg {...base(size, className)}>
+    <path d="M10 4.5H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3" {...stroke(strokeWidth)} />
+    <path d="M14.5 8.5 18 12l-3.5 3.5M18 12H9.5" {...stroke(strokeWidth)} />
+  </svg>
+);

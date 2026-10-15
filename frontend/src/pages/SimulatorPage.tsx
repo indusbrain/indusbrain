@@ -31,32 +31,30 @@ const EvidenceList: React.FC<{
       >
         {icon}
       </span>
-      <p className="text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-        {title}
-      </p>
+      <p className="eyebrow">{title}</p>
       {items.length > 0 && <Badge tone={tone === 'neutral' ? 'neutral' : tone}>{items.length}</Badge>}
     </div>
     {items.length === 0 ? (
-      <p className="text-[12.5px] text-[var(--color-ink-faint)]">{emptyText}</p>
+      <p className="text-[12.5px] text-[var(--color-ink-muted)]">{emptyText}</p>
     ) : (
       <ul className="space-y-2">
         {items.map((item, index) => (
           <li
             key={index}
             className={cx(
-              'rounded-lg border px-3 py-2.5',
+              'border-l-2 py-1 pl-3',
               tone === 'danger'
-                ? 'border-[color-mix(in_srgb,var(--color-danger)_26%,transparent)] bg-[var(--color-danger-soft)]'
+                ? 'border-[var(--color-danger)]'
                 : tone === 'warning'
-                  ? 'border-[color-mix(in_srgb,var(--color-warning)_26%,transparent)] bg-[var(--color-warning-soft)]'
-                  : 'border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)]',
+                  ? 'border-[var(--color-warning)]'
+                  : 'border-[var(--color-line-default)]',
             )}
           >
             <p className="text-[12.5px] leading-relaxed text-[var(--color-ink-secondary)]">
               {item.statement}
             </p>
             <p
-              className="mt-1 truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-ink-faint)]"
+              className="mt-1 truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-ink-muted)]"
               title={item.source}
             >
               {item.source}
@@ -100,7 +98,7 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
 
       {/* States plainly what this tool does and does not do. It previously emitted
           invented figures such as "+8.5% production impact"; those are gone. */}
-      <div className="mb-5 flex items-start gap-3 rounded-xl border border-[color-mix(in_srgb,var(--color-info)_26%,transparent)] bg-[var(--color-info-soft)] px-4 py-3">
+      <div className="mb-6 flex max-w-3xl items-start gap-3">
         <IconShield size={16} className="mt-0.5 shrink-0 text-[var(--color-info)]" />
         <p className="text-[13px] leading-relaxed text-[var(--color-ink-secondary)]">
           <span className="font-medium text-[var(--color-info)]">Evidence-based:</span> this
@@ -116,14 +114,14 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
           <CardHeader title="Proposed decision" description="Describe the change to assess" />
           <div className="space-y-4 p-5">
             <div>
-              <label htmlFor="sim-asset" className="mb-1.5 block text-[13px] text-[var(--color-ink-secondary)]">
+              <label htmlFor="sim-asset" className="mb-1.5 block text-[13px] font-medium text-[var(--color-ink-secondary)]">
                 Target asset
               </label>
               <select
                 id="sim-asset"
                 value={assetTag}
                 onChange={(event) => setAssetTag(event.target.value)}
-                className="w-full rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] px-3 py-2 text-[13px] text-[var(--color-ink-primary)] focus:border-[var(--color-accent)]"
+                className="btn-glass w-full rounded-[var(--radius-control)] px-3 py-2 text-[13.5px] text-[var(--color-ink-primary)] focus:border-[var(--color-accent)]"
               >
                 <option value="SELECT ASSET">No specific asset</option>
                 {assets.map((asset) => (
@@ -143,13 +141,13 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
                 rows={3}
                 value={scenario}
                 onChange={(event) => setScenario(event.target.value)}
-                className="w-full resize-none rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] px-3 py-2 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)]"
+                className="w-full resize-none rounded-[var(--radius-control)] border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] px-3 py-2 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)]"
                 placeholder="e.g. Defer the bearing replacement until the next planned outage"
               />
             </div>
 
             <div>
-              <p className="mb-2 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+              <p className="eyebrow mb-2">
                 Common decisions
               </p>
               <div className="space-y-1.5">
@@ -158,10 +156,10 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
                     key={preset}
                     onClick={() => setScenario(preset)}
                     className={cx(
-                      'w-full rounded-lg border px-3 py-2 text-left text-[12.5px] transition-colors',
+                      'w-full border-l-2 py-1.5 pl-3 text-left text-[13px] transition-colors',
                       scenario === preset
-                        ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-ink-primary)]'
-                        : 'border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]',
+                        ? 'border-[var(--color-accent)] font-medium text-[var(--color-ink-primary)]'
+                        : 'border-[var(--color-line-subtle)] text-[var(--color-ink-muted)] hover:border-[var(--color-line-default)] hover:text-[var(--color-ink-primary)]',
                     )}
                   >
                     {preset}
@@ -214,7 +212,7 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
                         {result.guidance}
                       </p>
                     )}
-                    <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 text-[12px] text-[var(--color-ink-faint)]">
+                    <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 text-[12px] text-[var(--color-ink-muted)]">
                       No engineering figures are shown because none could be derived from your
                       documents. This tool will not estimate an impact it cannot evidence.
                     </p>
@@ -240,7 +238,7 @@ export const SimulatorPage: React.FC<{ dashboard: DashboardPayload | null }> = (
                   <div className="answer-prose text-[var(--color-ink-secondary)]">
                     <Markdown options={{ forceBlock: true }}>{result.assessment ?? ''}</Markdown>
                   </div>
-                  <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-faint)]">
+                  <p className="mt-4 border-t border-[var(--color-line-subtle)] pt-3 font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-muted)]">
                     {result.engine}
                   </p>
                 </div>

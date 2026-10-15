@@ -1,0 +1,17 @@
+{
+  "name": "IndusBrain",
+  "short_name": "IndusBrain",
+  "description": "Industrial knowledge intelligence: ask your plant documentation.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0C0F",
+  "theme_color": "#0B0C0F",
+  "icons": [
+    {
+      "src": "/brand/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

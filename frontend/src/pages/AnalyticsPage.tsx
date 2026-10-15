@@ -9,7 +9,7 @@ import {
   CardHeader,
   cx,
   EmptyState,
-  Metric,
+  Stat,
   Meter,
   Skeleton,
   StatusDot,
@@ -190,7 +190,7 @@ export const AnalyticsPage: React.FC<{
                   −{score_breakdown.failure_penalty}
                 </span>
               </div>
-              <p className="border-t border-[var(--color-line-subtle)] pt-3 font-[family-name:var(--font-mono)] text-[11.5px] leading-relaxed text-[var(--color-ink-faint)]">
+              <p className="border-t border-[var(--color-line-subtle)] pt-3 font-[family-name:var(--font-mono)] text-[11.5px] leading-relaxed text-[var(--color-ink-muted)]">
                 {score_breakdown.formula}
               </p>
             </div>
@@ -210,10 +210,10 @@ export const AnalyticsPage: React.FC<{
             <Meter label="Inspection and testing" value={metrics.inspection_coverage} tone="accent" />
 
             <div className="grid grid-cols-2 gap-3 border-t border-[var(--color-line-subtle)] pt-4 sm:grid-cols-4">
-              <Metric label="Documents" value={metrics.total_documents} />
-              <Metric label="Passages" value={metrics.total_chunks} />
-              <Metric label="Assets" value={metrics.total_assets} />
-              <Metric
+              <Stat label="Documents" value={metrics.total_documents} />
+              <Stat label="Passages" value={metrics.total_chunks} />
+              <Stat label="Assets" value={metrics.total_assets} />
+              <Stat
                 label="Gaps"
                 value={metrics.documentation_gaps}
                 tone={metrics.documentation_gaps > 0 ? 'warning' : 'success'}
@@ -256,7 +256,7 @@ export const AnalyticsPage: React.FC<{
           />
           <div className="space-y-5 p-5">
             <div>
-              <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+              <p className="eyebrow mb-2.5">
                 Ingestion outcomes
               </p>
               <div className="flex flex-wrap gap-2">
@@ -287,7 +287,7 @@ export const AnalyticsPage: React.FC<{
                 which is what a plant engineer actually needs to know. */}
             {SHOW_INFRASTRUCTURE_DETAILS ? (
               <div className="border-t border-[var(--color-line-subtle)] pt-4">
-                <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+                <p className="eyebrow mb-2.5">
                   Backing services
                 </p>
                 <ul className="space-y-2">
@@ -332,7 +332,7 @@ export const AnalyticsPage: React.FC<{
               </div>
             ) : (
               <div className="border-t border-[var(--color-line-subtle)] pt-4">
-                <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+                <p className="eyebrow mb-2.5">
                   Search capabilities
                 </p>
                 <ul className="space-y-2">

@@ -1,0 +1,203 @@
+/* ==========================================================================
+   IndusBrain — design tokens
+
+   Language: frosted glass over a live, wobbling black field (macOS / visionOS).
+   Black is the default theme; a light theme is available from the toggle.
+
+   RULES THE WHOLE UI FOLLOWS
+   1. Boxes are only for MAIN CONTAINERS — a score, a document list, a form.
+      Labels, statuses, tags and sub-text are never boxed: they are coloured
+      text (red / amber / green / blue) and nothing else.
+   2. Colour carries meaning (danger / warning / success / accent) — never
+      decoration.
+   3. Type is Geist (UI) and Geist Mono (data only: tags, filenames, numbers).
+
+   HOW THEMING WORKS
+   - Tailwind's @theme registers every --color-* token as a utility AND as a
+     CSS variable on :root (the light theme).
+   - :root[data-theme='dark'] remaps the SAME names. Components never branch
+     on theme; they only read variables. The attribute is set before first
+     paint by a script in index.html, so there is no flash.
+
+   CONTRAST: ink-primary / secondary / muted pass WCAG AA (4.5:1) on glass in
+   both themes. Status colours pass AA as text on the glass fill.
+   ========================================================================== */
+
+@theme {
+  /* --- Surfaces (opaque fallbacks; cards themselves use the glass tokens) -- */
+  --color-surface-base: #E6E9EF;
+  --color-surface-raised: #F7F8FA;
+  --color-surface-overlay: rgb(20 24 40 / 0.055);   /* wells, tracks, inputs */
+  --color-surface-hover: rgb(20 24 40 / 0.09);
+
+  /* --- Hairlines ----------------------------------------------------------- */
+  --color-line-subtle: rgb(20 24 40 / 0.08);
+  --color-line-default: rgb(20 24 40 / 0.16);
+  --color-line-strong: rgb(20 24 40 / 0.78);
+
+  /* --- Ink ----------------------------------------------------------------- */
+  --color-ink-primary: #17181C;
+  --color-ink-secondary: #3A3D45;
+  --color-ink-muted: #5B5F69;        /* ≥ 5:1 on glass over the wallpaper */
+  --color-ink-faint: #8E919A;        /* decoration only — never text */
+
+  /* --- Interaction ---------------------------------------------------------- */
+  --color-accent: #0062D1;
+  --color-accent-hover: #004FA8;
+  --color-accent-soft: rgb(0 98 209 / 0.12);
+  --color-on-accent: #FFFFFF;
+
+  /* --- Status: used as TEXT / fills, never as label boxes ------------------ */
+  --color-danger: #C22A14;
+  --color-danger-soft: rgb(194 42 20 / 0.10);
+  --color-warning: #8F5F00;
+  --color-warning-soft: rgb(196 130 0 / 0.12);
+  --color-success: #1B7A43;
+  --color-success-soft: rgb(27 122 67 / 0.11);
+  --color-info: #0F6A93;
+  --color-info-soft: rgb(15 106 147 / 0.11);
+
+  /* Chart fills: brighter than text-safe colours (a bar needs 3:1, not 4.5:1). */
+  --color-amber: #E39A0B;
+  --color-pipe: #2C9B5D;
+
+  /* --- Sidebar / chrome ("vibrancy" material) ------------------------------ */
+  /* Light theme: the sidebar is a navy-blue panel with light text. Brighter
+     accent / danger variants keep contrast on navy (applied via [data-sidebar]
+     in index.css). */
+  --color-frame: #0B1F4A;
+  --color-frame-raised: rgb(255 255 255 / 0.10);
+  --color-frame-line: rgb(255 255 255 / 0.12);
+  --color-frame-ink: #F4F7FF;
+  --color-frame-muted: #A9B8D6;
+  --color-frame-accent: #7DB4FF;
+  --color-frame-danger: #FF8E7A;
+  --color-frame-drawer: #0B1F4A;
+
+  /* --- Type ----------------------------------------------------------------- */
+  --font-display: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* --- Easing: custom curves only ------------------------------------------- */
+  --ease-valve: cubic-bezier(0.2, 0.8, 0.2, 1);      /* arrivals: fast open, soft settle */
+  --ease-pressure: cubic-bezier(0.65, 0, 0.35, 1);   /* loops and returns */
+  --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);    /* press feedback */
+}
+
+:root {
+  /* --- Fluid type scale -------------------------------------------------- */
+  --text-sheet-title: clamp(1.9rem, 1.35rem + 2vw, 2.9rem);  /* page titles */
+  --text-hero-figure: clamp(3.4rem, 2.2rem + 5vw, 6.5rem);   /* one per page */
+  --text-figure: clamp(1.9rem, 1.5rem + 1.2vw, 2.5rem);      /* tile numbers */
+
+  /* --- Spacing scale (4px base, fluid at the top end) -------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: clamp(24px, 2vw + 12px, 40px);
+  --space-7: clamp(32px, 4vw + 8px, 72px);
+  --gutter: clamp(16px, 2.4vw, 32px);
+
+  /* --- Radius rules: soft, continuous, macOS-like ------------------------- */
+  --radius-chip: 6px;
+  --radius-control: 10px;   /* buttons, inputs */
+  --radius-sheet: 20px;     /* glass containers */
+
+  /* --- Glass material ------------------------------------------------------
+     fill      translucent body that lets the wallpaper through
+     highlight 1px inner top edge — the "light catching the glass" cue
+     edge      outer hairline that separates the pane from the wallpaper    */
+  --glass-fill: rgb(255 255 255 / 0.56);
+  --glass-fill-strong: rgb(255 255 255 / 0.82);
+  --glass-highlight: rgb(255 255 255 / 0.85);
+  --glass-edge: rgb(20 24 40 / 0.09);
+  --glass-shadow: 0 1px 2px rgb(20 30 60 / 0.05), 0 12px 32px -12px rgb(20 30 60 / 0.22);
+  --glass-blur: 26px;
+
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 18px 48px -12px rgb(20 30 60 / 0.35);
+
+  /* --- Wallpaper: soft tonal fields, deliberately low-saturation ---------- */
+  --wall-base: #E4E7ED;
+  --wall-a: rgb(130 170 255 / 0.50);
+  --wall-b: rgb(255 200 160 / 0.46);
+  --wall-c: rgb(140 220 196 / 0.40);
+  --noise-opacity: 0.16;
+
+  /* Cursor-focus grid (see components/ui/Backdrop.tsx) */
+  --grid-line: rgb(20 24 40 / 0.06);
+  --grid-line-focus: rgb(20 24 40 / 0.34);
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   Black theme (the default) — same names, remapped values.
+   True black ground; panes are barely-there white tints that let the live
+   background through, with a bright 1px top edge.
+   ========================================================================== */
+/* Matches any element, so a subtree (e.g. the login) can opt into black. */
+[data-theme='dark'] {
+  --color-surface-base: #000000;
+  --color-surface-raised: #0B0B0D;
+  --color-surface-overlay: rgb(255 255 255 / 0.06);
+  --color-surface-hover: rgb(255 255 255 / 0.10);
+
+  --color-line-subtle: rgb(255 255 255 / 0.08);
+  --color-line-default: rgb(255 255 255 / 0.16);
+  --color-line-strong: rgb(255 255 255 / 0.80);
+
+  --color-ink-primary: #F5F5F7;
+  --color-ink-secondary: #CBCCD2;
+  --color-ink-muted: #9FA1AA;
+  --color-ink-faint: #666870;
+
+  --color-accent: #5AA9FF;
+  --color-accent-hover: #86C0FF;
+  --color-accent-soft: rgb(90 169 255 / 0.16);
+  --color-on-accent: #04162B;
+
+  --color-danger: #FF6B57;
+  --color-danger-soft: rgb(255 80 60 / 0.12);
+  --color-warning: #F5B94A;
+  --color-warning-soft: rgb(245 185 74 / 0.12);
+  --color-success: #5FD39A;
+  --color-success-soft: rgb(95 211 154 / 0.12);
+  --color-info: #7CC4EC;
+  --color-info-soft: rgb(124 196 236 / 0.12);
+
+  --color-amber: #F0AB1F;
+  --color-pipe: #4FBF83;
+
+  --color-frame: rgb(255 255 255 / 0.035);
+  --color-frame-raised: rgb(255 255 255 / 0.08);
+  --color-frame-line: rgb(255 255 255 / 0.08);
+  --color-frame-ink: #F5F5F7;
+  --color-frame-muted: #A6A8B1;
+  --color-frame-accent: #5AA9FF;
+  --color-frame-danger: #FF6B57;
+  --color-frame-drawer: rgb(18 18 21 / 0.92);
+
+  /* Glass: mostly transparent, so the wobbling field shows through the blur. */
+  --glass-fill: rgb(255 255 255 / 0.045);
+  --glass-fill-strong: rgb(18 18 21 / 0.72);
+  --glass-highlight: rgb(255 255 255 / 0.16);
+  --glass-edge: rgb(255 255 255 / 0.10);
+  --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 24px 60px -24px rgb(0 0 0 / 0.95);
+  --glass-blur: 28px;
+
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.10) inset, 0 28px 70px -16px rgb(0 0 0 / 0.95);
+
+  --wall-base: #000000;
+  --wall-a: rgb(255 255 255 / 0.05);
+  --wall-b: rgb(255 255 255 / 0.03);
+  --wall-c: rgb(255 255 255 / 0.04);
+  --noise-opacity: 0.20;
+
+  --grid-line: rgb(255 255 255 / 0.05);
+  --grid-line-focus: rgb(255 255 255 / 0.34);
+
+  color-scheme: dark;
+}

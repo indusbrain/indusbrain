@@ -1,0 +1,75 @@
+/* IndusBrain logo motion. Transform, opacity and stroke-dashoffset only. */
+
+.ib-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+}
+
+.ib-mark { overflow: visible; flex-shrink: 0; }
+.ib-mark__node,
+.ib-mark__core { transform-box: fill-box; transform-origin: center; }
+
+/* Load: nut draws, branches run in, nodes land, core lights. */
+.ib-mark--animate .ib-mark__hex {
+  stroke-dasharray: 84;
+  stroke-dashoffset: 84;
+  animation: ib-draw 0.85s var(--ease-valve) 0.05s forwards;
+}
+.ib-mark--animate .ib-mark__branch {
+  stroke-dasharray: 9;
+  stroke-dashoffset: 9;
+  animation: ib-draw 0.35s var(--ease-valve) calc(0.7s + var(--i) * 0.08s) forwards;
+}
+.ib-mark--animate .ib-mark__node {
+  transform: scale(0);
+  animation: ib-pop 0.35s var(--ease-snap) calc(0.95s + var(--i) * 0.08s) forwards;
+}
+.ib-mark--animate .ib-mark__core {
+  transform: scale(0);
+  animation: ib-pop 0.5s var(--ease-snap) 1.25s forwards;
+}
+
+/* Hover: the core pulses; the nodes answer one after another. */
+.ib-logo:hover .ib-mark__core,
+.ib-mark:hover .ib-mark__core,
+a:hover > .ib-logo .ib-mark__core {
+  animation: ib-pulse 0.8s var(--ease-pressure) both;
+}
+.ib-logo:hover .ib-mark__node,
+.ib-mark:hover .ib-mark__node,
+a:hover > .ib-logo .ib-mark__node {
+  animation: ib-ping 0.7s var(--ease-pressure) calc(0.12s + var(--i) * 0.1s) both;
+}
+
+@keyframes ib-draw { to { stroke-dashoffset: 0; } }
+@keyframes ib-pop  { to { transform: scale(1); } }
+@keyframes ib-pulse {
+  0%, 100% { transform: scale(1); }
+  45%      { transform: scale(1.45); }
+}
+@keyframes ib-ping {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.5); }
+}
+
+/* Wordmark: one family, two weights — regular "indus", heavy "brain". */
+.ib-wordmark {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+.ib-wordmark__light { font-weight: 420; }
+.ib-wordmark__bold  { font-weight: 760; }
+
+.ib-logo__tagline {
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}

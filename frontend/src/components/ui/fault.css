@@ -1,0 +1,90 @@
+/* FaultNotice — calm and minimal.
+   Neutral glass; a thin red edge light; one soft fade-in. */
+
+.fault {
+  --fault: var(--color-danger);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-sheet);
+  border: 1px solid var(--glass-edge);
+  /* A whisper of the fault colour bleeding in from the left edge. */
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--fault) 9%, transparent), transparent 38%),
+    var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  animation: fault-in 0.55s var(--ease-valve) both;
+}
+.fault--warning { --fault: var(--color-warning); }
+.fault--quiet { animation: none; }
+
+/* The edge light: a thin line with a soft halo. */
+.fault::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--fault);
+  box-shadow: 0 0 14px 1px color-mix(in srgb, var(--fault) 50%, transparent);
+}
+
+.fault__body {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px 18px 22px;
+}
+.fault--compact .fault__body { gap: 12px; padding: 14px 16px 14px 18px; }
+
+.fault__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  color: var(--fault);
+}
+
+.fault__text { min-width: 0; flex: 1; }
+.fault__kicker {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fault);
+}
+.fault__title {
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-primary);
+}
+.fault__kicker + .fault__title { margin-top: 2px; }
+.fault__detail {
+  margin-top: 4px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+  overflow-wrap: anywhere;
+}
+.fault__btn {
+  margin-top: 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--glass-edge);
+  background: var(--color-surface-overlay);
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-primary);
+  transition: background-color 0.2s var(--ease-valve), transform 0.18s var(--ease-snap);
+}
+.fault__btn:hover { background: var(--color-surface-hover); }
+.fault__btn:active { transform: scale(0.97); }
+
+/* The only motion: a soft fade and un-blur on arrival. */
+@keyframes fault-in {
+  from { opacity: 0; transform: translateY(6px); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}

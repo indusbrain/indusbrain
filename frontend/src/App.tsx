@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { api, ApiError } from './lib/api';
 import type { DashboardPayload } from './lib/types';
 import { AppShell } from './components/AppShell';
@@ -14,6 +14,22 @@ import { ConflictsPage } from './pages/ConflictsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { SimulatorPage } from './pages/SimulatorPage';
 import { DocumentsPage } from './pages/DocumentsPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { ThemeProvider } from './lib/theme';
+import { IntroSequence } from './components/motion/IntroSequence';
+import { RouteTransition } from './components/motion/RouteTransition';
+import { LogoMark } from './components/brand/Logo';
+import { Backdrop } from './components/ui/Backdrop';
+
+/** Routes need the current location so the sheet transition can key on it. */
+const AnimatedRoutes: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  return (
+    <RouteTransition>
+      <Routes location={location}>{children}</Routes>
+    </RouteTransition>
+  );
+};
 
 const POLL_INTERVAL_MS = 15_000;
 
@@ -80,8 +96,8 @@ function AppRoutes() {
   // otherwise a signed-in user briefly sees the login screen on every refresh.
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--color-surface-base)]">
-        <div className="h-6 w-6 animate-caret rounded-full bg-[var(--color-accent)]" />
+      <div data-theme="dark" className="noir flex min-h-screen items-center justify-center">
+        <LogoMark size={56} title="Loading IndusBrain" className="text-[#F3F3F5]" />
       </div>
     );
   }
@@ -93,7 +109,7 @@ function AppRoutes() {
     <BrowserRouter>
       <AppShell dashboard={dashboard} connectionError={connectionError}>
         <ErrorBoundary>
-          <Routes>
+          <AnimatedRoutes>
             <Route
               path="/"
               element={<OverviewPage dashboard={dashboard} loading={loading} onRefresh={refresh} />}
@@ -124,9 +140,10 @@ function AppRoutes() {
                 </RequirePermission>
               }
             />
-            {/* Any unknown path returns to the overview rather than a blank screen. */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+            {/* Unknown paths get an explained dead end with a way back, instead of
+                silently bouncing to the overview. */}
+            <Route path="*" element={<NotFoundPage />} />
+          </AnimatedRoutes>
         </ErrorBoundary>
       </AppShell>
     </BrowserRouter>
@@ -137,9 +154,14 @@ function AppRoutes() {
 // the API client before any page issues its first request.
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      {/* One background for the whole app, so route changes never recreate it. */}
+      <Backdrop />
+      <IntroSequence />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

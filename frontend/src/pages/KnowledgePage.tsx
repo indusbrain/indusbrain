@@ -23,7 +23,7 @@ const AssetRow: React.FC<{ asset: AssetRecord }> = ({ asset }) => {
         aria-expanded={open}
         className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-[var(--color-surface-overlay)]"
       >
-        <IconChevron size={15} direction={open ? 'up' : 'down'} className="shrink-0 text-[var(--color-ink-faint)]" />
+        <IconChevron size={15} direction={open ? 'up' : 'down'} className="shrink-0 text-[var(--color-ink-muted)]" />
         <span className="w-[104px] shrink-0 font-[family-name:var(--font-mono)] text-[13px] font-medium text-[var(--color-accent-hover)]">
           {asset.tag}
         </span>
@@ -41,9 +41,9 @@ const AssetRow: React.FC<{ asset: AssetRecord }> = ({ asset }) => {
       </button>
 
       {open && (
-        <div className="animate-fade-in space-y-4 bg-[var(--color-surface-base)] px-5 py-4 sm:pl-[52px]">
+        <div className="animate-fade-in space-y-4 border-t border-[var(--color-line-subtle)] px-5 py-4 sm:pl-[52px]">
           <div>
-            <p className="mb-2 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+            <p className="eyebrow mb-2">
               Evidence coverage
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -53,10 +53,8 @@ const AssetRow: React.FC<{ asset: AssetRecord }> = ({ asset }) => {
                   <div
                     key={category}
                     className={cx(
-                      'flex items-center gap-2 rounded-lg border px-2.5 py-2 text-[12.5px]',
-                      present
-                        ? 'border-[color-mix(in_srgb,var(--color-success)_28%,transparent)] bg-[var(--color-success-soft)] text-[var(--color-success)]'
-                        : 'border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] text-[var(--color-ink-faint)]',
+                      'flex items-center gap-2 text-[13px]',
+                      present ? 'font-medium text-[var(--color-success)]' : 'text-[var(--color-ink-muted)]',
                     )}
                   >
                     {present ? <IconCheck size={13} /> : <IconClose size={13} />}
@@ -68,7 +66,7 @@ const AssetRow: React.FC<{ asset: AssetRecord }> = ({ asset }) => {
           </div>
 
           <div>
-            <p className="mb-2 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+            <p className="eyebrow mb-2">
               Appears in {asset.documents.length} document{asset.documents.length === 1 ? '' : 's'} ·{' '}
               {asset.mentions} mention{asset.mentions === 1 ? '' : 's'}
             </p>
@@ -154,7 +152,7 @@ export const KnowledgePage: React.FC<{ dashboard: DashboardPayload | null }> = (
             <div className="relative flex-1">
               <IconSearch
                 size={15}
-                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--color-ink-faint)]"
+                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--color-ink-muted)]"
               />
               <label htmlFor="asset-search" className="sr-only">
                 Search assets
@@ -164,11 +162,11 @@ export const KnowledgePage: React.FC<{ dashboard: DashboardPayload | null }> = (
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search by tag, category or document…"
-                className="w-full rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-raised)] py-2 pr-3 pl-9 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)]"
+                className="btn-glass w-full rounded-[var(--radius-control)] py-2 pr-3 pl-9 text-[13px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)]"
               />
             </div>
             <div
-              className="flex rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] p-0.5"
+              className="btn-glass flex rounded-[var(--radius-control)] p-0.5"
               role="radiogroup"
               aria-label="Filter assets"
             >
@@ -185,9 +183,9 @@ export const KnowledgePage: React.FC<{ dashboard: DashboardPayload | null }> = (
                   aria-checked={filter === value}
                   onClick={() => setFilter(value)}
                   className={cx(
-                    'rounded-md px-3 py-1.5 text-[12.5px] whitespace-nowrap transition-colors',
+                    'rounded-[var(--radius-control)] px-3 py-1.5 text-[12.5px] whitespace-nowrap transition-colors',
                     filter === value
-                      ? 'bg-[var(--color-accent)] font-medium text-white'
+                      ? 'bg-[var(--color-ink-primary)] font-medium text-[var(--color-surface-raised)]'
                       : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]',
                   )}
                 >

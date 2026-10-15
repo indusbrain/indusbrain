@@ -1,92 +1,169 @@
+/* Self-hosted variable fonts — no third-party requests at runtime. */
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+
 @import "tailwindcss";
 
+/* All colour, type, spacing, radius, glass and easing tokens live here. */
+@import './styles/tokens.css';
+
 /* ==========================================================================
-   IndusBrain design tokens
-
-   Principles applied throughout:
-   - Body text is 14px sans-serif. The previous UI used 9-11px monospace for
-     everything, which is unreadable and reads as a terminal, not a product.
-   - Monospace is reserved for DATA: asset tags, work orders, measurements,
-     filenames. Prose is always sans-serif.
-   - Sentence case for labels. ALL CAPS is reserved for short status chips.
-   - One accent colour (indigo) for interaction; semantic colours are reserved
-     for meaning (danger / warning / success) so they retain their signal.
+   Base
+   - Body text is 14px Geist. Geist Mono is reserved for DATA: asset tags,
+     filenames, measurements. Prose is never monospace.
+   - Boxes are only for main containers (.glass). Labels and statuses are
+     coloured text — see the rules in tokens.css.
    ========================================================================== */
-
-@theme {
-  /* Neutral surfaces - layered so elevation reads clearly in a dark UI */
-  --color-surface-base: #0B0D11;
-  --color-surface-raised: #12151B;
-  --color-surface-overlay: #171B23;
-  --color-surface-hover: #1D222C;
-
-  --color-line-subtle: #21262F;
-  --color-line-default: #2C333F;
-  --color-line-strong: #3A4250;
-
-  /* Text ramp - all pass WCAG AA on surface-base */
-  --color-ink-primary: #E8EBF0;
-  --color-ink-secondary: #A8B0BF;
-  --color-ink-muted: #6F7889;
-  --color-ink-faint: #4E5665;
-
-  /* Single interaction accent */
-  --color-accent: #6366F1;
-  --color-accent-hover: #7B7DF5;
-  --color-accent-soft: #1E2039;
-
-  /* Semantic - meaning only, never decoration */
-  --color-danger: #F0616D;
-  --color-danger-soft: #2A1418;
-  --color-warning: #E3A008;
-  --color-warning-soft: #2A2010;
-  --color-success: #2FB380;
-  --color-success-soft: #0F2621;
-  --color-info: #3B9EDB;
-  --color-info-soft: #0F212E;
-
-  --font-sans: 'Inter var', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', ui-monospace, 'Menlo', monospace;
-}
-
 html {
-  color-scheme: dark;
+  background-color: var(--wall-base);
 }
 
 body {
-  background-color: var(--color-surface-base);
+  background-color: var(--wall-base);
   color: var(--color-ink-primary);
   font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.55;
+  font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
+  transition: background-color 0.35s var(--ease-valve), color 0.35s var(--ease-valve);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Small caption above a value or section. Sentence-weight, never boxed. */
+.eyebrow {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
 }
 
 /* --------------------------------------------------------------------------
-   Focus visibility - required for keyboard accessibility. The previous UI used
-   `outline: none` on inputs with no replacement, leaving keyboard users with no
-   indication of focus at all.
+   Glass — the one container material.
+   backdrop-filter blurs the wallpaper + grid behind the pane; the inset
+   highlight and outer hairline give it the edge macOS panes have.
+   -------------------------------------------------------------------------- */
+@layer components {
+.glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+}
+.glass-strong {
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(180%);
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(180%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--shadow-float);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--glass-fill-strong); }
+}
+}
+
+/* --------------------------------------------------------------------------
+   Background (components/ui/Backdrop). Fixed behind everything: a black field
+   with live film grain and a grid that comes into focus around the cursor.
+   Static — nothing here drifts or wobbles; only the grain jitters.
+   -------------------------------------------------------------------------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 46vmax at 8% 0%, var(--wall-a), transparent 70%),
+    radial-gradient(56vmax 42vmax at 100% 14%, var(--wall-b), transparent 68%),
+    radial-gradient(64vmax 48vmax at 62% 108%, var(--wall-c), transparent 70%),
+    var(--wall-base);
+}
+/* Oversized so the jitter never exposes an edge. */
+.backdrop__noise {
+  position: absolute;
+  inset: -50%;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-jitter 0.6s steps(6) infinite;
+}
+/* Two copies of the same grid: a faint one everywhere, and a bright one that is
+   only visible inside a soft circle around the cursor (--mx / --my). */
+.backdrop__grid,
+.backdrop__grid-focus {
+  position: absolute;
+  inset: 0;
+  background-size: 44px 44px;
+}
+.backdrop__grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+}
+.backdrop__grid-focus {
+  background-image:
+    linear-gradient(var(--grid-line-focus) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-focus) 1px, transparent 1px);
+  -webkit-mask-image: radial-gradient(circle 190px at var(--mx, -400px) var(--my, -400px), #000 0%, rgb(0 0 0 / 0.45) 45%, transparent 100%);
+  mask-image: radial-gradient(circle 190px at var(--mx, -400px) var(--my, -400px), #000 0%, rgb(0 0 0 / 0.45) 45%, transparent 100%);
+}
+@keyframes grain-jitter {
+  0%   { transform: translate(0, 0); }
+  17%  { transform: translate(-3%, 2%); }
+  33%  { transform: translate(2%, -4%); }
+  50%  { transform: translate(-5%, -1%); }
+  67%  { transform: translate(4%, 3%); }
+  83%  { transform: translate(-2%, 5%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* The login / loader screens: black with a soft top light. The shared live
+   background is mounted once at the app root and shows through. */
+.noir {
+  background: radial-gradient(70vmax 50vmax at 50% -10%, rgb(255 255 255 / 0.06), transparent 65%);
+  color: #F5F5F7;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar. In the light theme it is a navy panel, so everything inside resolves
+   accent and danger to their navy-safe variants (active icon, counts, status
+   dots, the logo core, focus rings) without per-element overrides.
+   -------------------------------------------------------------------------- */
+[data-sidebar] {
+  --color-accent: var(--color-frame-accent);
+  --color-danger: var(--color-frame-danger);
+  /* No bright top highlight on a navy panel; a soft edge shadow instead. */
+  box-shadow: 8px 0 32px -18px rgb(0 0 0 / 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   Focus: a clear ring on every surface, both themes.
    -------------------------------------------------------------------------- */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-control);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 /* Scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-line-strong) transparent;
+  scrollbar-color: var(--color-line-default) transparent;
 }
-*::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
   background: var(--color-line-default);
   border-radius: 999px;
@@ -94,45 +171,102 @@ body {
   background-clip: content-box;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--color-line-strong);
+  background: var(--color-ink-faint);
   background-clip: content-box;
 }
 
-/* --------------------------------------------------------------------------
-   Motion - every animation below is disabled under prefers-reduced-motion.
-   The old UI applied `animate-pulse` to a persistent critical alert banner,
-   which is both a vestibular trigger and a poor way to convey severity.
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Motion
+   Everything animates transform / opacity / stroke-dashoffset only, using the
+   custom curves in tokens.css. All of it is disabled under
+   prefers-reduced-motion (see the block below), and severity is never carried
+   by motion alone.
+   ========================================================================== */
 @keyframes fade-rise {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-@keyframes sweep {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(300%); }
-}
 @keyframes caret {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.15; }
 }
+/* A line being drawn: pair with stroke-dasharray = path length. */
+@keyframes draw-line {
+  to { stroke-dashoffset: 0; }
+}
+/* A bar or rule extending from its origin. */
+@keyframes extend-x {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes extend-y {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+/* Product moving along a pipe — used by every loading state. */
+@keyframes flow {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(250%); }
+}
 
-.animate-fade-rise { animation: fade-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.animate-fade-in   { animation: fade-in 0.2s ease-out both; }
+/* Gauge reading sweeping up from zero to the element's own dashoffset. */
+@keyframes gauge-sweep {
+  from { stroke-dashoffset: var(--gauge-from); }
+}
+.gauge-sweep { animation: gauge-sweep 1.3s var(--ease-valve) 0.15s both; }
+
+.animate-fade-rise { animation: fade-rise 0.5s var(--ease-valve) both; }
+.animate-fade-in   { animation: fade-in 0.25s var(--ease-valve) both; }
 .animate-caret     { animation: caret 1s steps(2) infinite; }
+.animate-extend-x  { transform-origin: left center; animation: extend-x 0.9s var(--ease-valve) both; }
+.animate-extend-y  { transform-origin: center bottom; animation: extend-y 0.8s var(--ease-valve) both; }
 
-/* Indeterminate progress used while ingestion runs server-side */
-.progress-indeterminate::after {
+/* Loading state: a pipe with product flowing through it (replaces the old
+   generic shimmer). Used by Skeleton and any indeterminate progress. */
+.progress-indeterminate::after,
+.pipe-flow::after {
   content: '';
   position: absolute;
   inset-block: 0;
-  width: 33%;
-  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
-  animation: sweep 1.4s ease-in-out infinite;
+  width: 40%;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent) 22%, transparent) 0 6px,
+    transparent 6px 12px
+  );
+  animation: flow 1.6s var(--ease-pressure) infinite;
 }
+
+/* Press feedback shared by every pressable control. */
+.pressable {
+  transition:
+    transform 0.18s var(--ease-snap),
+    background-color 0.2s var(--ease-valve),
+    border-color 0.2s var(--ease-valve),
+    color 0.2s var(--ease-valve);
+}
+.pressable:active:not(:disabled) { transform: scale(0.97); }
+
+@layer components {
+/* Glass control surface (secondary buttons, toggles). Lighter than .glass. */
+.btn-glass {
+  /* No backdrop-filter on purpose: dozens of small controls re-blurring a
+     moving background every frame is expensive. A translucent fill is enough. */
+  background: var(--glass-fill-strong);
+  border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 1px 2px rgb(0 0 0 / 0.06);
+}
+}
+
+/* Container hover: the pane lifts a hair. */
+.sheet-hover {
+  transition: transform 0.35s var(--ease-valve);
+}
+.sheet-hover:hover { transform: translateY(-2px); }
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -178,7 +312,7 @@ body {
 .answer-prose pre {
   background: var(--color-surface-overlay);
   border: 1px solid var(--color-line-subtle);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   padding: 0.85rem;
   overflow-x: auto;
   margin-block: 0.7rem;
@@ -227,7 +361,7 @@ body {
   height: 5px;
   border-radius: 999px;
   background: var(--color-accent);
-  animation: think-bounce 1.25s ease-in-out infinite;
+  animation: think-bounce 1.25s var(--ease-pressure) infinite;
 }
 .think-dot:nth-child(2) { animation-delay: 0.16s; }
 .think-dot:nth-child(3) { animation-delay: 0.32s; }
@@ -237,4 +371,4 @@ body {
   from { opacity: 0; transform: translateY(3px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.stage-label { animation: stage-in 0.3s ease-out both; }
+.stage-label { animation: stage-in 0.3s var(--ease-valve) both; }

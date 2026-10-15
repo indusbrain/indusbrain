@@ -107,10 +107,10 @@ export const EvidencePanel: React.FC<{
   };
 
   return (
-    <div className="mt-3 overflow-hidden rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-base)]">
+    <div className="mt-3 overflow-hidden border-t border-[var(--color-line-subtle)]">
       {/* Tab bar */}
       <div
-        className="flex gap-0.5 overflow-x-auto border-b border-[var(--color-line-subtle)] p-1"
+        className="flex gap-1 overflow-x-auto border-b border-[var(--color-line-subtle)]"
         role="tablist"
         aria-label="Answer evidence"
       >
@@ -121,16 +121,16 @@ export const EvidencePanel: React.FC<{
             aria-selected={tab === key}
             onClick={() => setTab(key)}
             className={cx(
-              'flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors',
+              '-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] transition-colors',
               tab === key
-                ? 'bg-[var(--color-surface-overlay)] font-medium text-[var(--color-ink-primary)]'
-                : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]',
+                ? 'border-[var(--color-accent)] font-medium text-[var(--color-ink-primary)]'
+                : 'border-transparent text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]',
             )}
           >
             <Icon size={14} />
             {label}
             {counts[key] > 0 && (
-              <span className="text-[11px] tabular-nums text-[var(--color-ink-faint)]">
+              <span className="text-[11px] tabular-nums text-[var(--color-ink-muted)]">
                 {counts[key]}
               </span>
             )}
@@ -138,7 +138,7 @@ export const EvidencePanel: React.FC<{
         ))}
       </div>
 
-      <div className="p-4">
+      <div className="py-4">
         {/* ------------------------------------------------ Sources */}
         {tab === 'sources' && (
           citations.length === 0 ? (
@@ -148,16 +148,16 @@ export const EvidencePanel: React.FC<{
               description="Nothing in the indexed documents matched this question, so no citations exist. This is an honest gap, not an error."
             />
           ) : (
-            <ol className="space-y-2.5">
+            <ol>
               {citations.map((citation, index) => {
                 const origin = ORIGIN_PRESENTATION[citation.origin] ?? ORIGIN_PRESENTATION.UNKNOWN;
                 return (
                   <li
                     key={`${citation.filename}-${citation.chunk_index}-${index}`}
-                    className="rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-raised)] p-3"
+                    className="border-b border-[var(--color-line-subtle)] py-3 first:pt-0 last:border-0"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-[var(--color-surface-overlay)] text-[11px] font-semibold text-[var(--color-ink-muted)] tabular-nums">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="shrink-0 text-[12px] font-semibold text-[var(--color-ink-muted)] tabular-nums">
                         {index + 1}
                       </span>
                       <span
@@ -192,10 +192,8 @@ export const EvidencePanel: React.FC<{
               explanation={confidence.explanation}
             />
 
-            <div className="rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-raised)] p-3">
-              <p className="mb-2.5 text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
-                How this was measured
-              </p>
+            <div>
+              <p className="eyebrow mb-2.5">How this was measured</p>
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[12.5px]">
                 {[
                   ['Best passage match', confidence.top_relevance.toFixed(4), 'Cross-encoder score of the single best passage (0–1).'],
@@ -223,7 +221,7 @@ export const EvidencePanel: React.FC<{
               </div>
             </div>
 
-            <p className="text-[12px] leading-relaxed text-[var(--color-ink-faint)]">
+            <p className="text-[12px] leading-relaxed text-[var(--color-ink-muted)]">
               This score measures how well the retrieved evidence supports an answer. It is not a
               claim that the answer is correct, and it is capped at 95% — always confirm against the
               cited source before acting.
@@ -231,7 +229,7 @@ export const EvidencePanel: React.FC<{
 
             <Link
               to="/analytics"
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] px-3.5 py-2 text-[13px] font-medium text-[var(--color-ink-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink-primary)]"
+              className="inline-flex items-center gap-2 text-[13px] font-medium text-[var(--color-accent)] hover:underline"
             >
               <IconChart size={14} />
               Open full analytics
@@ -249,14 +247,14 @@ export const EvidencePanel: React.FC<{
             />
           ) : (
             <>
-              <p className="mb-3 text-[12px] text-[var(--color-ink-faint)]">
+              <p className="mb-3 text-[12px] text-[var(--color-ink-muted)]">
                 Quoted directly from your documents. Dates and work orders appear only where the
                 source actually records them.
               </p>
               <ol className="relative space-y-3 border-l border-[var(--color-line-default)] pl-4">
                 {memory.past_actions.map((event, index) => (
                   <li key={index} className="relative">
-                    <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-surface-base)]" />
+                    <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-surface-raised)]" />
                     <div className="flex flex-wrap items-center gap-1.5">
                       {event.date_known ? (
                         <Badge tone="neutral" mono>{event.date}</Badge>
@@ -272,7 +270,7 @@ export const EvidencePanel: React.FC<{
                       {event.action}
                     </p>
                     <p
-                      className="mt-1 truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-ink-faint)]"
+                      className="mt-1 truncate font-[family-name:var(--font-mono)] text-[11px] text-[var(--color-ink-muted)]"
                       title={event.source}
                     >
                       {event.source}
@@ -290,7 +288,7 @@ export const EvidencePanel: React.FC<{
             <EmptyState compact title="No execution trace" description="The reasoning pipeline was not invoked for this message." />
           ) : (
             <>
-              <p className="mb-3 text-[12px] text-[var(--color-ink-faint)]">
+              <p className="mb-3 text-[12px] text-[var(--color-ink-muted)]">
                 Recorded by each node as it executed — not reconstructed afterwards.
               </p>
               <ol className="relative space-y-3.5 border-l border-[var(--color-line-default)] pl-4">
@@ -305,14 +303,14 @@ export const EvidencePanel: React.FC<{
                     <li key={`${step.step}-${step.node}`} className="relative">
                       <span
                         className={cx(
-                          'absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ring-2 ring-[var(--color-surface-base)]',
+                          'absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ring-2 ring-[var(--color-surface-raised)]',
                           tone === 'success' && 'bg-[var(--color-success)]',
                           tone === 'warning' && 'bg-[var(--color-warning)]',
                           tone === 'danger' && 'bg-[var(--color-danger)]',
                         )}
                       />
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[11px] text-[var(--color-ink-faint)] tabular-nums">
+                        <span className="text-[11px] text-[var(--color-ink-muted)] tabular-nums">
                           Step {step.step}
                         </span>
                         <span className="text-[13px] font-medium text-[var(--color-ink-primary)]">
@@ -344,8 +342,8 @@ export const EvidencePanel: React.FC<{
       </div>
 
       {/* Engine footer — always visible so the operator knows what produced the answer */}
-      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-line-subtle)] bg-[var(--color-surface-raised)] px-4 py-2.5">
-        <span className="text-[11.5px] text-[var(--color-ink-faint)]">Answered by</span>
+      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--color-line-subtle)] py-2.5">
+        <span className="text-[11.5px] text-[var(--color-ink-muted)]">Answered by</span>
         <span className="font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-secondary)]">
           {engine}
         </span>

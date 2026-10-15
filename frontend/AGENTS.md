@@ -12,7 +12,12 @@ That guidance was stale and actively misleading: `next` is not in
 There is no App Router and no server components.
 
 - Routing: `react-router-dom` v7, browser history
-- Styling: Tailwind v4 via `@tailwindcss/vite`; design tokens in `src/index.css`
+- Styling: Tailwind v4 via `@tailwindcss/vite`; **all design tokens in `src/styles/tokens.css`**
+  (both themes), base styles + motion keyframes in `src/index.css`. Design language and
+  brand kit: `BRAND.md`.
+- Motion: `motion` (Framer Motion) for staggered reveals and route transitions —
+  shared helpers in `src/components/motion/`.
+- Theme: `data-theme` on `<html>` (`src/lib/theme.tsx`), set pre-paint by `index.html`.
 - Markdown: `markdown-to-jsx` for assistant answers
 - No component library — shared primitives live in `src/components/ui/`
 
@@ -29,6 +34,10 @@ src/
     AppShell.tsx             sidebar, nav, role switcher, service health
     EvidencePanel.tsx        citations / confidence / history / decision replay
     ErrorBoundary.tsx        stops one bad component blanking the app
+    brand/                   Logo, LogoMark, Wordmark (+ logo.css motion)
+    motion/                  Reveal, CountUp, RouteTransition, IntroSequence
+    viz/                     Gauge (instrument dial)
+    ui/Backdrop.tsx          wallpaper + noise + cursor-focus grid
     RequirePermission.tsx    route guard with an explained refusal
     ui/                      primitives + icons
   pages/                     one file per route
@@ -50,6 +59,13 @@ src/
   and returns 403 regardless of what the UI renders.
 - **Respect `prefers-reduced-motion`.** All animations are disabled under it, and
   severity is never conveyed by motion alone.
+- **Boxes are only for main containers** (`Card` / `.glass`). Labels, statuses and
+  tags are coloured text — `Badge` renders plain text on purpose. Don't add
+  bordered or tinted chips around small text.
+- **No hard-coded colours, radii or easing.** Use the tokens (`var(--color-*)`,
+  `var(--radius-*)`, `var(--ease-*)`) so both themes stay correct.
+- **Animation is an enhancement, never the source of a value.** A number must be
+  correct even if no animation frame ever runs (hidden tab, reduced motion).
 
 ## Commands
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cx } from './ui/primitives';
-import { IconChart, IconGraph, IconRoute, IconSearch, IconShield, IconSpark } from './ui/icons';
+import { IconChart, IconGraph, IconRoute, IconSearch, IconShield, IconCompose } from './ui/icons';
 
 /**
  * Pipeline progress shown while an answer is being produced.
@@ -29,7 +29,7 @@ const STAGES: Array<{ id: PipelineStage; label: string; icon: React.FC<{ size?: 
   { id: 'retrieving', label: 'Searching documents', icon: IconSearch },
   { id: 'graph', label: 'Knowledge graph', icon: IconGraph },
   { id: 'ranking', label: 'Ranking evidence', icon: IconChart },
-  { id: 'reasoning', label: 'Composing answer', icon: IconSpark },
+  { id: 'reasoning', label: 'Composing answer', icon: IconCompose },
 ];
 
 export const ThinkingIndicator: React.FC<{
@@ -41,7 +41,7 @@ export const ThinkingIndicator: React.FC<{
 
   return (
     <div
-      className="rounded-2xl rounded-bl-sm border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-4 py-3.5"
+      className="py-1"
       role="status"
       aria-live="polite"
     >
@@ -56,7 +56,7 @@ export const ThinkingIndicator: React.FC<{
           {message}
         </span>
         {elapsedSeconds >= 3 && (
-          <span className="ml-auto shrink-0 font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-faint)] tabular-nums">
+          <span className="ml-auto shrink-0 font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
             {elapsedSeconds}s
           </span>
         )}
@@ -72,14 +72,10 @@ export const ThinkingIndicator: React.FC<{
             <li key={entry.id} className="flex items-center gap-1.5">
               <span
                 className={cx(
-                  'flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] transition-colors duration-300',
-                  active &&
-                    'border-[color-mix(in_srgb,var(--color-accent)_45%,transparent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-hover)]',
-                  done &&
-                    'border-[color-mix(in_srgb,var(--color-success)_28%,transparent)] bg-[var(--color-success-soft)] text-[var(--color-success)]',
-                  !active &&
-                    !done &&
-                    'border-[var(--color-line-subtle)] text-[var(--color-ink-faint)]',
+                  'flex items-center gap-1.5 text-[12.5px] transition-colors duration-300',
+                  active && 'font-medium text-[var(--color-accent)]',
+                  done && 'text-[var(--color-success)]',
+                  !active && !done && 'text-[var(--color-ink-muted)]',
                 )}
               >
                 <Icon size={12} />

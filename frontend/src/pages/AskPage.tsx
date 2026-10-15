@@ -101,7 +101,11 @@ export const AskPage: React.FC<{
     if (node) node.scrollTop = node.scrollHeight;
   }, []);
 
-  useEffect(scrollToBottom, [messages, statusText, scrollToBottom]);
+  // Follow the conversation as it grows. Skipped while the landing is showing,
+  // otherwise opening the page would scroll past the headline to the bottom.
+  useEffect(() => {
+    if (messages.length > 0) scrollToBottom();
+  }, [messages, statusText, scrollToBottom]);
 
   // Elapsed counter while a request is in flight. Local inference can take over a
   // minute, and seeing the seconds tick up is what tells the user the app is
@@ -285,7 +289,7 @@ export const AskPage: React.FC<{
           <>
             {/* Engine selector */}
             <div
-              className="flex items-center rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-overlay)] p-0.5"
+              className="btn-glass flex items-center rounded-[var(--radius-control)] p-0.5"
               role="radiogroup"
               aria-label="Reasoning engine"
             >
@@ -302,9 +306,9 @@ export const AskPage: React.FC<{
                   title={hint}
                   onClick={() => setEngineMode(value)}
                   className={cx(
-                    'rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors',
+                    'pressable rounded-[4px] px-2.5 py-1.5 text-[12.5px]',
                     engineMode === value
-                      ? 'bg-[var(--color-accent)] font-medium text-white'
+                      ? 'bg-[var(--color-ink-primary)] font-semibold text-[var(--color-surface-raised)]'
                       : 'text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)]',
                   )}
                 >
@@ -347,7 +351,7 @@ export const AskPage: React.FC<{
         }
       />
 
-      <div className="flex h-[calc(100vh-232px)] min-h-[520px] gap-4">
+      <div className="flex h-[calc(100vh-320px)] min-h-[520px] gap-4">
         {/* Conversation history */}
         {showHistory && (
           <Card className="hidden w-[260px] shrink-0 overflow-hidden lg:block">
@@ -372,13 +376,13 @@ export const AskPage: React.FC<{
               {messages.map((message) =>
                 message.role === 'operator' ? (
                   <div key={message.id} className="flex justify-end">
-                    <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-[var(--color-accent)] px-4 py-2.5 text-[13.5px] leading-relaxed text-white">
+                    <div className="animate-fade-rise max-w-[85%] rounded-[var(--radius-sheet)] rounded-br-[6px] bg-[var(--color-accent)] px-4 py-2.5 text-[14px] leading-relaxed text-[var(--color-on-accent)]">
                       {message.text}
                     </div>
                   </div>
                 ) : (
                   <div key={message.id} className="animate-fade-rise max-w-[92%]">
-                    <div className="rounded-2xl rounded-bl-sm border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-4 py-3">
+                    <div className="px-1 py-1">
                       {message.error ? (
                         <ErrorNotice title="Could not complete this request" detail={message.error} />
                       ) : message.text ? (
@@ -414,14 +418,14 @@ export const AskPage: React.FC<{
                           onClick={() => toggleExpanded(message.id)}
                           aria-expanded={expanded.has(message.id)}
                           aria-controls={`evidence-${message.id}`}
-                          className="mt-2 flex items-center gap-1.5 rounded-md px-2 py-1 text-[12.5px] font-medium text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-ink-primary)]"
+                          className="pressable mt-2 flex items-center gap-1.5 rounded-[var(--radius-control)] px-2 py-1 text-[12.5px] font-medium text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-overlay)] hover:text-[var(--color-ink-primary)]"
                         >
                           <IconChevron
                             size={14}
                             direction={expanded.has(message.id) ? 'up' : 'down'}
                           />
                           {expanded.has(message.id) ? 'Hide evidence' : 'Show evidence'}
-                          <span className="text-[var(--color-ink-faint)]">
+                          <span className="font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-muted)]">
                             ({message.payload.citations.length} source
                             {message.payload.citations.length === 1 ? '' : 's'},{' '}
                             {message.payload.decision_replay_path.length} steps)
@@ -450,7 +454,7 @@ export const AskPage: React.FC<{
         </div>
 
         {/* Composer */}
-        <div className="border-t border-[var(--color-line-subtle)] bg-[var(--color-surface-raised)] p-3 sm:p-4">
+        <div className="border-t border-[var(--color-line-subtle)] p-3 sm:p-4">
           <div className="flex items-end gap-2">
             <div className="relative flex-1">
               <label htmlFor="question" className="sr-only">
@@ -470,7 +474,7 @@ export const AskPage: React.FC<{
                 onKeyDown={handleKeyDown}
                 disabled={busy}
                 placeholder="Ask about an asset, procedure, specification or safety requirement…"
-                className="max-h-40 w-full resize-none rounded-lg border border-[var(--color-line-default)] bg-[var(--color-surface-base)] px-3.5 py-2.5 text-[13.5px] text-[var(--color-ink-primary)] placeholder:text-[var(--color-ink-faint)] focus:border-[var(--color-accent)] disabled:opacity-60"
+                className="btn-glass max-h-40 w-full resize-none rounded-[var(--radius-control)] px-3.5 py-2.5 text-[14px] text-[var(--color-ink-primary)] transition-colors duration-200 placeholder:text-[var(--color-ink-muted)] hover:border-[var(--color-ink-muted)] focus:border-[var(--color-ink-primary)] disabled:opacity-60"
               />
             </div>
             {busy ? (
@@ -490,7 +494,7 @@ export const AskPage: React.FC<{
               </Button>
             )}
           </div>
-          <p className="mt-2 text-[11.5px] text-[var(--color-ink-faint)]">
+          <p className="mt-2 text-[12px] text-[var(--color-ink-muted)]">
             {engineMode === 'LOCAL'
               ? 'AI reasoning mode — the local model summarises retrieved passages and flags contradictions.'
               : 'Retrieval-only mode — passages are returned verbatim with no model interpretation.'}

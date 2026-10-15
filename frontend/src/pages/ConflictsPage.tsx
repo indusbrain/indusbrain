@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import type { ConflictFinding, DashboardPayload } from '../lib/types';
 import { PageBody, PageHeader } from '../components/AppShell';
+import { FaultNotice } from '../components/ui/FaultNotice';
 import { Badge, Button, Card, EmptyState, ErrorNotice, Skeleton } from '../components/ui/primitives';
-import { IconAlert, IconChat, IconCheck, IconRefresh, IconShield } from '../components/ui/icons';
+import { IconChat, IconCheck, IconRefresh, IconShield } from '../components/ui/icons';
 
 /**
  * Builds the question sent to the chat when an engineer asks about a conflict.
@@ -31,7 +32,7 @@ function buildConflictQuestion(finding: ConflictFinding): string {
 
 const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
   <Card className="overflow-hidden">
-    <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-5 py-3">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--color-line-subtle)] px-5 py-3.5">
       <Badge tone={finding.severity === 'CRITICAL' ? 'danger' : 'warning'}>
         {finding.severity.toLowerCase()}
       </Badge>
@@ -59,14 +60,15 @@ const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
         ].map((side) => (
           <div
             key={side.label}
+            // Not a box: a hairline and a coloured value carry the distinction.
             className={
               side.controlling
-                ? 'rounded-lg border border-[color-mix(in_srgb,var(--color-success)_28%,transparent)] bg-[var(--color-success-soft)] p-3.5'
-                : 'rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] p-3.5'
+                ? 'border-t-2 border-[var(--color-success)] pt-3'
+                : 'border-t-2 border-[var(--color-line-default)] pt-3'
             }
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[12px] text-[var(--color-ink-muted)]">{side.label}</span>
+              <span className="eyebrow">{side.label}</span>
               {side.controlling && (
                 <Badge tone="success" title="The conservative limit that applies until an engineer resolves the conflict">
                   controlling
@@ -77,7 +79,7 @@ const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
               {side.value} <span className="text-[14px] text-[var(--color-ink-muted)]">{finding.unit}</span>
             </p>
             <p
-              className="mt-1.5 truncate font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-faint)]"
+              className="mt-1.5 truncate font-[family-name:var(--font-mono)] text-[11.5px] text-[var(--color-ink-muted)]"
               title={side.source}
             >
               {side.source}
@@ -89,12 +91,10 @@ const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
         ))}
       </div>
 
-      <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-[color-mix(in_srgb,var(--color-info)_28%,transparent)] bg-[var(--color-info-soft)] px-4 py-3">
+      <div className="mt-5 flex items-start gap-2.5">
         <IconShield size={16} className="mt-0.5 shrink-0 text-[var(--color-info)]" />
         <div>
-          <p className="text-[12px] font-semibold tracking-wide text-[var(--color-info)] uppercase">
-            Recommended action
-          </p>
+          <p className="eyebrow !text-[var(--color-info)]">Recommended action</p>
           <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--color-ink-secondary)]">
             {finding.recommended_action}
           </p>
@@ -108,7 +108,7 @@ const ConflictCard: React.FC<{ finding: ConflictFinding }> = ({ finding }) => (
             Ask IndusBrain about this conflict
           </Button>
         </Link>
-        <p className="mt-1.5 text-[11.5px] text-[var(--color-ink-faint)]">
+        <p className="mt-1.5 text-[11.5px] text-[var(--color-ink-muted)]">
           Opens a new conversation with the asset, both values and both source documents
           already included.
         </p>
@@ -188,15 +188,13 @@ export const ConflictsPage: React.FC<{
         </Card>
       ) : (
         <>
-          <div className="mb-4 flex items-start gap-3 rounded-xl border border-[color-mix(in_srgb,var(--color-danger)_28%,transparent)] bg-[var(--color-danger-soft)] px-4 py-3">
-            <IconAlert size={17} className="mt-0.5 shrink-0 text-[var(--color-danger)]" />
-            <p className="text-[13px] text-[var(--color-ink-secondary)]">
-              <span className="font-medium text-[var(--color-danger)]">
-                {conflicts.length} contradiction{conflicts.length === 1 ? '' : 's'} require review.
-              </span>{' '}
-              Until each is formally resolved, apply the lower (more conservative) value as the
-              controlling limit.
-            </p>
+          <div className="mb-5">
+            <FaultNotice
+              kicker="Needs review"
+              title={`${conflicts.length} contradiction${conflicts.length === 1 ? '' : 's'} require review`}
+              detail="Until each is formally resolved, apply the lower (more conservative) value as the controlling limit."
+              quiet
+            />
           </div>
 
           <div className="space-y-4">

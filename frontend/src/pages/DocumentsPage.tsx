@@ -201,7 +201,7 @@ export const DocumentsPage: React.FC<{
       {/* Read-only notice for engineers, so the missing controls are explained
           rather than silently absent. */}
       {!canUpload && (
-        <div className="mb-5 flex items-start gap-3 rounded-xl border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-4 py-3">
+        <div className="mb-5 flex items-start gap-3">
           <IconShield size={16} className="mt-0.5 shrink-0 text-[var(--color-ink-muted)]" />
           <p className="text-[13px] leading-relaxed text-[var(--color-ink-secondary)]">
             You have read access to every indexed document. Adding, replacing and
@@ -229,19 +229,19 @@ export const DocumentsPage: React.FC<{
                 addFiles(event.dataTransfer.files);
               }}
               className={cx(
-                'rounded-xl border-2 border-dashed px-5 py-9 text-center transition-colors',
+                'rounded-[var(--radius-sheet)] border-2 border-dashed px-5 py-9 text-center transition-colors',
                 dragging
                   ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]'
-                  : 'border-[var(--color-line-default)] bg-[var(--color-surface-overlay)]',
+                  : 'border-[var(--color-line-default)]',
               )}
             >
-              <IconUpload size={26} className="mx-auto text-[var(--color-ink-faint)]" />
+              <IconUpload size={26} className="mx-auto text-[var(--color-ink-muted)]" />
               <p className="mt-2.5 text-[13.5px] text-[var(--color-ink-secondary)]">
                 Drop PDF files here, or
               </p>
               <button
                 onClick={() => inputRef.current?.click()}
-                className="mt-1 text-[13.5px] font-medium text-[var(--color-accent-hover)] hover:underline"
+                className="mt-1 text-[13.5px] font-medium text-[var(--color-accent)] hover:underline"
               >
                 browse your computer
               </button>
@@ -260,24 +260,24 @@ export const DocumentsPage: React.FC<{
 
             {queue.length > 0 && (
               <div className="mt-4 space-y-1.5">
-                <p className="text-[12px] font-semibold tracking-wide text-[var(--color-ink-faint)] uppercase">
+                <p className="eyebrow">
                   Ready to upload ({queue.length})
                 </p>
                 {queue.map((file, index) => (
                   <div
                     key={`${file.name}-${index}`}
-                    className="flex items-center gap-2 rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] px-3 py-2"
+                    className="flex items-center gap-2 border-b border-[var(--color-line-subtle)] py-2 last:border-0"
                   >
-                    <IconDocs size={14} className="shrink-0 text-[var(--color-ink-faint)]" />
+                    <IconDocs size={14} className="shrink-0 text-[var(--color-ink-muted)]" />
                     <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--color-ink-secondary)]">
                       {file.name}
                     </span>
-                    <span className="shrink-0 text-[11.5px] text-[var(--color-ink-faint)] tabular-nums">
+                    <span className="shrink-0 text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
                       {(file.size / 1024).toFixed(0)} KB
                     </span>
                     <button
                       onClick={() => setQueue((prev) => prev.filter((_, i) => i !== index))}
-                      className="shrink-0 rounded p-0.5 text-[var(--color-ink-faint)] hover:text-[var(--color-danger)]"
+                      className="shrink-0 rounded p-0.5 text-[var(--color-ink-muted)] hover:text-[var(--color-danger)]"
                       aria-label={`Remove ${file.name}`}
                     >
                       <IconClose size={13} />
@@ -296,7 +296,7 @@ export const DocumentsPage: React.FC<{
               {uploading ? 'Uploading…' : `Upload ${queue.length || ''} document${queue.length === 1 ? '' : 's'}`}
             </Button>
 
-            <p className="mt-2.5 text-[11.5px] leading-relaxed text-[var(--color-ink-faint)]">
+            <p className="mt-2.5 text-[11.5px] leading-relaxed text-[var(--color-ink-muted)]">
               Text is extracted, split into passages, embedded into the vector index and mapped into
               the knowledge graph. Scanned pages fall back to OCR.
             </p>
@@ -328,7 +328,7 @@ export const DocumentsPage: React.FC<{
                   return (
                     <li
                       key={item.key}
-                      className="rounded-lg border border-[var(--color-line-subtle)] bg-[var(--color-surface-overlay)] p-3"
+                      className="border-b border-[var(--color-line-subtle)] py-3 last:border-0"
                     >
                       <div className="flex items-center gap-2">
                         {item.stage === 'EMBEDDED' ? (
@@ -336,7 +336,7 @@ export const DocumentsPage: React.FC<{
                         ) : item.stage === 'FAILED' ? (
                           <IconClose size={14} className="shrink-0 text-[var(--color-danger)]" />
                         ) : (
-                          <IconDocs size={14} className="shrink-0 text-[var(--color-ink-faint)]" />
+                          <IconDocs size={14} className="shrink-0 text-[var(--color-ink-muted)]" />
                         )}
                         <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-mono)] text-[12.5px] text-[var(--color-ink-primary)]">
                           {item.filename}
@@ -345,7 +345,7 @@ export const DocumentsPage: React.FC<{
                       </div>
 
                       {inFlight && (
-                        <div className="progress-indeterminate relative mt-2 h-1 overflow-hidden rounded-full bg-[var(--color-surface-base)]" />
+                        <div className="progress-indeterminate relative mt-2 h-1 overflow-hidden rounded-full bg-[var(--color-surface-overlay)]" />
                       )}
 
                       {item.error && (
@@ -401,7 +401,7 @@ export const DocumentsPage: React.FC<{
                       <button
                         onClick={() => setViewingId(doc.id)}
                         title={`Open ${doc.filename}`}
-                        className="block max-w-full truncate text-left font-[family-name:var(--font-mono)] text-[12.5px] text-[var(--color-ink-primary)] hover:text-[var(--color-accent-hover)] hover:underline"
+                        className="block max-w-full truncate text-left font-[family-name:var(--font-mono)] text-[12.5px] text-[var(--color-ink-primary)] hover:text-[var(--color-accent)] hover:underline"
                       >
                         {doc.filename}
                       </button>

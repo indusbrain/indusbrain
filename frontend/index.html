@@ -3,8 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/brand/app-icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0C0F" />
     <title>IndusBrain · Industrial Knowledge OS</title>
+    <script>
+      /* Apply the saved or OS theme before first paint, so there is no flash of
+         the wrong theme. Mirrors src/lib/theme.tsx. */
+      (function () {
+        var theme = null;
+        try { theme = localStorage.getItem('indusbrain.theme'); } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = 'dark'; // black is the default; the OS preference is ignored on purpose
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
